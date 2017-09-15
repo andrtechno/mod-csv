@@ -37,6 +37,13 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             'url' => ['/admin/csv/default/export'],
             'options' => ['class' => 'btn btn-success']
         ];
+        $this->breadcrumbs[] = [
+            'label' => Yii::t('shop/default', 'MODULE_NAME'),
+            'url' => ['/admin/shop']
+        ];
+        $this->breadcrumbs[] = $this->pageName;
+        
+        
         $importer = new CsvImporter;
         $importer->deleteDownloadedImages = Yii::$app->request->post('remove_images');
 
@@ -78,6 +85,12 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             'url' => ['/admin/csv/default/import'],
             'options' => ['class' => 'btn btn-success']
         ];
+        
+        $this->breadcrumbs[] = [
+            'label' => Yii::t('shop/default', 'MODULE_NAME'),
+            'url' => ['/admin/shop']
+        ];
+        $this->breadcrumbs[] = $this->pageName;
         $dataProvider = null;
 
         if (Yii::$app->request->get('manufacturer_id')) {

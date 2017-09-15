@@ -204,7 +204,7 @@ class CsvExporter {
         }
         $filename .= '(' . CMS::getDate('Y-m-d_H:i') . ')';
         if (Yii::$app->request->getQueryParam('page')) {
-            $filename .= '_' . Yii::$app->request->getQueryParam('page');
+            $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
         }
         header("Content-type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");

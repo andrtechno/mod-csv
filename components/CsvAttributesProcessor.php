@@ -1,10 +1,10 @@
 <?php
-
+namespace panix\mod\csv\components;
 /**
  * Class CsvAttributesProcessor handles ShopProduct class attributes and
  * EAV attributes.
  */
-class CsvAttributesProcessor extends CComponent {
+class CsvAttributesProcessor extends \yii\base\Component {
 
     /**
      * @var ShopProduct

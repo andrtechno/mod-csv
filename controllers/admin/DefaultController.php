@@ -1,24 +1,27 @@
 <?php
+
 namespace panix\mod\csv\controllers\admin;
+
 use Yii;
 use panix\engine\Html;
+use panix\mod\csv\components\CsvExporter;
+use panix\mod\csv\components\CsvImporter;
+use panix\mod\shop\models\ShopProduct;
+use panix\engine\data\ActiveDataProvider;
 ignore_user_abort(1);
 set_time_limit(0);
 
 class DefaultController extends \panix\engine\controllers\AdminController {
 
-
-
     public function actionIndex() {
-        $this->pageName = Yii::t('csv/admin', 'IMPORT_PRODUCTS');
+        $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
 
 
         $this->breadcrumbs[] = [
-            'label'=>Yii::t('shop/default', 'MODULE_NAME'),
-            'url'=>['/admin/shop']
-
+            'label' => Yii::t('shop/default', 'MODULE_NAME'),
+            'url' => ['/admin/shop']
         ];
-        $this->breadcrumbs[]=$this->pageName;
+        $this->breadcrumbs[] = $this->pageName;
 
         return $this->render('index');
     }
@@ -28,11 +31,11 @@ class DefaultController extends \panix\engine\controllers\AdminController {
      */
     public function actionImport() {
 
-        $this->pageName = Yii::t('csv/admin', 'IMPORT_PRODUCTS');
+        $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
         $this->buttons[] = [
-                'label' => Yii::t('csv/admin', 'EXPORT'),
-                'url' => ['/admin/csv/default/export'],
-                'options' => ['class' => 'btn btn-success']
+            'label' => Yii::t('csv/default', 'EXPORT'),
+            'url' => ['/admin/csv/default/export'],
+            'options' => ['class' => 'btn btn-success']
         ];
         $importer = new CsvImporter;
         $importer->deleteDownloadedImages = Yii::$app->request->post('remove_images');
@@ -53,13 +56,13 @@ class DefaultController extends \panix\engine\controllers\AdminController {
                         else
                             file_put_contents($file, $dumper->getDump());
                     } else
-                        throw new CHttpException(503, Yii::t('csv/admin', 'ERROR_WRITE_BACKUP'));
+                        throw new CHttpException(503, Yii::t('csv/default', 'ERROR_WRITE_BACKUP'));
                 }
                 $importer->import();
             }
         }
-        $this->render('import', array(
-            'importer' => $importer
+        return $this->render('import', array(
+                    'importer' => $importer
         ));
     }
 
@@ -67,35 +70,37 @@ class DefaultController extends \panix\engine\controllers\AdminController {
      * Export products
      */
     public function actionExport() {
-        $this->pageName = Yii::t('csv/admin', 'EXPORT_PRODUCTS');
+        $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new CsvExporter;
 
         $this->buttons[] = [
-                'label' => Yii::t('csv/admin', 'IMPORT'),
-                'url' => $this->createUrl('/admin/csv/default/import'),
-                'options' => ['class' => 'btn btn-success']
+            'label' => Yii::t('csv/default', 'IMPORT'),
+            'url' => ['/admin/csv/default/import'],
+            'options' => ['class' => 'btn btn-success']
         ];
+        $dataProvider = null;
 
-        if (Yii::$app->request->getQueryParam('manufacturer_id')) {
-            $query = new ShopProduct(null);
-            if(Yii::$app->request->getQuery('manufacturer_id')!=='all'){
-            $manufacturers = explode(',', Yii::$app->request->getQuery('manufacturer_id', ''));
-            $query->applyManufacturers($manufacturers);
+        if (Yii::$app->request->get('manufacturer_id')) {
+            $query = ShopProduct::find();
+            if (Yii::$app->request->get('manufacturer_id') !== 'all') {
+                $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
+                $query->applyManufacturers($manufacturers);
             }
-            if (Yii::$app->request->getParam('page')) {
-                $_GET['page'] = Yii::$app->request->getParam('page');
+            if (Yii::$app->request->post('page')) {
+                $_GET['page'] = Yii::$app->request->post('page');
             }
 
-            $dataProvider = new ActiveDataProvider($query, array(
+            $dataProvider = new ActiveDataProvider([
+                'query' => $query,
                 'id' => false,
                 'pagination' => array(
-                    'pageSize' => Yii::$app->settings->get('csv','pagenum'),
+                    'pageSize' => Yii::$app->settings->get('csv', 'pagenum'),
                 ),
-            ));
+            ]);
         }
 
 
-        if (Yii::$app->request->isPostRequest && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
+        if (Yii::$app->request->isPost && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
 
             $exporter->export(
                     $_POST['attributes'], $dataProvider
@@ -103,20 +108,22 @@ class DefaultController extends \panix\engine\controllers\AdminController {
         }
 
 
-        $this->render('export', array(
-            'dataProvider' => $dataProvider,
-            'exporter' => $exporter,
-            'importer' => new CsvImporter,
+        return $this->render('export', array(
+                    'dataProvider' => $dataProvider,
+                    'exporter' => $exporter,
+                    'importer' => new CsvImporter,
         ));
     }
-/*
-    public function actionExportRun() {
-        $exporter = new CsvExporter;
-        if (Yii::$app->request->isPostRequest && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
-            $exporter->export($_POST['attributes'], Yii::$app->request->getQuery('manufacturer_id'));
-        }
-    }
-*/
+
+    /*
+      public function actionExportRun() {
+      $exporter = new CsvExporter;
+      if (Yii::$app->request->isPostRequest && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
+      $exporter->export($_POST['attributes'], Yii::$app->request->getQuery('manufacturer_id'));
+      }
+      }
+     */
+
     /**
      * Sample csv file
      */

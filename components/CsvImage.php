@@ -1,6 +1,6 @@
 <?php
 
-Yii::import('system.utils.CFileHelper');
+namespace panix\mod\csv\components;
 
 /**
  * Class to make easier importing images

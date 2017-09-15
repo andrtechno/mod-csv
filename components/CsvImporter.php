@@ -1,10 +1,16 @@
 <?php
+namespace panix\mod\csv\components;
 
+use Yii;
+use panix\engine\Html;
+use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\ShopCategory;
+use panix\mod\shop\models\ShopProduct;
 /**
  * Import products from csv format
  * Images must be located at ./uploads/importImages
  */
-class CsvImporter extends CComponent {
+class CsvImporter extends \yii\base\Component {
 
     /**
      * @var string column delimiter
@@ -92,7 +98,7 @@ class CsvImporter extends CComponent {
     public $required = array('category', 'price', 'in_box', 'in_ros', 'manufacturer', 'sku');
 
     public function __construct() {
-        $config = Yii::app()->settings->get('csv');
+        $config = Yii::$app->settings->get('csv');
         if (!$config['use_type']) {
 
             array_push($this->required, 'type');
@@ -107,7 +113,7 @@ class CsvImporter extends CComponent {
 
         // Check file exists and readable
         if (is_uploaded_file($this->file)) {
-            $newDir = Yii::getPathOfAlias('application.runtime') . '/tmp.csv';
+            $newDir = Yii::getAlias('application.runtime') . '/tmp.csv';
             move_uploaded_file($this->file, $newDir);
             $this->file = $newDir;
         } elseif (file_exists($this->file)) {
@@ -188,7 +194,7 @@ class CsvImporter extends CComponent {
         //$model->name = $data['name'];
         //$model->seo_alias = CMS::translit($data['name']);
         // Process product type
-        $config = Yii::app()->settings->get('csv');
+        $config = Yii::$app->settings->get('csv');
         if ($config['use_type']) {
             $model->type_id = $this->getTypeIdByName($config['use_type']);
         }
@@ -435,15 +441,15 @@ class CsvImporter extends CComponent {
      */
     public function getImportableAttributes($eav_prefix = '') {
         $attributes = array();
-        $shop_config = Yii::app()->settings->get('shop');
+        $shop_config = Yii::$app->settings->get('shop');
 
         $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-                    '{setting}' => Html::link(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
+                    '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
         ));
 
-        if (!$shop_config['auto_gen_url']) {
+        //if (!$shop_config['auto_gen_url']) {
             $attributes['name'] = Yii::t('app', 'Название');
-        }
+       // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
@@ -459,7 +465,7 @@ class CsvImporter extends CComponent {
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
         //$attributes['date_create'] = Yii::t('app', 'Дата создания');
         // $attributes['date_update'] = Yii::t('app', 'Дата обновления');
-        foreach (ShopAttribute::model()->findAll() as $attr)
+        foreach (Attribute::find()->all() as $attr)
             $attributes[$eav_prefix . $attr->name] = $attr->title;
 
         return $attributes;
@@ -467,15 +473,15 @@ class CsvImporter extends CComponent {
 
     public function getExportAttributes($eav_prefix = '') {
         $attributes = array();
-        $shop_config = Yii::app()->settings->get('shop');
-        if (!Yii::app()->settings->get('csv', 'use_type')) {
+        $shop_config = Yii::$app->settings->get('shop');
+        if (!Yii::$app->settings->get('csv', 'use_type')) {
             $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-                        '{setting}' => Html::link(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
+                        '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
             ));
         }
-        if (!$shop_config['auto_gen_url']) {
+        //if (!$shop_config['auto_gen_url']) {
             $attributes['name'] = Yii::t('app', 'Название');
-        }
+       // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
@@ -491,7 +497,7 @@ class CsvImporter extends CComponent {
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
         //$attributes['date_create'] = Yii::t('app', 'Дата создания');
         // $attributes['date_update'] = Yii::t('app', 'Дата обновления');
-        foreach (ShopAttribute::model()->findAll() as $attr)
+        foreach (Attribute::find()->all() as $attr)
             $attributes[$eav_prefix . $attr->name] = $attr->title;
 
         return $attributes;

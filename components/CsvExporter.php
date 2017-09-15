@@ -1,5 +1,6 @@
 <?php
-
+namespace panix\mod\csv\components;
+use panix\mod\shop\models\ShopProduct;
 class CsvExporter {
 
     /**
@@ -89,7 +90,7 @@ class CsvExporter {
 
 
 
-        foreach ($dataProvider->getData() as $p) {
+        foreach ($dataProvider->getModels() as $p) {
             $row = array();
 
             foreach ($attributes as $attr) {
@@ -132,7 +133,7 @@ class CsvExporter {
         //    VarDumper::dump($test->name);
         //}
         // die();
-        $ancestors = $category->excludeRoot()->ancestors()->findAll();
+        $ancestors = $category->excludeRoot()->ancestors()->all();
         if (empty($ancestors))
             return $category->name;
 
@@ -158,7 +159,7 @@ class CsvExporter {
         foreach ($categories as $category) {
             if ($category->id !== $mainCategory->id) {
                 $path = array();
-                $ancestors = $category->excludeRoot()->ancestors()->findAll();
+                $ancestors = $category->excludeRoot()->ancestors()->all();
                 foreach ($ancestors as $c)
                     $path[] = preg_replace('/\//', '\/', $c->name);
                 $path[] = preg_replace('/\//', '\/', $category->name);
@@ -189,7 +190,7 @@ class CsvExporter {
     public function proccessOutput() {
         $filename = '';
         if (isset($_GET['manufacturer_id'])) {
-            if (Yii::app()->request->getQuery('manufacturer_id') == 'all') {
+            if (Yii::$app->request->getQuery('manufacturer_id') == 'all') {
                 $filename .= 'all_';
             } else {
                 $manufacturer = ShopManufacturer::model()->findByPk($_GET['manufacturer_id']);
@@ -197,8 +198,8 @@ class CsvExporter {
             }
         }
         $filename .= '(' . CMS::getDate('Y-m-d_H:i') . ')';
-        if (Yii::app()->request->getParam('page')) {
-            $filename .= '_' . Yii::app()->request->getParam('page');
+        if (Yii::$app->request->getParam('page')) {
+            $filename .= '_' . Yii::$app->request->getParam('page');
         }
         header("Content-type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
@@ -210,7 +211,7 @@ class CsvExporter {
             }
             echo PHP_EOL;
         }
-        Yii::app()->end();
+        die;
     }
 
 }

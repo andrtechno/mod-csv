@@ -1,5 +1,11 @@
+<?php
+use panix\engine\Html;
+use panix\mod\shop\models\ShopManufacturer;
+use yii\helpers\ArrayHelper;
+?>
+
 <script>
-    var testurl = '<?= Yii::app()->request->url; ?>';
+    var testurl = '<?= Yii::$app->request->url; ?>';
 
 
     function loadFilters(that) {
@@ -28,24 +34,12 @@ if (!empty($_GET['manufacturer_id'])) {
 }
 ?>
 
-<?php
-if (!Yii::app()->request->isAjaxRequest) {
-    Yii::app()->tpl->openWidget(array(
-        'title' => $this->pageName,
-    ));
-}
-?>
-<?php
-$form = $this->beginWidget('CActiveForm', array(
-    'id' => 'priceExportForm',
-    'htmlOptions' => array('class' => 'form-horizontal')
-        ));
-?>
+<?= Html::beginForm('', 'post') ?>
 <?php
 if ($dataProvider) {
 
 
-    $pages = ceil($dataProvider->totalItemCount / $dataProvider->pagination->pageSize); // кол-во страниц
+    $pages = ceil($dataProvider->totalCount / $dataProvider->pagination->pageSize); // кол-во страниц
 
 
 /*
@@ -68,21 +62,13 @@ if ($dataProvider) {
     <div class="col-sm-8">
 
         <?php
-        $this->widget('ext.bootstrap.selectinput.SelectInput', array(
-            'name' => 'manufacturer_id',
-            'data' => CMap::mergeArray(array('all'=>'Все производители'),Html::listData(ShopManufacturer::model()->findAll(), 'id', 'name')),
-            
-            'value' => (Yii::app()->request->getParam('manufacturer_id')) ? Yii::app()->request->getParam('manufacturer_id') : null,
-            'htmlOptions' => array(
-                'onChange' => 'loadFilters(this)',
-                'empty' => '--- Выбрать ---'
-            )
-        ));
+        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::map(ShopManufacturer::find()->all(), 'id', 'name'), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
+
         ?>
 
     </div>
 </div>
-<?php if ($pages) { ?>
+<?php if (isset($pages)) { ?>
     <div class="col-xs-12">
         <ul class="pagination">
             <?php
@@ -117,7 +103,7 @@ if ($dataProvider) {
     foreach ($importer->getExportAttributes('eav_') as $k => $v) {
         echo '<tr>';
         echo '<td align="left" width="10px"><input type="checkbox" checked name="attributes[]" value="' . $k . '"></td>';
-        echo '<td align="left">' . CHtml::encode(str_replace('eav_', '', $k)) . '</td>';
+        echo '<td align="left">' . Html::encode(str_replace('eav_', '', $k)) . '</td>';
         echo '<td align="left">' . $v . '</td>';
 
         echo '</tr>';
@@ -126,11 +112,6 @@ if ($dataProvider) {
 </table>
 
 
-<?php $this->endWidget(); ?>
-
-<?php
-if (!Yii::app()->request->isAjaxRequest)
-    Yii::app()->tpl->closeWidget();
-?>
 
 
+<?= Html::endForm() ?>

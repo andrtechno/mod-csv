@@ -1,6 +1,11 @@
 <?php
 namespace panix\mod\csv\components;
+
+use Yii;
 use panix\mod\shop\models\ShopProduct;
+use panix\mod\shop\models\ShopManufacturer;
+use panix\engine\CMS;
+
 class CsvExporter {
 
     /**
@@ -58,8 +63,8 @@ class CsvExporter {
                         $value = $this->getCategory($p);
                     } elseif ($attr === 'manufacturer') {
                         $value = $this->getManufacturer($p);
-                    } elseif ($attr === 'image') {
-                        $value = $p->mainImage ? $p->mainImage->name : '';
+                    //} elseif ($attr === 'image') {
+                    //    $value = $p->mainImage ? $p->mainImage->name : '';
                     } elseif ($attr === 'additionalCategories') {
                         $value = $this->getAdditionalCategories($p);
                     } else {
@@ -98,8 +103,8 @@ class CsvExporter {
                     $value = $this->getCategory($p);
                 } elseif ($attr === 'manufacturer') {
                     $value = $this->getManufacturer($p);
-                } elseif ($attr === 'image') {
-                    $value = $p->mainImage ? $p->mainImage->name : '';
+               // } elseif ($attr === 'image') {
+               //     $value = $p->mainImage ? $p->mainImage->name : '';
                 } elseif ($attr === 'additionalCategories') {
                     $value = $this->getAdditionalCategories($p);
                 } else {
@@ -133,7 +138,7 @@ class CsvExporter {
         //    VarDumper::dump($test->name);
         //}
         // die();
-        $ancestors = $category->excludeRoot()->ancestors()->all();
+        $ancestors = $category->ancestors()->excludeRoot()->all();
         if (empty($ancestors))
             return $category->name;
 
@@ -159,7 +164,7 @@ class CsvExporter {
         foreach ($categories as $category) {
             if ($category->id !== $mainCategory->id) {
                 $path = array();
-                $ancestors = $category->excludeRoot()->ancestors()->all();
+                $ancestors = $category->ancestors()->excludeRoot()->all();
                 foreach ($ancestors as $c)
                     $path[] = preg_replace('/\//', '\/', $c->name);
                 $path[] = preg_replace('/\//', '\/', $category->name);
@@ -190,16 +195,16 @@ class CsvExporter {
     public function proccessOutput() {
         $filename = '';
         if (isset($_GET['manufacturer_id'])) {
-            if (Yii::$app->request->getQuery('manufacturer_id') == 'all') {
+            if (Yii::$app->request->get('manufacturer_id') == 'all') {
                 $filename .= 'all_';
             } else {
-                $manufacturer = ShopManufacturer::model()->findByPk($_GET['manufacturer_id']);
+                $manufacturer = ShopManufacturer::findOne($_GET['manufacturer_id']);
                 $filename .= $manufacturer->name . '_';
             }
         }
         $filename .= '(' . CMS::getDate('Y-m-d_H:i') . ')';
-        if (Yii::$app->request->getParam('page')) {
-            $filename .= '_' . Yii::$app->request->getParam('page');
+        if (Yii::$app->request->getQueryParam('page')) {
+            $filename .= '_' . Yii::$app->request->getQueryParam('page');
         }
         header("Content-type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");

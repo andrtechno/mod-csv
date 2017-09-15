@@ -95,7 +95,7 @@ class CsvImporter extends \yii\base\Component {
         'create' => 0,
         'update' => 0,
     );
-    public $required = array('category', 'price', 'in_box', 'in_ros', 'manufacturer', 'sku');
+    public $required = array('category', 'price', 'manufacturer', 'sku');
 
     public function __construct() {
         $config = Yii::$app->settings->get('csv');
@@ -453,13 +453,10 @@ class CsvImporter extends \yii\base\Component {
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
-        $attributes['in_ros'] = Yii::t('app', 'Кол. в ростовке');
-        $attributes['in_box'] = Yii::t('app', 'Кол. в ящике');
         $attributes['sku'] = Yii::t('app', 'Артикул');
         $attributes['price'] = Yii::t('app', 'Цена');
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение <code>1</code> - показать <code>0</code> - скрыть.');
         $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
-        $attributes['short_description'] = Yii::t('app', 'Краткое описание HTML');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
         $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолча́нию<code>1</code>');
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
@@ -485,13 +482,10 @@ class CsvImporter extends \yii\base\Component {
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
-        $attributes['in_ros'] = Yii::t('app', 'Кол. в ростовке');
-        $attributes['in_box'] = Yii::t('app', 'Кол. в ящике');
         $attributes['sku'] = Yii::t('app', 'Артикул');
         $attributes['price'] = Yii::t('app', 'Цена');
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение <code>1</code> - показать <code>0</code> - скрыть.');
         $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
-        $attributes['short_description'] = Yii::t('app', 'Краткое описание HTML');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
         $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолча́нию<code>1</code>');
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');

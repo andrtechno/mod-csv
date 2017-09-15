@@ -12,7 +12,7 @@ class Module extends WebModule {
             'shop' => [
                 'items' => [
                     [
-                        'label' => 'csv',
+                        'label' => Yii::t('csv/default', 'MODULE_NAME'),
                         'url' => ['/admin/csv'],
                         'icon' => $this->icon,
                     // 'active' => $this->getIsActive('csv/default'),
@@ -27,5 +27,14 @@ class Module extends WebModule {
         $items = $mod->findMenu('shop');
         return $items['items'];
     }
-
+    public function getInfo() {
+        return [
+            'label' => Yii::t('csv/default', 'MODULE_NAME'),
+            'author' => 'andrew.panix@gmail.com',
+            'version' => '1.0',
+            'icon' => $this->icon,
+            'description' => Yii::t('csv/default', 'MODULE_DESC'),
+            'url' => ['/admin/csv'],
+        ];
+    }
 }

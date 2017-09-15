@@ -31,9 +31,9 @@ to the require section of your `composer.json` file.
 
 #### Add to web config.
 ```
-    'modules' => [
-        'csv' => ['class' => 'panix\mod\csv\Module'],
-    ],
+'modules' => [
+    'csv' => ['class' => 'panix\mod\csv\Module'],
+],
 ```
 
 

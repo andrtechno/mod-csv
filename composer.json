@@ -1,0 +1,24 @@
+{
+    "name": "panix/mod-csv",
+    "description": "Module csv",
+    "keywords": ["corner-cms", "module", "csv"],
+    "homepage": "https://github.com/andrtechno/mod-csv",
+    "type": "yii2-extension",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "CORNER CMS",
+            "email": "dev@corner-cms.com",
+            "homepage": "http://www.corner-cms.com/"
+        }
+    ],
+    "require": {
+        "panix/mod-shop": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "panix\\mod\\csv\\": ""
+        }
+    }
+}

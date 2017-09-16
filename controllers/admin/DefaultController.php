@@ -6,7 +6,7 @@ use Yii;
 use panix\engine\Html;
 use panix\mod\csv\components\CsvExporter;
 use panix\mod\csv\components\CsvImporter;
-use panix\mod\shop\models\ShopProduct;
+use panix\mod\shop\models\Product;
 use panix\engine\data\ActiveDataProvider;
 ignore_user_abort(1);
 set_time_limit(0);
@@ -94,7 +94,7 @@ class DefaultController extends \panix\engine\controllers\AdminController {
         $dataProvider = null;
 
         if (Yii::$app->request->get('manufacturer_id')) {
-            $query = ShopProduct::find();
+            $query = Product::find();
             if (Yii::$app->request->get('manufacturer_id') !== 'all') {
                 $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
                 $query->applyManufacturers($manufacturers);

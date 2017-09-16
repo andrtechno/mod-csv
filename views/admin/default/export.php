@@ -1,6 +1,6 @@
 <?php
 use panix\engine\Html;
-use panix\mod\shop\models\ShopManufacturer;
+use panix\mod\shop\models\Manufacturer;
 use yii\helpers\ArrayHelper;
 ?>
 
@@ -23,8 +23,8 @@ use yii\helpers\ArrayHelper;
 
 <?php
 $getRequest = '?';
-if (isset($_GET['ShopProduct']['categories'])) {
-    $getRequest .= "ShopProduct[categories]=" . $_GET['ShopProduct']['categories'];
+if (isset($_GET['Product']['categories'])) {
+    $getRequest .= "Product[categories]=" . $_GET['Product']['categories'];
 }
 if (!empty($_GET['manufacturer_id'])) {
     if ($getRequest != "?") {
@@ -62,7 +62,7 @@ if ($dataProvider) {
     <div class="col-sm-8">
 
         <?php
-        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::map(ShopManufacturer::find()->all(), 'id', 'name'), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
+        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
 
         ?>
 

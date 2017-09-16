@@ -4,8 +4,8 @@ namespace panix\mod\csv\components;
 use Yii;
 use panix\engine\Html;
 use panix\mod\shop\models\Attribute;
-use panix\mod\shop\models\ShopCategory;
-use panix\mod\shop\models\ShopProduct;
+use panix\mod\shop\models\Category;
+use panix\mod\shop\models\Product;
 /**
  * Import products from csv format
  * Images must be located at ./uploads/importImages
@@ -59,7 +59,7 @@ class CsvImporter extends \yii\base\Component {
     protected $csv_columns = array();
 
     /**
-     * @var null|ShopCategory
+     * @var null|Category
      */
     protected $rootCategory = null;
 
@@ -179,13 +179,13 @@ class CsvImporter extends \yii\base\Component {
         else
             $cr->compare('t.name', $data['name']); //$cr->compare('translate.name', $data['name']);
 
-        $model = ShopProduct::model()
+        $model = Product::model()
                 ->applyCategories($category_id)
                 ->find($cr);
 
         if (!$model) {
             $newProduct = true;
-            $model = new ShopProduct;
+            $model = new Product;
             $this->stats['create'] ++;
         } else {
             $this->stats['update'] ++;
@@ -293,10 +293,10 @@ class CsvImporter extends \yii\base\Component {
         //$cr->with = array('man_translate');
         //$cr->compare('man_translate.name', $name);
         $cr->compare('name', $name);
-        $model = ShopManufacturer::model()->find($cr);
+        $model = Manufacturer::model()->find($cr);
 
         if (!$model) {
-            $model = new ShopManufacturer;
+            $model = new Manufacturer;
             $model->name = $name;
             $model->seo_alias = CMS::translit($model->name);
             $model->rostovkaSold = 1;
@@ -316,12 +316,12 @@ class CsvImporter extends \yii\base\Component {
         if (isset($this->productTypeCache[$name]))
             return $this->productTypeCache[$name];
 
-        $model = ShopProductType::model()->findByAttributes(array(
+        $model = ProductType::model()->findByAttributes(array(
             'name' => $name,
         ));
 
         if (!$model) {
-            $model = new ShopProductType;
+            $model = new ProductType;
             $model->name = $name;
             $model->save();
         }
@@ -342,7 +342,7 @@ class CsvImporter extends \yii\base\Component {
             return $this->categoriesPathCache[$path];
 
         if ($this->rootCategory === null)
-            $this->rootCategory = ShopCategory::model()->findByPk(1);
+            $this->rootCategory = Category::model()->findByPk(1);
 
 
         $result = preg_split($this->subCategoryPattern, $path, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
@@ -353,9 +353,9 @@ class CsvImporter extends \yii\base\Component {
 
         $cr = new CDbCriteria;
         $cr->compare('name', trim($result[0]));
-        $model = ShopCategory::model()->find($cr);
+        $model = Category::model()->find($cr);
         if (!$model) {
-            $model = new ShopCategory;
+            $model = new Category;
             $model->name = trim($result[0]);
             $model->seo_alias = CMS::translit($model->name);
             $model->appendTo($parent);
@@ -370,7 +370,7 @@ class CsvImporter extends \yii\base\Component {
             $model = $first_model->descendants()->find($cr);
             $parent = $first_model;
             if (!$model) {
-                $model = new ShopCategory;
+                $model = new Category;
                 $model->name = $name;
                 $model->seo_alias = CMS::translit($model->name);
                 $model->appendTo($parent);

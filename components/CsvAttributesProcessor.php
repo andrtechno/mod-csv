@@ -1,13 +1,13 @@
 <?php
 namespace panix\mod\csv\components;
 /**
- * Class CsvAttributesProcessor handles ShopProduct class attributes and
+ * Class CsvAttributesProcessor handles Product class attributes and
  * EAV attributes.
  */
 class CsvAttributesProcessor extends \yii\base\Component {
 
     /**
-     * @var ShopProduct
+     * @var Product
      */
     public $model;
 
@@ -37,10 +37,10 @@ class CsvAttributesProcessor extends \yii\base\Component {
     protected $eav;
 
     /**
-     * @param ShopProduct $product
+     * @param Product $product
      * @param array $data
      */
-    public function __construct(ShopProduct $product, array $data) {
+    public function __construct(Product $product, array $data) {
         $this->model = $product;
         $this->data = $data;
         $this->process();

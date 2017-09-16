@@ -2,8 +2,8 @@
 namespace panix\mod\csv\components;
 
 use Yii;
-use panix\mod\shop\models\ShopProduct;
-use panix\mod\shop\models\ShopManufacturer;
+use panix\mod\shop\models\Product;
+use panix\mod\shop\models\Manufacturer;
 use panix\engine\CMS;
 
 class CsvExporter {
@@ -46,11 +46,11 @@ class CsvExporter {
         }
 
         $limit = 10;
-        $total = ceil(ShopProduct::model()->count() / $limit);
+        $total = ceil(Product::model()->count() / $limit);
         $offset = 0;
 
         for ($i = 0; $i <= $total; ++$i) {
-            $products = ShopProduct::model()->findAll(array(
+            $products = Product::model()->findAll(array(
                 'limit' => $limit,
                 'offset' => $offset
             ));
@@ -122,10 +122,10 @@ class CsvExporter {
 
     /**
      * Get category path
-     * @param ShopProduct $product
+     * @param Product $product
      * @return string
      */
-    public function getCategory(ShopProduct $product) {
+    public function getCategory(Product $product) {
 
         $category = $product->mainCategory;
 
@@ -153,10 +153,10 @@ class CsvExporter {
     }
 
     /**
-     * @param ShopProduct $product
+     * @param Product $product
      * @return string
      */
-    public function getAdditionalCategories(ShopProduct $product) {
+    public function getAdditionalCategories(Product $product) {
         $mainCategory = $product->mainCategory;
         $categories = $product->categories;
 
@@ -180,7 +180,7 @@ class CsvExporter {
     /**
      * Get manufacturer
      */
-    public function getManufacturer(ShopProduct $product) {
+    public function getManufacturer(Product $product) {
         if (isset($this->manufacturerCache[$product->manufacturer_id]))
             return $this->manufacturerCache[$product->manufacturer_id];
 
@@ -198,7 +198,7 @@ class CsvExporter {
             if (Yii::$app->request->get('manufacturer_id') == 'all') {
                 $filename .= 'all_';
             } else {
-                $manufacturer = ShopManufacturer::findOne($_GET['manufacturer_id']);
+                $manufacturer = Manufacturer::findOne($_GET['manufacturer_id']);
                 $filename .= $manufacturer->name . '_';
             }
         }

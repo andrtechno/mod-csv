@@ -1,16 +1,16 @@
 {
     "name": "panix/mod-csv",
     "description": "Module csv",
-    "keywords": ["corner-cms", "module", "csv"],
+    "keywords": ["pixelion-cms", "module", "csv"],
     "homepage": "https://github.com/andrtechno/mod-csv",
     "type": "yii2-extension",
     "license": "MIT",
     "minimum-stability": "dev",
     "authors": [
         {
-            "name": "CORNER CMS",
-            "email": "dev@corner-cms.com",
-            "homepage": "http://www.corner-cms.com/"
+            "name": "PIXELION CMS",
+            "email": "dev@pixelion.com.ua",
+            "homepage": "https://pixelion.com.ua"
         }
     ],
     "require": {

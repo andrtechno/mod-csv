@@ -13,7 +13,7 @@ class Module extends WebModule {
                 'items' => [
                     [
                         'label' => Yii::t('csv/default', 'MODULE_NAME'),
-                        'url' => ['/admin/csv'],
+                        'url' => ['/csv'],
                         'icon' => $this->icon,
                     // 'active' => $this->getIsActive('csv/default'),
                     ],
@@ -34,7 +34,7 @@ class Module extends WebModule {
             'version' => '1.0',
             'icon' => $this->icon,
             'description' => Yii::t('csv/default', 'MODULE_DESC'),
-            'url' => ['/admin/csv'],
+            'url' => ['/csv'],
         ];
     }
 }

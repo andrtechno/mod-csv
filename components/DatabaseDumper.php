@@ -1,5 +1,5 @@
 <?php
-
+namespace panix\mod\csv\components;
 /**
  * Creates DB dump
  */
@@ -23,7 +23,7 @@ class DatabaseDumper {
      * @return mixed
      */
     public function dumpTable($tableName) {
-        $db = Yii::app()->db;
+        $db = Yii::$app->db;
         $pdo = $db->getPdoInstance();
 
         echo '

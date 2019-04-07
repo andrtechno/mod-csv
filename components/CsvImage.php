@@ -2,10 +2,13 @@
 
 namespace panix\mod\csv\components;
 
+use Yii;
+use yii\web\UploadedFile;
+
 /**
  * Class to make easier importing images
  */
-class CsvImage extends CUploadedFile {
+class CsvImage extends UploadedFile {
 
     private $_name;
     private $_tempName;
@@ -31,7 +34,7 @@ class CsvImage extends CUploadedFile {
         $isDownloaded = substr($image, 0, 5) === 'http:';
 
         if ($isDownloaded) {
-            $tmpName = Yii::getPathOfAlias('application.runtime') . DS . sha1(pathinfo($image, PATHINFO_FILENAME)) . '.' . pathinfo($image, PATHINFO_EXTENSION);
+            $tmpName = Yii::getPathOfAlias('@runtime') . DIRECTORY_SEPARATOR . sha1(pathinfo($image, PATHINFO_FILENAME)) . '.' . pathinfo($image, PATHINFO_EXTENSION);
 
             if ((bool) parse_url($image) && !file_exists($tmpName)) {
                 $fileHeader = get_headers($image, 1);
@@ -40,7 +43,7 @@ class CsvImage extends CUploadedFile {
             }
         }
         else
-            $tmpName = Yii::getPathOfAlias('webroot.uploads.importImages') . DS . $image;
+            $tmpName = Yii::getPathOfAlias('@uploads/importImages') . DIRECTORY_SEPARATOR . $image;
 
         if (!file_exists($tmpName))
             return false;

@@ -2,18 +2,23 @@
 
 namespace panix\mod\csv\controllers\admin;
 
+use panix\mod\csv\components\DatabaseDumper;
 use Yii;
 use panix\engine\Html;
 use panix\mod\csv\components\CsvExporter;
 use panix\mod\csv\components\CsvImporter;
 use panix\mod\shop\models\Product;
 use panix\engine\data\ActiveDataProvider;
+use panix\engine\controllers\AdminController;
+
 ignore_user_abort(1);
 set_time_limit(0);
 
-class DefaultController extends \panix\engine\controllers\AdminController {
+class DefaultController extends AdminController
+{
 
-    public function actionIndex() {
+    public function actionIndex()
+    {
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
 
 
@@ -29,7 +34,8 @@ class DefaultController extends \panix\engine\controllers\AdminController {
     /**
      * Import products
      */
-    public function actionImport() {
+    public function actionImport()
+    {
 
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
         $this->buttons[] = [
@@ -42,8 +48,8 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             'url' => ['/admin/shop']
         ];
         $this->breadcrumbs[] = $this->pageName;
-        
-        
+
+
         $importer = new CsvImporter;
         $importer->deleteDownloadedImages = Yii::$app->request->post('remove_images');
 
@@ -53,11 +59,11 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             if ($importer->validate() && !$importer->hasErrors()) {
                 // Create db backup
                 if (isset($_POST['create_dump']) && $_POST['create_dump']) {
-                    $dumper = new DatabaseDumper;
+                    $dumper = new DatabaseDumper();
 
-                    $file = Yii::getPathOfAlias('webroot.protected.backups') . DS . 'dump_' . date('Y-m-d_H_i_s') . '.sql';
+                    $file = Yii::getAlias('webroot.protected.backups') . DIRECTORY_SEPARATOR . 'dump_' . date('Y-m-d_H_i_s') . '.sql';
 
-                    if (is_writable(Yii::getPathOfAlias('webroot.protected.backups'))) {
+                    if (is_writable(Yii::getAlias('webroot.protected.backups'))) {
                         if (function_exists('gzencode'))
                             file_put_contents($file . '.gz', gzencode($dumper->getDump()));
                         else
@@ -69,14 +75,15 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             }
         }
         return $this->render('import', array(
-                    'importer' => $importer
+            'importer' => $importer
         ));
     }
 
     /**
      * Export products
      */
-    public function actionExport() {
+    public function actionExport()
+    {
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new CsvExporter;
 
@@ -85,7 +92,7 @@ class DefaultController extends \panix\engine\controllers\AdminController {
             'url' => ['/admin/csv/default/import'],
             'options' => ['class' => 'btn btn-success']
         ];
-        
+
         $this->breadcrumbs[] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']
@@ -116,15 +123,15 @@ class DefaultController extends \panix\engine\controllers\AdminController {
         if (Yii::$app->request->isPost && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
 
             $exporter->export(
-                    $_POST['attributes'], $dataProvider
+                $_POST['attributes'], $dataProvider
             );
         }
 
 
         return $this->render('export', array(
-                    'dataProvider' => $dataProvider,
-                    'exporter' => $exporter,
-                    'importer' => new CsvImporter,
+            'dataProvider' => $dataProvider,
+            'exporter' => $exporter,
+            'importer' => new CsvImporter,
         ));
     }
 
@@ -140,7 +147,8 @@ class DefaultController extends \panix\engine\controllers\AdminController {
     /**
      * Sample csv file
      */
-    public function actionSample() {
+    public function actionSample()
+    {
         header("Content-type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"sample.csv\"");
         echo '"name";"category";"price";"type"' . "\n";
@@ -148,11 +156,12 @@ class DefaultController extends \panix\engine\controllers\AdminController {
         Yii::$app->end();
     }
 
-    public function getAddonsMenu() {
+    public function getAddonsMenu()
+    {
         return array(
             array(
                 'label' => Yii::t('app', 'SETTINGS'),
-                'url' => array('/admin/csv/settings/index'),
+                'url' => ['/admin/csv/settings/index'],
                 'icon' => Html::icon('settings'),
             ),
         );

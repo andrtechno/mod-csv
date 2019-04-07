@@ -95,7 +95,7 @@ use panix\engine\Html;
         <ul>
             <li><?= Yii::t('csv/default', 'IMPORT_INFO1') ?></li>
             <li><?= Yii::t('csv/default', 'IMPORT_INFO2') ?></li>
-            <li><?= Yii::t('csv/default', 'IMPORT_INFO3', array('{req}' => implode(', ', $importer->required))) ?></li>
+            <li><?= Yii::t('csv/default', 'IMPORT_INFO3', array('req' => implode(', ', $importer->required))) ?></li>
             <li><?= Yii::t('csv/default', 'IMPORT_INFO4') ?></li>
         </ul>
         <br/>
@@ -103,7 +103,7 @@ use panix\engine\Html;
     </div>
     <?php
     $shop_config = Yii::$app->settings->get('shop');
-    if (isset($shop_config['auto_gen_url'])) {
+    if (isset($shop_config->auto_gen_url)) {
         ?>
         <br/>
         <div class="alert alert-warning">

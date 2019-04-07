@@ -17,10 +17,9 @@ class Module extends WebModule
                 'items' => [
                     'integration' => [
                         'items' => [
-
                             [
                                 'label' => Yii::t('csv/default', 'MODULE_NAME'),
-                                'url' => ['/csv'],
+                                'url' => ['/admin/csv'],
                                 'icon' => $this->icon,
                                 // 'active' => $this->getIsActive('csv/default'),
                             ],
@@ -44,7 +43,7 @@ class Module extends WebModule
             'version' => '1.0',
             'icon' => $this->icon,
             'description' => Yii::t('csv/default', 'MODULE_DESC'),
-            'url' => ['/csv'],
+            'url' => ['/admin/csv'],
         ];
     }
 }

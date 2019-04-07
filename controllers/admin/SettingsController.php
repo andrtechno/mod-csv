@@ -6,9 +6,13 @@ use Yii;
 use panix\mod\csv\models\SettingsForm;
 use panix\engine\controllers\AdminController;
 
-class SettingsController extends AdminController {
+class SettingsController extends AdminController
+{
 
-    public function actionIndex() {
+    public $icon = 'settings';
+
+    public function actionIndex()
+    {
         $this->pageName = Yii::t('app', 'SETTINGS');
         $this->breadcrumbs[] = [
             'label' => Yii::t('csv/default', 'MODULE_NAME'),

@@ -62,7 +62,7 @@ if ($dataProvider) {
     <div class="col-sm-8">
 
         <?php
-        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
+        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::merge(['all'=>'All'],ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name')), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
 
         ?>
 

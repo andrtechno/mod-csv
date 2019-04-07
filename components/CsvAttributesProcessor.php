@@ -1,5 +1,10 @@
 <?php
 namespace panix\mod\csv\components;
+use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\AttributeOption;
+use panix\mod\shop\models\Product;
+use panix\mod\shop\models\TypeAttribute;
+
 /**
  * Class CsvAttributesProcessor handles Product class attributes and
  * EAV attributes.
@@ -44,6 +49,7 @@ class CsvAttributesProcessor extends \yii\base\Component {
         $this->model = $product;
         $this->data = $data;
         $this->process();
+        parent::__construct([]);
     }
 
     /**
@@ -72,7 +78,7 @@ class CsvAttributesProcessor extends \yii\base\Component {
         $result = array();
         $attribute = $this->getAttributeByName($attribute_name);
 
-        $multipleTypes = array(ShopAttribute::TYPE_CHECKBOX_LIST, ShopAttribute::TYPE_DROPDOWN, ShopAttribute::TYPE_SELECT_MANY);
+        $multipleTypes = array(Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY);
 
         if (in_array($attribute->type, $multipleTypes)) {
             foreach (explode(',', $attribute_value) as $val) {
@@ -90,11 +96,11 @@ class CsvAttributesProcessor extends \yii\base\Component {
     /**
      * Find or create option by attribute and value.
      *
-     * @param ShopAttribute $attribute
+     * @param Attribute $attribute
      * @param $val
-     * @return ShopAttributeOption
+     * @return AttributeOption
      */
-    public function getOption(ShopAttribute $attribute, $val) {
+    public function getOption(Attribute $attribute, $val) {
         $val = trim($val);
         $cacheKey = sha1($attribute->id . $val);
 
@@ -107,7 +113,7 @@ class CsvAttributesProcessor extends \yii\base\Component {
         //$cr->compare('option_translate.value', $val);
         $cr->compare('t.value', $val);
         $cr->compare('t.attribute_id', $attribute->id);
-        $option = ShopAttributeOption::model()->find($cr);
+        $option = AttributeOption::find($cr);
 
         if (!$option) // Create new option
             $option = $this->addOptionToAttribute($attribute->id, $val);
@@ -120,13 +126,13 @@ class CsvAttributesProcessor extends \yii\base\Component {
     /**
      * @param $attribute_id
      * @param $value
-     * @return ShopAttributeOption
+     * @return AttributeOption
      */
     public function addOptionToAttribute($attribute_id, $value) {
-        $option = new ShopAttributeOption;
+        $option = new AttributeOption;
         $option->attribute_id = $attribute_id;
         $option->value = $value;
-        $option->save(false,false,false);
+        $option->save(false);
 
         return $option;
     }
@@ -139,22 +145,22 @@ class CsvAttributesProcessor extends \yii\base\Component {
         if (isset($this->attributesCache[$name]))
             return $this->attributesCache[$name];
 
-        $attribute = ShopAttribute::model()->findByAttributes(array('name' => $name));
+        $attribute = Attribute::find()->where(['name' => $name])->one();
 
         if (!$attribute) {
             // Create new attribute
-            $attribute = new ShopAttribute;
+            $attribute = new Attribute;
             $attribute->name = $name;
             $attribute->title = ucfirst(str_replace('_', ' ', $name));
-            $attribute->type = ShopAttribute::TYPE_DROPDOWN;
+            $attribute->type = Attribute::TYPE_DROPDOWN;
             $attribute->display_on_front = true;
-            $attribute->save(false,false,false);
+            $attribute->save(false);
 
             // Add to type
-            $typeAttribute = new ShopTypeAttribute;
+            $typeAttribute = new TypeAttribute;
             $typeAttribute->type_id = $this->model->type_id;
             $typeAttribute->attribute_id = $attribute->id;
-            $typeAttribute->save(false,false,false);
+            $typeAttribute->save(false);
         }
 
         $this->attributesCache[$name] = $attribute;

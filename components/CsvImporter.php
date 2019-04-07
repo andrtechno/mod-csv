@@ -1,4 +1,5 @@
 <?php
+
 namespace panix\mod\csv\components;
 
 use Yii;
@@ -6,11 +7,13 @@ use panix\engine\Html;
 use panix\mod\shop\models\Attribute;
 use panix\mod\shop\models\Category;
 use panix\mod\shop\models\Product;
+
 /**
  * Import products from csv format
  * Images must be located at ./uploads/importImages
  */
-class CsvImporter extends \yii\base\Component {
+class CsvImporter extends \yii\base\Component
+{
 
     /**
      * @var string column delimiter
@@ -97,23 +100,26 @@ class CsvImporter extends \yii\base\Component {
     );
     public $required = array('category', 'price', 'manufacturer', 'sku');
 
-    public function __construct() {
-        $config = Yii::$app->settings->get('csv');
-        if (!$config['use_type']) {
+    public function __construct($config = [])
+    {
+        $configure = Yii::$app->settings->get('csv');
+        if (!$configure->use_type) {
 
             array_push($this->required, 'type');
         }
+        parent::__construct($config);
     }
 
     /**
      * @return bool validate csv file
      */
-    public function validate() {
+    public function validate()
+    {
 
 
         // Check file exists and readable
         if (is_uploaded_file($this->file)) {
-            $newDir = Yii::getAlias('application.runtime') . '/tmp.csv';
+            $newDir = Yii::getAlias('@runtime') . '/tmp.csv';
             move_uploaded_file($this->file, $newDir);
             $this->file = $newDir;
         } elseif (file_exists($this->file)) {
@@ -140,7 +146,8 @@ class CsvImporter extends \yii\base\Component {
     /**
      * Here we go
      */
-    public function import() {
+    public function import()
+    {
         $file = $this->getFileHandler();
         fgets($file); // Skip first
         // Process lines
@@ -157,14 +164,14 @@ class CsvImporter extends \yii\base\Component {
      * Create/update product from key=>value array
      * @param $data array of product attributes
      */
-    protected function importRow($data) {
+    protected function importRow($data)
+    {
         if (!isset($data['category']) || empty($data['category']))
             $data['category'] = 'root';
 
         $newProduct = false;
 
         $category_id = $this->getCategoryByPath($data['category']);
-
 
 
         // Search product by name, category
@@ -179,24 +186,24 @@ class CsvImporter extends \yii\base\Component {
         else
             $cr->compare('t.name', $data['name']); //$cr->compare('translate.name', $data['name']);
 
-        $model = Product::model()
-                ->applyCategories($category_id)
-                ->find($cr);
+        $model = Product::find()
+            ->applyCategories($category_id)
+            ->find($cr);
 
         if (!$model) {
             $newProduct = true;
             $model = new Product;
-            $this->stats['create'] ++;
+            $this->stats['create']++;
         } else {
-            $this->stats['update'] ++;
+            $this->stats['update']++;
         }
         $model->scenario = 'csv';
         //$model->name = $data['name'];
         //$model->seo_alias = CMS::translit($data['name']);
         // Process product type
         $config = Yii::$app->settings->get('csv');
-        if ($config['use_type']) {
-            $model->type_id = $this->getTypeIdByName($config['use_type']);
+        if ($config->use_type) {
+            $model->type_id = $this->getTypeIdByName($config->use_type);
         }
         $model->main_category_id = $category_id;
         $model->switch = $data['switch'];
@@ -228,7 +235,6 @@ class CsvImporter extends \yii\base\Component {
 
             // Update categories
             $model->setCategories($categories, $category_id);
-            
 
 
             // Process product main image if product doesn't have one
@@ -253,8 +259,7 @@ class CsvImporter extends \yii\base\Component {
                         $image->deleteTempFile();
                 }
             }
-        }
-        else {
+        } else {
             $errors = $model->getErrors();
             $error = array_shift($errors);
 
@@ -271,7 +276,8 @@ class CsvImporter extends \yii\base\Component {
      * @param $str
      * @return array
      */
-    public function getAdditionalCategories($str) {
+    public function getAdditionalCategories($str)
+    {
         $result = array();
         $parts = explode(';', $str);
         foreach ($parts as $path) {
@@ -285,7 +291,8 @@ class CsvImporter extends \yii\base\Component {
      * @param $name
      * @return integer
      */
-    public function getManufacturerIdByName($name) {
+    public function getManufacturerIdByName($name)
+    {
         if (isset($this->manufacturerCache[$name]))
             return $this->manufacturerCache[$name];
 
@@ -312,7 +319,8 @@ class CsvImporter extends \yii\base\Component {
      * @param $name
      * @return int
      */
-    public function getTypeIdByName($name) {
+    public function getTypeIdByName($name)
+    {
         if (isset($this->productTypeCache[$name]))
             return $this->productTypeCache[$name];
 
@@ -336,7 +344,8 @@ class CsvImporter extends \yii\base\Component {
      * @param $path string Main/Music/Rock
      * @return integer category id
      */
-    protected function getCategoryByPath($path, $addition = false) {
+    protected function getCategoryByPath($path, $addition = false)
+    {
 
         if (isset($this->categoriesPathCache[$path]))
             return $this->categoriesPathCache[$path];
@@ -393,7 +402,8 @@ class CsvImporter extends \yii\base\Component {
      * @param $row array
      * @return array e.g array(key=>value)
      */
-    protected function prepareRow($row) {
+    protected function prepareRow($row)
+    {
         $row = array_map('trim', $row);
         $row = array_combine($this->csv_columns, $row);
         $row['date_create'] = date('Y-m-d H:i:s');
@@ -406,7 +416,8 @@ class CsvImporter extends \yii\base\Component {
      * Check encoding. If !utf8 - convert.
      * @return resource csv file
      */
-    protected function getFileHandler() {
+    protected function getFileHandler()
+    {
         $test_content = file_get_contents($this->file);
         $is_utf8 = mb_detect_encoding($test_content, 'UTF-8', true);
 
@@ -424,14 +435,16 @@ class CsvImporter extends \yii\base\Component {
     /**
      * @return bool
      */
-    public function hasErrors() {
+    public function hasErrors()
+    {
         return !empty($this->errors);
     }
 
     /**
      * @return array
      */
-    public function getErrors() {
+    public function getErrors()
+    {
         return $this->errors;
     }
 
@@ -439,17 +452,18 @@ class CsvImporter extends \yii\base\Component {
      * @param string $eav_prefix
      * @return array
      */
-    public function getImportableAttributes($eav_prefix = '') {
+    public function getImportableAttributes($eav_prefix = '')
+    {
         $attributes = array();
         $shop_config = Yii::$app->settings->get('shop');
 
         $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-                    '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
+            '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
         ));
 
         //if (!$shop_config['auto_gen_url']) {
-            $attributes['name'] = Yii::t('app', 'Название');
-       // }
+        $attributes['name'] = Yii::t('app', 'Название');
+        // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
@@ -468,17 +482,18 @@ class CsvImporter extends \yii\base\Component {
         return $attributes;
     }
 
-    public function getExportAttributes($eav_prefix = '') {
+    public function getExportAttributes($eav_prefix = '')
+    {
         $attributes = array();
         $shop_config = Yii::$app->settings->get('shop');
         if (!Yii::$app->settings->get('csv', 'use_type')) {
             $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-                        '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
+                '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
             ));
         }
         //if (!$shop_config['auto_gen_url']) {
-            $attributes['name'] = Yii::t('app', 'Название');
-       // }
+        $attributes['name'] = Yii::t('app', 'Название');
+        // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
@@ -500,7 +515,8 @@ class CsvImporter extends \yii\base\Component {
     /**
      * Close file handler
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         if ($this->fileHandler !== null)
             fclose($this->fileHandler);
     }

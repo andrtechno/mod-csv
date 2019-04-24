@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv;
 
+use panix\mod\admin\widgets\sidebar\BackendNav;
 use Yii;
 use panix\engine\WebModule;
 
@@ -32,7 +33,7 @@ class Module extends WebModule
 
     public function getAdminSidebar()
     {
-        return (new \panix\engine\bootstrap\BackendNav)->findMenu('shop')['items'];
+        return (new BackendNav())->findMenu('shop')['items'];
     }
 
     public function getInfo()

@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\controllers\admin;
 
+use yii\data\Pagination;
 use panix\mod\csv\components\DatabaseDumper;
 use Yii;
 use panix\engine\Html;
@@ -98,39 +99,28 @@ class DefaultController extends AdminController
             'url' => ['/admin/shop']
         ];
         $this->breadcrumbs[] = $this->pageName;
-        $dataProvider = null;
 
+        $query = Product::find();
+        $pages = false;
         if (Yii::$app->request->get('manufacturer_id')) {
-            $query = Product::find();
+
             if (Yii::$app->request->get('manufacturer_id') !== 'all') {
                 $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
                 $query->applyManufacturers($manufacturers);
             }
-            if (Yii::$app->request->post('page')) {
-                $_GET['page'] = Yii::$app->request->post('page');
-            }
-
-            $dataProvider = new ActiveDataProvider([
-                'query' => $query,
-                'id' => false,
-                'pagination' => array(
-                    'pageSize' => Yii::$app->settings->get('csv', 'pagenum'),
-                ),
-            ]);
+            $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => (int)Yii::$app->settings->get('csv', 'pagenum')]);
         }
 
-
-        if (Yii::$app->request->isPost && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
-
+        if (Yii::$app->request->isPost && Yii::$app->request->post('attributes')) {
             $exporter->export(
-                $_POST['attributes'], $dataProvider
+                Yii::$app->request->post('attributes'), $query
             );
         }
 
-
         return $this->render('export', array(
-            'dataProvider' => $dataProvider,
             'exporter' => $exporter,
+            'pages' => $pages,
+            'query' => $query,
             'importer' => new CsvImporter,
         ));
     }

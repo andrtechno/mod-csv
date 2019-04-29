@@ -6,6 +6,7 @@ use Yii;
 use panix\mod\shop\models\Product;
 use panix\mod\shop\models\Manufacturer;
 use panix\engine\CMS;
+
 use yii\web\Response;
 
 class CsvExporter
@@ -84,38 +85,43 @@ class CsvExporter
         $this->proccessOutput();
     }
 
-    public function export(array $attributes, $dataProvider)
+    /**
+     * @param $attributes
+     * @param $query \panix\mod\shop\models\query\ProductQuery
+     */
+    public function export($attributes, $query)
     {
-        $this->rows[0] = $attributes;
+        if ($attributes) {
+            $this->rows[0] = $attributes;
 
-        foreach ($this->rows[0] as &$v) {
-            if (substr($v, 0, 4) === 'eav_')
-                $v = substr($v, 4);
-        }
+            foreach ($this->rows[0] as &$v) {
+                if (substr($v, 0, 4) === 'eav_')
+                    $v = substr($v, 4);
+            }
+            /** @var $p Product */
+            foreach ($query->all() as $p) {
+                $row = [];
+                foreach ($attributes as $attr) {
+                    if ($attr === 'category') {
+                        $value = $this->getCategory($p);
+                    } elseif ($attr === 'manufacturer') {
+                        $value = $this->getManufacturer($p);
+                        // } elseif ($attr === 'image') {
+                        //     $value = $p->mainImage ? $p->mainImage->name : '';
+                    } elseif ($attr === 'additionalCategories') {
+                        $value = $this->getAdditionalCategories($p);
+                    } else {
+                        $value = $p->$attr;
+                    }
 
-        foreach ($dataProvider->getModels() as $p) {
-            $row = array();
-
-            foreach ($attributes as $attr) {
-                if ($attr === 'category') {
-                    $value = $this->getCategory($p);
-                } elseif ($attr === 'manufacturer') {
-                    $value = $this->getManufacturer($p);
-                    // } elseif ($attr === 'image') {
-                    //     $value = $p->mainImage ? $p->mainImage->name : '';
-                } elseif ($attr === 'additionalCategories') {
-                    $value = $this->getAdditionalCategories($p);
-                } else {
-                    $value = $p->$attr;
+                    $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
                 }
 
-                $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                array_push($this->rows, $row);
             }
 
-            array_push($this->rows, $row);
+            $this->proccessOutput();
         }
-
-        $this->proccessOutput();
     }
 
     /**
@@ -207,7 +213,7 @@ class CsvExporter
                 $filename .= $manufacturer->name . '_';
             }
         }
-        $filename .= '(' . CMS::getDate() . ')';
+        $filename .= '(' . CMS::date() . ')';
 
         if (Yii::$app->request->getQueryParam('page')) {
             $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
@@ -217,8 +223,8 @@ class CsvExporter
         header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
 
 
-       // $headers = Yii::$app->response->headers;
-      //  $headers->add('Pragma111', 'no-cache');
+        // $headers = Yii::$app->response->headers;
+        //  $headers->add('Pragma111', 'no-cache');
 
 
         foreach ($this->rows as $row) {

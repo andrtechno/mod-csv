@@ -2,6 +2,11 @@
 use panix\engine\Html;
 use panix\mod\shop\models\Manufacturer;
 use yii\helpers\ArrayHelper;
+
+/**
+ * @var $pages \panix\engine\data\Pagination
+ * @var $query \panix\mod\shop\models\query\ProductQuery
+ */
 ?>
 
 <script>
@@ -35,83 +40,65 @@ if (!empty($_GET['manufacturer_id'])) {
 ?>
 
 <?= Html::beginForm('', 'post') ?>
-<?php
-if ($dataProvider) {
+
+<div class="card">
+    <div class="card-body">
 
 
-    $pages = ceil($dataProvider->totalCount / $dataProvider->pagination->pageSize); // кол-во страниц
+        <div class="form-group row">
+            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'MANUFACTURER_ID'), 'manufacturer_id',['class'=>'col-form-label']); ?></div>
+            <div class="col-sm-8">
+
+                <?= Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name')), [
+                    'prompt' => 'empty',
+                    'id' => 'manufacturer_id',
+                    'onChange' => 'loadFilters(this)',
+                    'class' => 'custom-select'
+                ]); ?>
+
+            </div>
+        </div>
+        <?php if ($pages) { ?>
+            <div class="form-group row">
+                <div class="col-12">
+                    <?php
+                    echo \panix\engine\widgets\LinkPager::widget([
+                        'pagination' => $pages,
+                        'prevPageLabel' => false,
+                        'nextPageLabel' => false,
+                        'maxButtonCount' => $query->count(),
+                        'pageType' => 'button',
+                        'pageCssClass' => 'btn btn-sm mb-2 btn-outline-secondary',
+                        'activePageCssClass' => '',
+                        'options' => [
+                            'tag' => 'div'
+                        ]
+                    ]);
+                    ?>
+                </div>
+            </div>
+        <?php } ?>
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th></th>
+                <th><?= Yii::t('app', 'NAME') ?></th>
+                <th><?= Yii::t('app', 'ID') ?></th>
+            </tr>
+            </thead>
+            <?php
+            foreach ($importer->getExportAttributes('eav_') as $k => $v) {
+                echo '<tr>';
+                echo '<td align="left" width="10px"><input type="checkbox" checked name="attributes[]" value="' . $k . '"></td>';
+                echo '<td align="left">' . Html::encode(str_replace('eav_', '', $k)) . '</td>';
+                echo '<td align="left">' . $v . '</td>';
+
+                echo '</tr>';
+            }
+            ?>
+        </table>
 
 
-/*
-    $this->widget('LinkPager', array(
-        // 'currentPage'=>$pages->getCurrentPage(),
-        'itemCount' => $dataProvider->totalItemCount,
-        'pageSize' => $dataProvider->pagination->pageSize,
-        'maxButtonCount' => 5,
-        'nextPageLabel' => '',
-        'prevPageLabel' => '',
-        'firstPageLabel' => '',
-        'lastPageLabel' => '',
-        'header' => '',
-        'htmlOptions' => array('class' => 'pagination'),
-    ));*/
-}
-?>
-<div class="form-group">
-    <div class="col-sm-4">Производитель</div>
-    <div class="col-sm-8">
-
-        <?php
-        echo Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::merge(['all'=>'All'],ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name')), ['prompt'=>'empty','onChange' => 'loadFilters(this)']);
-
-        ?>
-
+        <?= Html::endForm() ?>
     </div>
 </div>
-<?php if (isset($pages)) { ?>
-    <div class="col-xs-12">
-        <ul class="pagination">
-            <?php
-            for ($i = 0; $i < $pages; $i++) {
-                $page = $i + 1;
-                if ($page == 1) {
-                    ?>
-                    <li>
-                        <input type="submit" name="page" value="1" class="btn btn-sm btn-success" />
-                    </li>
-                <?php } else { ?>
-                    <li>
-                        <input type="submit" name="page" value="<?= $page ?>" class="btn btn-sm btn-success" />
-                    </li>
-                <?php } ?>
-
-            <?php } ?>
-        </ul>
-    </div>
-<?php } ?>
-
-
-<table class="table table-striped table-bordered">
-    <thead>
-        <tr>
-            <th></th>
-            <th><?= Yii::t('app', 'NAME') ?></th>
-            <th><?= Yii::t('app', 'ID') ?></th>
-        </tr>
-    </thead>
-    <?php
-    foreach ($importer->getExportAttributes('eav_') as $k => $v) {
-        echo '<tr>';
-        echo '<td align="left" width="10px"><input type="checkbox" checked name="attributes[]" value="' . $k . '"></td>';
-        echo '<td align="left">' . Html::encode(str_replace('eav_', '', $k)) . '</td>';
-        echo '<td align="left">' . $v . '</td>';
-
-        echo '</tr>';
-    }
-    ?>
-</table>
-
-
-
-
-<?= Html::endForm() ?>

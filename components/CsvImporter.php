@@ -457,12 +457,12 @@ class CsvImporter extends \yii\base\Component
         $attributes = array();
         $shop_config = Yii::$app->settings->get('shop');
 
-        $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-            '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
-        ));
+        $attributes['type'] = Yii::t('app', 'Тип см. {setting}', [
+            'setting' => Html::a(Yii::t('app', 'SETTINGS'), ['/admin/csv/settings'])
+        ]);
 
         //if (!$shop_config['auto_gen_url']) {
-        $attributes['name'] = Yii::t('app', 'Название');
+        $attributes['name'] = Yii::t('app', 'Название товара');
         // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
@@ -484,26 +484,32 @@ class CsvImporter extends \yii\base\Component
 
     public function getExportAttributes($eav_prefix = '')
     {
+
+        $units = '';
+        foreach ((new Product)->getUnits() as $id=>$unit){
+            $units .= '<code style="font-size: inherit">'.$id.'</code> &mdash; '.$unit.'<br/>';
+        }
         $attributes = array();
         $shop_config = Yii::$app->settings->get('shop');
         if (!Yii::$app->settings->get('csv', 'use_type')) {
-            $attributes['type'] = Yii::t('app', 'Тип см. {setting}', array(
-                '{setting}' => Html::a(Yii::t('app', 'SETTINGS'), array('/admin/csv/settings'))
-            ));
+            $attributes['type'] = Yii::t('app', 'Тип см. {setting}', [
+                'setting' => Html::a(Yii::t('app', 'SETTINGS'), ['/admin/csv/settings'])
+            ]);
         }
         //if (!$shop_config['auto_gen_url']) {
-        $attributes['name'] = Yii::t('app', 'Название');
+        $attributes['name'] = Yii::t('app', 'Название товара');
         // }
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
-        $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
+        $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code style="font-size: inherit">;</code><br/>Например &mdash; <code style="font-size: inherit">MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
         $attributes['sku'] = Yii::t('app', 'Артикул');
-        $attributes['price'] = Yii::t('app', 'Цена');
-        $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение <code>1</code> - показать <code>0</code> - скрыть.');
-        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
+        $attributes['price'] = Yii::t('shop/Product', 'PRICE');
+        $attributes['unit'] = Yii::t('shop/Product', 'UNIT').'<br/>'.$units;
+        $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть.');
+        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code style="font-size: inherit">pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code style="font-size: inherit">;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
-        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолча́нию<code>1</code>');
-        $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
+        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию &mdash; <code style="font-size: inherit">1</code>');
+        $attributes['availability'] = Yii::t('app', 'Наличие.<br/>Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; есть на складе <strong>(default)</strong><br/><code style="font-size: inherit">2</code> &mdash; нет на складе<br/><code style="font-size: inherit">3</code> &mdash; под заказ.');
         //$attributes['date_create'] = Yii::t('app', 'Дата создания');
         // $attributes['date_update'] = Yii::t('app', 'Дата обновления');
         foreach (Attribute::find()->all() as $attr)

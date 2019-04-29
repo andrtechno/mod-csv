@@ -11,6 +11,7 @@ use panix\mod\csv\components\CsvImporter;
 use panix\mod\shop\models\Product;
 use panix\engine\data\ActiveDataProvider;
 use panix\engine\controllers\AdminController;
+use yii\web\Response;
 
 ignore_user_abort(1);
 set_time_limit(0);
@@ -108,12 +109,21 @@ class DefaultController extends AdminController
                 $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
                 $query->applyManufacturers($manufacturers);
             }
-            $pages = new Pagination(['totalCount' => $query->count(), 'pageSize' => (int)Yii::$app->settings->get('csv', 'pagenum')]);
+            //if (Yii::$app->request->post('page')) {
+            //     Yii::$app->request->get('page',Yii::$app->request->post('page'));
+            // }
+            $closeQuery = clone $query;
+            $pages = new Pagination([
+                'totalCount' => $closeQuery->count(),
+                'pageSize' => (int)Yii::$app->settings->get('csv', 'pagenum')
+            ]);
+            $query->offset($pages->offset);
+            $query->limit($pages->limit);
         }
 
-        if (Yii::$app->request->isPost && Yii::$app->request->post('attributes')) {
+        if (Yii::$app->request->get('attributes')) {
             $exporter->export(
-                Yii::$app->request->post('attributes'), $query
+                Yii::$app->request->get('attributes'), $query
             );
         }
 
@@ -139,22 +149,25 @@ class DefaultController extends AdminController
      */
     public function actionSample()
     {
-        header("Content-type: application/octet-stream");
-        header("Content-Disposition: attachment; filename=\"sample.csv\"");
-        echo '"name";"category";"price";"type"' . "\n";
-        echo '"Product Name";"Category/Subcategory";"10.99";"Base Product"' . "\n";
-        Yii::$app->end();
+        $response = Yii::$app->response;
+        $response->format = Response::FORMAT_RAW;
+        $response->getHeaders()->add('Content-type', 'application/octet-stream');
+        $response->getHeaders()->add('Content-Disposition', 'attachment; filename=sample.csv');
+
+        $content = '"name";"category";"price";"type"' . PHP_EOL;
+        $content .= '"Product Name";"Category/Subcategory";"10.99";"Base Product"' . PHP_EOL;
+        return $content;
     }
 
     public function getAddonsMenu()
     {
-        return array(
-            array(
+        return [
+            [
                 'label' => Yii::t('app', 'SETTINGS'),
                 'url' => ['/admin/csv/settings/index'],
                 'icon' => Html::icon('settings'),
-            ),
-        );
+            ],
+        ];
     }
 
 }

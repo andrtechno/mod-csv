@@ -1,6 +1,10 @@
 <?php
 use panix\engine\Html;
 
+/**
+ * @var $importer \panix\mod\csv\components\CsvImporter
+ */
+
 $this->context->pageName = Yii::t('csv/default', 'IMPORT');
 
 
@@ -39,7 +43,7 @@ $this->registerJs("
 
                 <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => 'form-horizontal']) ?>
                 <?php if ($importer->hasErrors()) { ?>
-                    <div class="form-group">
+                    <div class="form-group row">
                         <div class="errorSummary alert alert-danger"><p>Ошибки импорта:</p>
                             <ul>
                                 <?php
@@ -52,7 +56,7 @@ $this->registerJs("
                                             echo "<li>" . $error['error'] . "</li>";
                                     } else {
                                         $n = count($importer->getErrors()) - $i;
-                                        echo '<li>' . Yii::t('admin', 'и еще({n}).', array('{n}' => $n)) . '</li>';
+                                        echo '<li>' . Yii::t('admin', 'и еще({n}).', ['n' => $n]) . '</li>';
                                         break;
                                     }
                                     $i++;
@@ -64,17 +68,17 @@ $this->registerJs("
                 <?php } ?>
 
                 <?php if ($importer->stats['create'] > 0 OR $importer->stats['update'] > 0) { ?>
-                    <div class="form-group">
+                    <div class="form-group row">
                         <div class="successSummary alert alert-info">
-                            <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', array('{n}' => $importer->stats['create'])); ?>
+                            <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', ['n' => $importer->stats['create']]); ?>
                             <br/>
-                            <?php echo Yii::t('csv/default', 'UPDATE_PRODUCTS', array('{n}' => $importer->stats['update'])); ?>
+                            <?php echo Yii::t('csv/default', 'UPDATE_PRODUCTS', ['n' => $importer->stats['update']]); ?>
                         </div>
                     </div>
                 <?php } ?>
 
-                <div class="form-group">
-                    <div class="col-sm-12">
+                <div class="form-group row">
+                    <div class="col-12">
                         <div class="input-group">
             <span class="input-group-btn">
                 <span class="btn btn-primary btn-file">
@@ -90,17 +94,22 @@ $this->registerJs("
                 </div>
 
 
-                <div class="form-group">
-                    <div class="col-sm-12"><label style="width: 300px"><input type="checkbox" name="create_dump"
-                                                                              value="1"/> <?= Yii::t('csv/default', 'DUMP_DB') ?>
-                        </label></div>
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label style="width: 300px">
+                            <input type="checkbox" name="create_dump" value="1"/>
+                            <?= Yii::t('csv/default', 'DUMP_DB') ?>
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <div class="col-sm-12"><label style="width: 300px"><input type="checkbox" name="remove_images"
-                                                                              value="1"
-                                                                              checked="checked"/> <?= Yii::t('csv/default', 'REMOVE_IMAGES') ?>
-                        </label></div>
+                <div class="form-group row">
+                    <div class="col-12">
+                        <label style="width: 300px">
+                            <input type="checkbox" name="remove_images" value="1" checked="checked"/>
+                            <?= Yii::t('csv/default', 'REMOVE_IMAGES') ?>
+                        </label>
+                    </div>
                 </div>
 
                 <?= Html::endForm() ?>
@@ -115,7 +124,7 @@ $this->registerJs("
                             </ul>
                             <br/>
                             <a class="btn btn-sm btn-primary"
-                               href="<?= Yii::$app->urlManager->createUrl('sample') ?>"><?= Yii::t('csv/default', 'EXAMPLE_FILE') ?></a>
+                               href="<?= \yii\helpers\Url::to('sample') ?>"><?= Yii::t('csv/default', 'EXAMPLE_FILE') ?></a>
                         </div>
                     </div>
                 </div>
@@ -139,20 +148,38 @@ $this->registerJs("
                         </div>
                     </div>
                 <?php } ?>
-
-
-                <table class="table table-bordered table-striped">
-                    <?php
-                    foreach ($importer->getImportableAttributes() as $k => $v) {
-
-                        $value = in_array($k, $importer->required) ? $k . ' <span class="required">*</span>' : $k;
-                        echo '<tr>';
-                        echo '<td width="200px"><b>' . $value . '</b></td>';
-                        echo '<td>' . Html::decode($v) . '</td>';
-
-                        echo '</tr>';
+                <?php
+                $groups = [];
+                foreach ($importer->getExportAttributes('eav_') as $k => $v) {
+                    if (strpos($k, 'eav_') === false) {
+                        $groups['Основные'][$k] = $v;
+                    } else {
+                        $groups['Атрибуты'][$k] = $v;
                     }
-                    ?>
+                }
+                ?>
+
+
+                <table class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th><?= Yii::t('app', 'NAME') ?></th>
+                        <th><?= Yii::t('app', 'DESCRIPTION') ?></th>
+                    </tr>
+                    </thead>
+                    <?php foreach ($groups as $groupName => $group) { ?>
+                        <tr>
+                            <th colspan="2" class="text-center"><?= $groupName; ?></th>
+                        </tr>
+                        <?php foreach ($group as $k => $v) {
+                            $value = in_array($k, $importer->required) ? $k . ' <span class="required">*</span>' : $k;
+                            ?>
+                            <tr>
+                                <td width="200px"><code style="font-size: inherit"><?= $value; ?></code></td>
+                                <td><?= $v; ?></td>
+                            </tr>
+                        <?php } ?>
+                    <?php } ?>
                 </table>
             </div>
         </div>

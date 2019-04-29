@@ -215,6 +215,7 @@ class CsvExporter
         }
         $filename .= '(' . CMS::date() . ')';
 
+
         if (Yii::$app->request->getQueryParam('page')) {
             $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
         }

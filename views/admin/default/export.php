@@ -6,6 +6,7 @@ use yii\helpers\ArrayHelper;
 /**
  * @var $pages \panix\engine\data\Pagination
  * @var $query \panix\mod\shop\models\query\ProductQuery
+ * @var $importer \panix\mod\csv\components\CsvImporter
  */
 ?>
 
@@ -13,7 +14,7 @@ use yii\helpers\ArrayHelper;
     var testurl = '<?= Yii::$app->request->url; ?>';
 
 
-    function loadFilters(that) {
+    function manufacturer(that) {
 
         if ($(that).val() === '') {
             window.location = '/admin/csv/default/export';
@@ -27,6 +28,20 @@ use yii\helpers\ArrayHelper;
 
 
 <?php
+
+$this->registerJs('
+    $(document).on("change","#manufacturer_id, #type_id",function(){
+        var fields = [];
+        $.each($("#myform").serializeArray(), function(i, field){
+            fields[field.name]=field.value;
+        });
+
+        delete fields["attributes[]"];
+        
+        console.log(jQuery.param($.extend({}, fields)));
+    });
+');
+
 $getRequest = '?';
 if (isset($_GET['Product']['categories'])) {
     $getRequest .= "Product[categories]=" . $_GET['Product']['categories'];
@@ -37,25 +52,41 @@ if (!empty($_GET['manufacturer_id'])) {
     }
     $getRequest .= "manufacturer_id=" . $_GET['manufacturer_id'];
 }
+
+if (Yii::$app->request->get('type_id')) {
+    if ($getRequest != "?") {
+        $getRequest .= "&";
+    }
+    $getRequest .= "type_id=" . Yii::$app->request->get('type_id');
+}
 ?>
 
-<?= Html::beginForm('', 'post') ?>
+<?= Html::beginForm('', 'GET',['id'=>'myform']) ?>
 
 <div class="card">
-    <div class="card-body">
+    <tr class="card-body">
 
 
         <div class="form-group row">
-            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'MANUFACTURER_ID'), 'manufacturer_id',['class'=>'col-form-label']); ?></div>
+            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'MANUFACTURER_ID'), 'manufacturer_id', ['class' => 'col-form-label']); ?></div>
             <div class="col-sm-8">
-
-                <?= Html::dropDownList('manufacturer_id', (Yii::$app->request->get('manufacturer_id')) ? Yii::$app->request->get('manufacturer_id') : null, ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name')), [
-                    'prompt' => 'empty',
+                <?= Html::dropDownList('manufacturer_id', Yii::$app->request->get('manufacturer_id'), ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name')), [
+                    'prompt' => '---',
                     'id' => 'manufacturer_id',
-                    'onChange' => 'loadFilters(this)',
+                    //'onChange' => 'manufacturer(this)',
                     'class' => 'custom-select'
                 ]); ?>
-
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'MANUFACTURER_ID'), 'type_id', ['class' => 'col-form-label']); ?></div>
+            <div class="col-sm-8">
+                <?= Html::dropDownList('type_id', Yii::$app->request->get('type_id'), ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(\panix\mod\shop\models\ProductType::find()->all(), 'id', 'name')), [
+                    'prompt' => '---',
+                    'id' => 'type_id',
+                    //'onChange' => 'type(this)',
+                    'class' => 'custom-select'
+                ]); ?>
             </div>
         </div>
         <?php if ($pages) { ?>
@@ -78,27 +109,42 @@ if (!empty($_GET['manufacturer_id'])) {
                 </div>
             </div>
         <?php } ?>
+
+        <?php
+        $groups = [];
+        foreach ($importer->getExportAttributes('eav_') as $k => $v) {
+            if (strpos($k, 'eav_') === false) {
+                $groups['Основные'][$k] = $v;
+            } else {
+                $groups['Атрибуты'][$k] = $v;
+            }
+        }
+        ?>
+
+
         <table class="table table-striped table-bordered">
             <thead>
             <tr>
                 <th></th>
                 <th><?= Yii::t('app', 'NAME') ?></th>
-                <th><?= Yii::t('app', 'ID') ?></th>
+                <th><?= Yii::t('app', 'DESCRIPTION') ?></th>
             </tr>
             </thead>
-            <?php
-            foreach ($importer->getExportAttributes('eav_') as $k => $v) {
-                echo '<tr>';
-                echo '<td align="left" width="10px"><input type="checkbox" checked name="attributes[]" value="' . $k . '"></td>';
-                echo '<td align="left">' . Html::encode(str_replace('eav_', '', $k)) . '</td>';
-                echo '<td align="left">' . $v . '</td>';
-
-                echo '</tr>';
-            }
-            ?>
+            <?php foreach ($groups as $groupName => $group) { ?>
+                <tr>
+                    <th colspan="3" class="text-center"><?= $groupName; ?></th>
+                </tr>
+                <?php foreach ($group as $k => $v) { ?>
+                    <tr>
+                        <td align="left" width="10px">
+                            <input type="checkbox" checked name="attributes[]" value="<?= $k; ?>">
+                        </td>
+                        <td><code style="font-size: inherit"><?= Html::encode($k); ?></code></td>
+                        <td><?= $v; ?></td>
+                    </tr>
+                <?php } ?>
+            <?php } ?>
         </table>
-
-
         <?= Html::endForm() ?>
-    </div>
+</div>
 </div>

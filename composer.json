@@ -18,8 +18,7 @@
     }
   ],
   "require": {
-    "panix/mod-shop": "*",
-    "phpoffice/phpspreadsheet": "^1.6.0"
+    "panix/mod-shop": "*"
   },
   "autoload": {
     "psr-4": {

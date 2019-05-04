@@ -201,6 +201,7 @@ class CsvImporter extends \yii\base\Component
         $model = $query->one();
 
 
+
         if (!$model) {
             $newProduct = true;
             $model = new Product;
@@ -208,6 +209,7 @@ class CsvImporter extends \yii\base\Component
         } else {
             $this->stats['update']++;
         }
+       // print_r($data);die;
 
        // $model->setScenario('csv');
 
@@ -241,7 +243,7 @@ class CsvImporter extends \yii\base\Component
             }*/
 
 
-            //echo VarDumper::dump($model->attributes,10,true);die;
+            //echo VarDumper::dump($model,10,true);die;
 
            // echo VarDumper::dump($data,10,true);die;
            // die;

@@ -8,63 +8,26 @@ use yii\helpers\ArrayHelper;
  * @var $query \panix\mod\shop\models\query\ProductQuery
  * @var $importer \panix\mod\csv\components\CsvImporter
  */
-?>
-
-<script>
-    var testurl = '<?= Yii::$app->request->url; ?>';
-
-
-    function manufacturer(that) {
-
-        if ($(that).val() === '') {
-            window.location = '/admin/csv/default/export';
-        } else {
-            window.location = '/admin/csv/default/export?manufacturer_id=' + $(that).val();
-        }
-
-    }
-
-</script>
-
-
-<?php
 
 $this->registerJs('
-    $(document).on("change","#manufacturer_id, #type_id",function(){
+    $(document).on("change","#manufacturer_id, #type_id", function(){
         var fields = [];
-        $.each($("#myform").serializeArray(), function(i, field){
+        $.each($("#csv-form").serializeArray(), function(i, field){
             fields[field.name]=field.value;
         });
 
         delete fields["attributes[]"];
         
-        console.log(jQuery.param($.extend({}, fields)));
+        window.location = "/admin/csv/default/export?" + jQuery.param($.extend({}, fields));
     });
 ');
 
-$getRequest = '?';
-if (isset($_GET['Product']['categories'])) {
-    $getRequest .= "Product[categories]=" . $_GET['Product']['categories'];
-}
-if (!empty($_GET['manufacturer_id'])) {
-    if ($getRequest != "?") {
-        $getRequest .= "&";
-    }
-    $getRequest .= "manufacturer_id=" . $_GET['manufacturer_id'];
-}
-
-if (Yii::$app->request->get('type_id')) {
-    if ($getRequest != "?") {
-        $getRequest .= "&";
-    }
-    $getRequest .= "type_id=" . Yii::$app->request->get('type_id');
-}
 ?>
 
-<?= Html::beginForm('', 'GET',['id'=>'myform']) ?>
+<?= Html::beginForm('', 'GET', ['id' => 'csv-form']) ?>
 
 <div class="card">
-    <tr class="card-body">
+    <div class="card-body">
 
 
         <div class="form-group row">
@@ -79,7 +42,7 @@ if (Yii::$app->request->get('type_id')) {
             </div>
         </div>
         <div class="form-group row">
-            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'MANUFACTURER_ID'), 'type_id', ['class' => 'col-form-label']); ?></div>
+            <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'TYPE_ID'), 'type_id', ['class' => 'col-form-label']); ?></div>
             <div class="col-sm-8">
                 <?= Html::dropDownList('type_id', Yii::$app->request->get('type_id'), ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(\panix\mod\shop\models\ProductType::find()->all(), 'id', 'name')), [
                     'prompt' => '---',
@@ -99,6 +62,7 @@ if (Yii::$app->request->get('type_id')) {
                         'nextPageLabel' => false,
                         'maxButtonCount' => $query->count(),
                         'pageType' => 'button',
+                        'hideOnSinglePage' => false,
                         'pageCssClass' => 'btn btn-sm mb-2 btn-outline-secondary',
                         'activePageCssClass' => '',
                         'options' => [
@@ -120,7 +84,6 @@ if (Yii::$app->request->get('type_id')) {
             }
         }
         ?>
-
 
         <table class="table table-striped table-bordered">
             <thead>
@@ -146,5 +109,5 @@ if (Yii::$app->request->get('type_id')) {
             <?php } ?>
         </table>
         <?= Html::endForm() ?>
-</div>
+    </div>
 </div>

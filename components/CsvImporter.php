@@ -2,6 +2,10 @@
 
 namespace panix\mod\csv\components;
 
+use panix\engine\CMS;
+use panix\mod\shop\models\Manufacturer;
+use panix\mod\shop\models\ProductType;
+use panix\mod\shop\models\translate\CategoryTranslate;
 use Yii;
 use panix\engine\Html;
 use panix\mod\shop\models\Attribute;
@@ -173,22 +177,25 @@ class CsvImporter extends \yii\base\Component
 
         $category_id = $this->getCategoryByPath($data['category']);
 
-
+        $model = Product::find();
         // Search product by name, category
         // or create new one
-        $cr = new CDbCriteria;
+        //  $cr = new CDbCriteria;
         // $cr->with = array('translate');
         // if (isset($data['seo_alias']) && !empty($data['seo_alias']) && $data['seo_alias'] != '')
         //     $cr->compare('t.seo_alias', $data['seo_alias']);
 
-        if (isset($data['sku']) && !empty($data['sku']) && $data['sku'] != '')
-            $cr->compare('t.sku', $data['sku']);
-        else
-            $cr->compare('t.name', $data['name']); //$cr->compare('translate.name', $data['name']);
 
-        $model = Product::find()
-            ->applyCategories($category_id)
-            ->find($cr);
+        if (isset($data['sku']) && !empty($data['sku']) && $data['sku'] != '') {
+            $model->where(['sku' => $data['sku']]);
+        } else {
+            //$model->joinWith(['translations']);
+            //$model->where([ProductTranslate::tableName().'.name'=>$data['name']])
+            $model->where(['name' => $data['name']]); //$cr->compare('translate.name', $data['name']);
+        }
+
+        $model->applyCategories($category_id);
+        $model->one();
 
         if (!$model) {
             $newProduct = true;
@@ -197,7 +204,7 @@ class CsvImporter extends \yii\base\Component
         } else {
             $this->stats['update']++;
         }
-        $model->scenario = 'csv';
+        $model->setScenario('csv');
         //$model->name = $data['name'];
         //$model->seo_alias = CMS::translit($data['name']);
         // Process product type
@@ -296,17 +303,16 @@ class CsvImporter extends \yii\base\Component
         if (isset($this->manufacturerCache[$name]))
             return $this->manufacturerCache[$name];
 
-        $cr = new CDbCriteria;
+
         //$cr->with = array('man_translate');
         //$cr->compare('man_translate.name', $name);
-        $cr->compare('name', $name);
-        $model = Manufacturer::model()->find($cr);
+
+        $model = Manufacturer::find()->where(['name' => $name])->one();
 
         if (!$model) {
-            $model = new Manufacturer;
+            $model = new Manufacturer();
             $model->name = $name;
-            $model->seo_alias = CMS::translit($model->name);
-            $model->rostovkaSold = 1;
+            $model->seo_alias = CMS::slug($model->name);
             $model->save();
         }
 
@@ -324,9 +330,7 @@ class CsvImporter extends \yii\base\Component
         if (isset($this->productTypeCache[$name]))
             return $this->productTypeCache[$name];
 
-        $model = ProductType::model()->findByAttributes(array(
-            'name' => $name,
-        ));
+        $model = ProductType::find()->where(['name' => $name])->one();
 
         if (!$model) {
             $model = new ProductType;
@@ -351,7 +355,7 @@ class CsvImporter extends \yii\base\Component
             return $this->categoriesPathCache[$path];
 
         if ($this->rootCategory === null)
-            $this->rootCategory = Category::model()->findByPk(1);
+            $this->rootCategory = Category::findOne(1);
 
 
         $result = preg_split($this->subCategoryPattern, $path, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
@@ -360,28 +364,32 @@ class CsvImporter extends \yii\base\Component
 
         $parent = $this->rootCategory;
 
-        $cr = new CDbCriteria;
-        $cr->compare('name', trim($result[0]));
-        $model = Category::model()->find($cr);
+        //$cr = new CDbCriteria;
+        // $cr->compare('name', trim($result[0]));
+        $model = Category::find()
+            ->joinWith(['translations'])
+            ->where([CategoryTranslate::tableName() . '.name' => trim($result[0])])
+            ->one();
         if (!$model) {
             $model = new Category;
             $model->name = trim($result[0]);
-            $model->seo_alias = CMS::translit($model->name);
+            $model->seo_alias = CMS::slug($model->name);
             $model->appendTo($parent);
         }
         $first_model = $model;
         unset($result[0]);
 
-
         foreach ($result as $k => $name) {
-            $cr = new CDbCriteria;
-            $cr->compare('name', trim($name));
-            $model = $first_model->descendants()->find($cr);
+            $model = $first_model->descendants()
+                ->joinWith(['translations'])
+                ->where([CategoryTranslate::tableName() . '.name' => trim($name)])
+                //->where(['name'=>trim($name)]) //One language
+                ->one();
             $parent = $first_model;
             if (!$model) {
                 $model = new Category;
                 $model->name = $name;
-                $model->seo_alias = CMS::translit($model->name);
+                $model->seo_alias = CMS::slug($model->name);
                 $model->appendTo($parent);
             }
 
@@ -486,8 +494,8 @@ class CsvImporter extends \yii\base\Component
     {
 
         $units = '';
-        foreach ((new Product)->getUnits() as $id=>$unit){
-            $units .= '<code style="font-size: inherit">'.$id.'</code> &mdash; '.$unit.'<br/>';
+        foreach ((new Product)->getUnits() as $id => $unit) {
+            $units .= '<code style="font-size: inherit">' . $id . '</code> &mdash; ' . $unit . '<br/>';
         }
         $attributes = array();
         $shop_config = Yii::$app->settings->get('shop');
@@ -504,7 +512,7 @@ class CsvImporter extends \yii\base\Component
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
         $attributes['sku'] = Yii::t('app', 'Артикул');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
-        $attributes['unit'] = Yii::t('shop/Product', 'UNIT').'<br/>'.$units;
+        $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть.');
         $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code style="font-size: inherit">pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code style="font-size: inherit">;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');

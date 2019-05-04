@@ -11,6 +11,7 @@ use panix\mod\csv\components\CsvImporter;
 use panix\mod\shop\models\Product;
 use panix\engine\data\ActiveDataProvider;
 use panix\engine\controllers\AdminController;
+use yii\web\HttpException;
 use yii\web\Response;
 
 ignore_user_abort(1);
@@ -61,17 +62,10 @@ class DefaultController extends AdminController
             if ($importer->validate() && !$importer->hasErrors()) {
                 // Create db backup
                 if (isset($_POST['create_dump']) && $_POST['create_dump']) {
-                    $dumper = new DatabaseDumper();
-
-                    $file = Yii::getAlias('webroot.protected.backups') . DIRECTORY_SEPARATOR . 'dump_' . date('Y-m-d_H_i_s') . '.sql';
-
-                    if (is_writable(Yii::getAlias('webroot.protected.backups'))) {
-                        if (function_exists('gzencode'))
-                            file_put_contents($file . '.gz', gzencode($dumper->getDump()));
-                        else
-                            file_put_contents($file, $dumper->getDump());
+                    if (is_writable(Yii::getAlias(Yii::$app->db->backupPath))) {
+                        Yii::$app->getDb()->export();
                     } else
-                        throw new CHttpException(503, Yii::t('csv/default', 'ERROR_WRITE_BACKUP'));
+                        throw new HttpException(503, Yii::t('csv/default', 'ERROR_WRITE_BACKUP'));
                 }
                 $importer->import();
             }
@@ -106,19 +100,18 @@ class DefaultController extends AdminController
         if (Yii::$app->request->get('manufacturer_id')) {
 
             if (Yii::$app->request->get('manufacturer_id') !== 'all') {
+
                 $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
                 $query->applyManufacturers($manufacturers);
             }
-            //if (Yii::$app->request->post('page')) {
-            //     Yii::$app->request->get('page',Yii::$app->request->post('page'));
-            // }
-            $closeQuery = clone $query;
+
             $pages = new Pagination([
-                'totalCount' => $closeQuery->count(),
+                'totalCount' => $query->count(),
                 'pageSize' => (int)Yii::$app->settings->get('csv', 'pagenum')
             ]);
             $query->offset($pages->offset);
             $query->limit($pages->limit);
+
         }
 
         if (Yii::$app->request->get('attributes')) {
@@ -135,14 +128,6 @@ class DefaultController extends AdminController
         ));
     }
 
-    /*
-      public function actionExportRun() {
-      $exporter = new CsvExporter;
-      if (Yii::$app->request->isPostRequest && isset($_POST['attributes']) && !empty($_POST['attributes'])) {
-      $exporter->export($_POST['attributes'], Yii::$app->request->getQuery('manufacturer_id'));
-      }
-      }
-     */
 
     /**
      * Sample csv file

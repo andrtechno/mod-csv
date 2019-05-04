@@ -7,7 +7,6 @@ use panix\engine\Html;
 
 $this->context->pageName = Yii::t('csv/default', 'IMPORT');
 
-
 $this->registerJs("
     /*$(document).on('change', '.btn-file :file', function () {
         var input = $(this),
@@ -30,6 +29,7 @@ $this->registerJs("
         });
     });*/
 ");
+
 ?>
 
 <div class="row">

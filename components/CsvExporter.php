@@ -58,7 +58,7 @@ class CsvExporter
             $products = Product::find()->limit($limit)->offset($offset)->all();
 
             foreach ($products as $p) {
-                $row = array();
+                $row = [];
 
                 foreach ($attributes as $attr) {
                     if ($attr === 'category') {
@@ -94,10 +94,10 @@ class CsvExporter
         if ($attributes) {
             $this->rows[0] = $attributes;
 
-            foreach ($this->rows[0] as &$v) {
-                if (substr($v, 0, 4) === 'eav_')
-                    $v = substr($v, 4);
-            }
+            //foreach ($this->rows[0] as &$v) {
+            //    if (substr($v, 0, 4) === 'eav_')
+            //        $v = substr($v, 4);
+            //}
             /** @var $p Product */
             foreach ($query->all() as $p) {
                 $row = [];

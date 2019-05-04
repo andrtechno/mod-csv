@@ -1,24 +1,29 @@
 {
-    "name": "panix/mod-csv",
-    "description": "Module csv",
-    "keywords": ["pixelion-cms", "module", "csv"],
-    "homepage": "https://github.com/andrtechno/mod-csv",
-    "type": "yii2-extension",
-    "license": "MIT",
-    "minimum-stability": "dev",
-    "authors": [
-        {
-            "name": "PIXELION CMS",
-            "email": "dev@pixelion.com.ua",
-            "homepage": "https://pixelion.com.ua"
-        }
-    ],
-    "require": {
-        "panix/mod-shop": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "panix\\mod\\csv\\": ""
-        }
+  "name": "panix/mod-csv",
+  "description": "Module csv",
+  "keywords": [
+    "pixelion-cms",
+    "module",
+    "csv"
+  ],
+  "homepage": "https://github.com/andrtechno/mod-csv",
+  "type": "yii2-extension",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "PIXELION CMS",
+      "email": "dev@pixelion.com.ua",
+      "homepage": "https://pixelion.com.ua"
     }
+  ],
+  "require": {
+    "panix/mod-shop": "*",
+    "phpoffice/phpspreadsheet": "^1.6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "panix\\mod\\csv\\": ""
+    }
+  }
 }

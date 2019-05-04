@@ -1,15 +1,18 @@
 <?php
 namespace panix\mod\csv\components;
+
+use yii\base\Component;
 use panix\mod\shop\models\Attribute;
 use panix\mod\shop\models\AttributeOption;
 use panix\mod\shop\models\Product;
 use panix\mod\shop\models\TypeAttribute;
+use yii\base\Exception;
 
 /**
  * Class CsvAttributesProcessor handles Product class attributes and
  * EAV attributes.
  */
-class CsvAttributesProcessor extends \yii\base\Component {
+class CsvAttributesProcessor extends Component {
 
     /**
      * @var Product
@@ -24,17 +27,17 @@ class CsvAttributesProcessor extends \yii\base\Component {
     /**
      * @var array
      */
-    public $skipNames = array('category', 'type', 'manufacturer', 'image', 'additionalCategories');
+    public $skipNames = ['category', 'type', 'manufacturer', 'image', 'additionalCategories'];
 
     /**
      * @var array of ShopAttribute models.
      */
-    protected $attributesCache = array();
+    protected $attributesCache = [];
 
     /**
      * @var array of ShopAttributeOption models.
      */
-    protected $optionsCache = array();
+    protected $optionsCache = [];
 
     /**
      * @var array for eav attributes to be saved.
@@ -59,8 +62,10 @@ class CsvAttributesProcessor extends \yii\base\Component {
     public function process() {
         foreach ($this->data as $key => $val) {
             try {
-                $this->model->$key = $val;
-            } catch (CException $e) {
+                if (!in_array($key, $this->skipNames) && !empty($val)) {
+                    $this->model->$key = $val;
+                }
+            } catch (Exception $e) {
                 // Process eav
                 if (!in_array($key, $this->skipNames) && !empty($val)) {
                     $this->eav[$key] = $this->processEavData($key, $val);
@@ -72,10 +77,10 @@ class CsvAttributesProcessor extends \yii\base\Component {
     /**
      * @param $attribute_name
      * @param $attribute_value
-     * @return string ShopAttributeOption id
+     * @return array
      */
     public function processEavData($attribute_name, $attribute_value) {
-        $result = array();
+        $result = [];
         $attribute = $this->getAttributeByName($attribute_name);
 
         $multipleTypes = array(Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY);
@@ -108,12 +113,16 @@ class CsvAttributesProcessor extends \yii\base\Component {
             return $this->optionsCache[$cacheKey];
 
         // Search for option
-        $cr = new CDbCriteria;
-        //$cr->with = 'option_translate';
-        //$cr->compare('option_translate.value', $val);
-        $cr->compare('t.value', $val);
-        $cr->compare('t.attribute_id', $attribute->id);
-        $option = AttributeOption::find($cr);
+        $query = AttributeOption::find();
+
+
+
+        $query->where(['attribute_id'=>$attribute->id]);
+        $query->joinWith(['translations translate']);
+        $query->andWhere(['translate.value' => $val]);
+
+
+        $option = $query->one();
 
         if (!$option) // Create new option
             $option = $this->addOptionToAttribute($attribute->id, $val);
@@ -139,7 +148,7 @@ class CsvAttributesProcessor extends \yii\base\Component {
 
     /**
      * @param $name
-     * @return ShopAttribute
+     * @return Attribute
      */
     public function getAttributeByName($name) {
         if (isset($this->attributesCache[$name]))

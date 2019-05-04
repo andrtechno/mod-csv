@@ -18,5 +18,7 @@ return [
     'EXAMPLE_FILE' => 'Пример файла',
     'DUMP_DB' => 'Создать резервную копию БД.',
     'REMOVE_IMAGES' => 'Удалить загруженные картинки',
-    'SELECT_FILE' => 'Выбрать CSV файл'
+    'SELECT_FILE' => 'Выбрать CSV файл',
+    'ERROR_FILE' => 'Файл недоступен.',
+    'REQUIRE_COLUMN' => 'Укажите обязательную колонку {column}.'
 ];

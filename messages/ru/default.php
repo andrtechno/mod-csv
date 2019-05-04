@@ -20,5 +20,7 @@ return [
     'REMOVE_IMAGES' => 'Удалить загруженные картинки',
     'SELECT_FILE' => 'Выбрать CSV файл',
     'ERROR_FILE' => 'Файл недоступен.',
-    'REQUIRE_COLUMN' => 'Укажите обязательную колонку {column}.'
+    'REQUIRE_COLUMN' => 'Укажите обязательную колонку {column}.',
+    'LINE'=>'Строка',
+    'AND_MORE'=>'и еще ({n}).'
 ];

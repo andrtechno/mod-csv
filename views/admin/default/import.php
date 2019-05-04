@@ -43,7 +43,7 @@ $this->registerJs("
 
                 <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => 'form-horizontal']) ?>
                 <?php if ($importer->hasErrors()) { ?>
-                    <div class="form-group row">
+                    <div class="form-group">
                         <div class="errorSummary alert alert-danger"><p>Ошибки импорта:</p>
                             <ul>
                                 <?php
@@ -51,12 +51,12 @@ $this->registerJs("
                                 foreach ($importer->getErrors() as $error) {
                                     if ($i < 10) {
                                         if ($error['line'] > 0)
-                                            echo "<li>" . Yii::t('admin', 'Строка') . ": " . $error['line'] . ". " . $error['error'] . "</li>";
+                                            echo "<li>" . Yii::t('csv/default', 'LINE') . ": " . $error['line'] . ". " . $error['error'] . "</li>";
                                         else
                                             echo "<li>" . $error['error'] . "</li>";
                                     } else {
                                         $n = count($importer->getErrors()) - $i;
-                                        echo '<li>' . Yii::t('admin', 'и еще({n}).', ['n' => $n]) . '</li>';
+                                        echo '<li>' . Yii::t('csv/default', 'AND_MORE', ['n' => $n]) . '</li>';
                                         break;
                                     }
                                     $i++;
@@ -68,7 +68,7 @@ $this->registerJs("
                 <?php } ?>
 
                 <?php if ($importer->stats['create'] > 0 OR $importer->stats['update'] > 0) { ?>
-                    <div class="form-group row">
+                    <div class="form-group">
                         <div class="successSummary alert alert-info">
                             <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', ['n' => $importer->stats['create']]); ?>
                             <br/>

@@ -207,9 +207,16 @@ class CsvImporter extends \yii\base\Component
             $this->stats['create']++;
         } else {
             $this->stats['update']++;
+
+            if (isset($data['deleted']) && $data['deleted']) {
+                $this->stats['deleted']++;
+                $model->delete();
+                //Yii::log('application','info',$model->id.'|'.$model->name);
+            }
+
         }
 
-       // $model->setScenario('csv');
+        // $model->setScenario('csv');
 
         //$model->name = $data['name'];
         //$model->seo_alias = CMS::translit($data['name']);
@@ -219,7 +226,7 @@ class CsvImporter extends \yii\base\Component
             $model->type_id = $this->getTypeIdByName($config->use_type);
         }
         $model->main_category_id = $category_id;
-        $model->switch = $data['switch'];
+        $model->switch = isset($data['switch']) ? $data['switch'] : 1;
 
         // Manufacturer
         if (isset($data['manufacturer']) && !empty($data['manufacturer']))
@@ -243,13 +250,13 @@ class CsvImporter extends \yii\base\Component
 
             //echo VarDumper::dump($model->attributes,10,true);die;
 
-           // echo VarDumper::dump($data,10,true);die;
-           // die;
+            // die;
+
             // Save product
-            $model->save(false, false);
+            $model->save();
+
             // Update EAV data
             $attributes->save();
-
 
             // Update categories
             $model->setCategories($categories, $category_id);

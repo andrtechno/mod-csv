@@ -184,8 +184,8 @@ class CsvImporter extends \yii\base\Component
         // or create new one
         //  $cr = new CDbCriteria;
         // $cr->with = array('translate');
-        // if (isset($data['seo_alias']) && !empty($data['seo_alias']) && $data['seo_alias'] != '')
-        //     $cr->compare('t.seo_alias', $data['seo_alias']);
+        // if (isset($data['slug']) && !empty($data['slug']) && $data['slug'] != '')
+        //     $cr->compare('t.slug', $data['slug']);
 
 
         if (isset($data['sku']) && !empty($data['sku']) && $data['sku'] != '') {
@@ -221,7 +221,7 @@ class CsvImporter extends \yii\base\Component
         // $model->setScenario('csv');
 
         //$model->name = $data['name'];
-        //$model->seo_alias = CMS::translit($data['name']);
+        //$model->slug = CMS::translit($data['name']);
         // Process product type
         $config = Yii::$app->settings->get('csv');
         if ($config->use_type) {
@@ -333,7 +333,7 @@ class CsvImporter extends \yii\base\Component
         if (!$model) {
             $model = new Manufacturer();
             $model->name = $name;
-            $model->seo_alias = CMS::slug($model->name);
+            $model->slug = CMS::slug($model->name);
             $model->save();
         }
 
@@ -394,7 +394,7 @@ class CsvImporter extends \yii\base\Component
         if (!$model) {
             $model = new Category;
             $model->name = trim($result[0]);
-            $model->seo_alias = CMS::slug($model->name);
+            $model->slug = CMS::slug($model->name);
             $model->appendTo($parent);
         }
         $first_model = $model;
@@ -410,7 +410,7 @@ class CsvImporter extends \yii\base\Component
             if (!$model) {
                 $model = new Category;
                 $model->name = $name;
-                $model->seo_alias = CMS::slug($model->name);
+                $model->slug = CMS::slug($model->name);
                 $model->appendTo($parent);
             }
 

@@ -73,7 +73,8 @@ class CsvExporter
                         $value = $p->$attr;
                     }
 
-                    $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                  //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                    $row[$attr] = $value; //append iconv by panix
                 }
 
                 array_push($this->rows, $row);
@@ -114,7 +115,8 @@ class CsvExporter
                         $value = $p->$attr;
                     }
 
-                    $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                    //$row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                    $row[$attr] = $value; //append iconv by panix
                 }
 
                 array_push($this->rows, $row);
@@ -219,23 +221,31 @@ class CsvExporter
         if (Yii::$app->request->getQueryParam('page')) {
             $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
         }
-        Yii::$app->response->format = Response::FORMAT_RAW;
-        header("Content-type: application/octet-stream");
-        header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
+       // Yii::$app->response->format = Response::FORMAT_RAW;
+       // header("Content-type: application/octet-stream");
+        //header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
 
 
         // $headers = Yii::$app->response->headers;
         //  $headers->add('Pragma111', 'no-cache');
 
-
+$csvString = '';
         foreach ($this->rows as $row) {
             foreach ($row as $l) {
-                echo $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, mb_convert_encoding($l, 'UTF-8', 'Windows-1251')) . $this->enclosure . $this->delimiter;
+                $csvString .= $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, mb_convert_encoding($l, 'UTF-8', 'Windows-1251')) . $this->enclosure . $this->delimiter;
                 //echo $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, $l) . $this->enclosure . $this->delimiter;
             }
-            echo PHP_EOL;
+            $csvString .=PHP_EOL;
+           // echo PHP_EOL;
         }
-        die;
+
+
+        return \Yii::$app->response->sendContentAsFile($csvString, $filename.'.csv', [
+            'mimeType' => 'application/octet-stream',
+            //  'inline'   => false
+        ]);
+
+        //die;
     }
 
 }

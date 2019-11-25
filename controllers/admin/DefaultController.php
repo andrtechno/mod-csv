@@ -120,12 +120,12 @@ class DefaultController extends AdminController
             );
         }
 
-        return $this->render('export', array(
+        return $this->render('export', [
             'exporter' => $exporter,
             'pages' => $pages,
             'query' => $query,
             'importer' => new CsvImporter,
-        ));
+        ]);
     }
 
 
@@ -134,14 +134,21 @@ class DefaultController extends AdminController
      */
     public function actionSample()
     {
-        $response = Yii::$app->response;
-        $response->format = Response::FORMAT_RAW;
-        $response->getHeaders()->add('Content-type', 'application/octet-stream');
-        $response->getHeaders()->add('Content-Disposition', 'attachment; filename=sample.csv');
+       // $response = Yii::$app->response;
+        //$response->format = Response::FORMAT_RAW;
+        //$response->getHeaders()->add('Content-type', 'application/octet-stream');
+       // $response->getHeaders()->add('Content-Disposition', 'attachment; filename=sample.csv');
 
         $content = '"name";"category";"price";"type"' . PHP_EOL;
         $content .= '"Product Name";"Category/Subcategory";"10.99";"Base Product"' . PHP_EOL;
-        return $content;
+
+
+        return \Yii::$app->response->sendContentAsFile($content, 'sample.csv', [
+            'mimeType' => 'application/octet-stream',
+          //  'inline'   => false
+        ]);
+
+      //  return $content;
     }
 
     public function getAddonsMenu()

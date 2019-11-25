@@ -108,6 +108,10 @@ $this->registerJs('
                 <?php } ?>
             <?php } ?>
         </table>
+        <?php
+
+        echo Html::submitButton('exporting');
+        ?>
         <?= Html::endForm() ?>
     </div>
 </div>

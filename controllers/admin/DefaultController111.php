@@ -14,7 +14,7 @@ use panix\engine\controllers\AdminController;
 ignore_user_abort(1);
 set_time_limit(0);
 
-class DefaultController extends AdminController
+class DefaultController111 extends AdminController
 {
 
     public function actionIndex()

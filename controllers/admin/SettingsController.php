@@ -21,8 +21,11 @@ class SettingsController extends AdminController
         $this->breadcrumbs[] = $this->pageName;
         $model = new SettingsForm;
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $model->save();
+        if ($model->load(Yii::$app->request->post())) {
+            if($model->validate()){
+                $model->save();
+            }
+            $this->refresh();
         }
 
         return $this->render('index', ['model' => $model]);

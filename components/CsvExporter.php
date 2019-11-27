@@ -65,15 +65,15 @@ class CsvExporter
                         $value = $this->getCategory($p);
                     } elseif ($attr === 'manufacturer') {
                         $value = $this->getManufacturer($p);
-                        //} elseif ($attr === 'image') {
-                        //    $value = $p->mainImage ? $p->mainImage->name : '';
+                    } elseif ($attr === 'image') {
+                        $value = $p->mainImage ? $p->mainImage->name : '';
                     } elseif ($attr === 'additionalCategories') {
                         $value = $this->getAdditionalCategories($p);
                     } else {
                         $value = $p->$attr;
                     }
 
-                  //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                    //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
                     $row[$attr] = $value; //append iconv by panix
                 }
 
@@ -107,16 +107,18 @@ class CsvExporter
                         $value = $this->getCategory($p);
                     } elseif ($attr === 'manufacturer') {
                         $value = $this->getManufacturer($p);
-                        // } elseif ($attr === 'image') {
-                        //     $value = $p->mainImage ? $p->mainImage->name : '';
+                    } elseif ($attr === 'image') {
+                        /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
+                        $img = $p->getImage();
+                        $value = ($img) ? $img->getUrl() : '';
                     } elseif ($attr === 'additionalCategories') {
                         $value = $this->getAdditionalCategories($p);
                     } else {
                         $value = $p->$attr;
                     }
 
-                    //$row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
-                    $row[$attr] = $value; //append iconv by panix
+                    $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                    //$row[$attr] = $value; //append iconv by panix
                 }
 
                 array_push($this->rows, $row);
@@ -221,26 +223,32 @@ class CsvExporter
         if (Yii::$app->request->getQueryParam('page')) {
             $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
         }
-       // Yii::$app->response->format = Response::FORMAT_RAW;
-       // header("Content-type: application/octet-stream");
-        //header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
+        $response = Yii::$app->response;
+        $response->format = Response::FORMAT_RAW;
+        $response->charset = 'utf-8';
+        $response->headers->set('Content-Type', 'application/octet-stream; charset=utf-8');
+         header("Content-type: application/octet-stream");
+        header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
 
 
         // $headers = Yii::$app->response->headers;
         //  $headers->add('Pragma111', 'no-cache');
-
-$csvString = '';
+        //CMS::dump($this->rows);
+        //die;
+        $csvString = '';
         foreach ($this->rows as $row) {
             foreach ($row as $l) {
                 $csvString .= $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, mb_convert_encoding($l, 'UTF-8', 'Windows-1251')) . $this->enclosure . $this->delimiter;
                 //echo $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, $l) . $this->enclosure . $this->delimiter;
             }
-            $csvString .=PHP_EOL;
-           // echo PHP_EOL;
+            $csvString .= PHP_EOL;
+            // echo PHP_EOL;
         }
 
+        echo $csvString;
+        die;
 
-        return \Yii::$app->response->sendContentAsFile($csvString, $filename.'.csv', [
+        return $response->sendContentAsFile($csvString, $filename . '.csv', [
             'mimeType' => 'application/octet-stream',
             //  'inline'   => false
         ]);

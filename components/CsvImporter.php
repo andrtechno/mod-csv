@@ -2,6 +2,8 @@
 
 namespace panix\mod\csv\components;
 
+use panix\mod\images\behaviors\ImageBehavior;
+use panix\mod\images\models\Image;
 use Yii;
 use panix\engine\CMS;
 use panix\engine\Html;
@@ -104,17 +106,16 @@ class CsvImporter extends \yii\base\Component
         'update' => 0,
     ];
 
-    public $required = ['category', 'price', 'manufacturer', 'sku'];
+    public $required = ['category', 'price', 'manufacturer', 'sku', 'type'];
 
-    public function __construct($config = [])
+    /*public function __construct($config = [])
     {
         $configure = Yii::$app->settings->get('csv');
         if (!$configure->use_type) {
-
             array_push($this->required, 'type');
         }
         parent::__construct($config);
-    }
+    }*/
 
     /**
      * @return bool validate csv file
@@ -180,26 +181,19 @@ class CsvImporter extends \yii\base\Component
         $category_id = $this->getCategoryByPath($data['category']);
 
         $query = Product::find();
+
         // Search product by name, category
         // or create new one
-        //  $cr = new CDbCriteria;
-        // $cr->with = array('translate');
-        // if (isset($data['slug']) && !empty($data['slug']) && $data['slug'] != '')
-        //     $cr->compare('t.slug', $data['slug']);
-
-
         if (isset($data['sku']) && !empty($data['sku']) && $data['sku'] != '') {
-            $query->where(['sku' => $data['sku']]);
+            $query->where([Product::tableName() . '.sku' => $data['sku']]);
         } else {
-            //$model->joinWith(['translations']);
-            //$model->where([ProductTranslate::tableName().'.name'=>$data['name']])
-            $query->where(['name' => $data['name']]); //$cr->compare('translate.name', $data['name']);
+            $query->joinWith('translations as translate');
+            $query->where(['translate.name' => $data['name']]); //$cr->compare('translate.name', $data['name']);
         }
 
         $query->applyCategories($category_id);
 
         $model = $query->one();
-
 
 
         if (!$model) {
@@ -216,17 +210,18 @@ class CsvImporter extends \yii\base\Component
             }
 
         }
-       // print_r($data);die;
+        // print_r($data);die;
 
-        // $model->setScenario('csv');
 
         //$model->name = $data['name'];
         //$model->slug = CMS::translit($data['name']);
         // Process product type
         $config = Yii::$app->settings->get('csv');
-        if ($config->use_type) {
-            $model->type_id = $this->getTypeIdByName($config->use_type);
-        }
+        //if ($config->use_type) {
+        //$model->type_id = $this->getTypeIdByName($config->use_type);
+        $model->type_id = $this->getTypeIdByName($data['type']);
+
+        //}
         $model->main_category_id = $category_id;
         $model->switch = isset($data['switch']) ? $data['switch'] : 1;
 
@@ -250,7 +245,7 @@ class CsvImporter extends \yii\base\Component
             }*/
 
 
-            //echo VarDumper::dump($model,10,true);die;
+
 
             // die;
 
@@ -263,9 +258,9 @@ class CsvImporter extends \yii\base\Component
             // Update categories
             $model->setCategories($categories, $category_id);
 
-
+            /** @var ImageBehavior $model */
             // Process product main image if product doesn't have one
-            /*if (isset($data['image']) && !empty($data['image'])) {
+            if (isset($data['image']) && !empty($data['image'])) {
                 if (strpos($data['image'], ';')) {
                     $imagesArray = explode(';', $data['image']);
                     rsort($imagesArray);
@@ -278,18 +273,30 @@ class CsvImporter extends \yii\base\Component
                             $image->deleteTempFile();
                     }
                 } else {
+
+
                     $image = CsvImage::create($data['image']);
-                    if ($image && $model->mainImage === null) {
-                        $model->addImage($image);
+                  //  print_r($image);
+
+                  $isImage = $model->getImage();
+
+                    if ($image && $isImage === null) {
+
+                        $model->attachImage($image);
+                      //  die('aadd image');
                     }
                     if ($image && $this->deleteDownloadedImages)
                         $image->deleteTempFile();
                 }
-            }*/
+            }
+          // die;
         } else {
             $errors = $model->getErrors();
             $error = array_shift($errors);
-            $this->errors[] = ['line' => $this->line, 'error' => $error[0]];
+            $this->errors[] = [
+                'line' => $this->line,
+                'error' => $error[0]
+            ];
         }
     }
 
@@ -325,14 +332,14 @@ class CsvImporter extends \yii\base\Component
 
         $query = Manufacturer::find()
             ->joinWith(['translations translate'])
-            ->where(['translate.name' => $name]);
+            ->where(['translate.name' => trim($name)]);
 
         // ->where(['name' => $name]);
 
         $model = $query->one();
         if (!$model) {
             $model = new Manufacturer();
-            $model->name = $name;
+            $model->name = trim($name);
             $model->slug = CMS::slug($model->name);
             $model->save();
         }
@@ -506,9 +513,9 @@ class CsvImporter extends \yii\base\Component
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
         //$attributes['created_at'] = Yii::t('app', 'Дата создания');
         // $attributes['updated_at'] = Yii::t('app', 'Дата обновления');
-        foreach (Attribute::find()->all() as $attr)
-            $attributes[$eav_prefix . $attr->name] = $attr->title;
-
+        foreach (Attribute::find()->joinWith(['translations'])->asArray()->all() as $attr) {
+            $attributes[$eav_prefix . $attr['name']] = $attr['translations'][0]['title'];
+        }
         return $attributes;
     }
 
@@ -532,7 +539,7 @@ class CsvImporter extends \yii\base\Component
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code style="font-size: inherit">;</code><br/>Например &mdash; <code style="font-size: inherit">MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
-        $attributes['sku'] = Yii::t('app', 'Артикул');
+        $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть.');
@@ -542,9 +549,10 @@ class CsvImporter extends \yii\base\Component
         $attributes['availability'] = Yii::t('app', 'Наличие.<br/>Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; есть на складе <strong>(default)</strong><br/><code style="font-size: inherit">2</code> &mdash; нет на складе<br/><code style="font-size: inherit">3</code> &mdash; под заказ.');
         //$attributes['created_at'] = Yii::t('app', 'Дата создания');
         //$attributes['updated_at'] = Yii::t('app', 'Дата обновления');
-        foreach (Attribute::find()->all() as $attr)
-            $attributes[$eav_prefix . $attr->name] = $attr->title;
+        foreach (Attribute::find()->joinWith(['translations'])->asArray()->all() as $attr) {
 
+            $attributes[$eav_prefix . $attr['name']] = $attr['translations'][0]['title'];
+        }
         return $attributes;
     }
 

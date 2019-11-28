@@ -7,6 +7,7 @@ use panix\mod\shop\models\Product;
 use panix\mod\shop\models\Manufacturer;
 use panix\engine\CMS;
 
+use yii\helpers\Url;
 use yii\web\Response;
 
 class CsvExporter
@@ -110,7 +111,7 @@ class CsvExporter
                     } elseif ($attr === 'image') {
                         /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
                         $img = $p->getImage();
-                        $value = ($img) ? $img->getUrl() : '';
+                        $value = ($img) ? Url::to($img->getUrl(),true) : '';
                     } elseif ($attr === 'additionalCategories') {
                         $value = $this->getAdditionalCategories($p);
                     } else {

@@ -108,10 +108,11 @@ $this->registerJs('
                 <?php } ?>
             <?php } ?>
         </table>
-        <?php
-
-        echo Html::submitButton('exporting');
-        ?>
+        <div class="form-group text-center">
+            <?php
+            echo Html::submitButton(Yii::t('csv/default', 'EXPORT_PRODUCTS'), ['class' => 'btn btn-success']);
+            ?>
+        </div>
         <?= Html::endForm() ?>
     </div>
 </div>

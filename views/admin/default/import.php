@@ -41,7 +41,7 @@ $this->registerJs("
             <div class="card-body">
 
 
-                <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => 'form-horizontal']) ?>
+                <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => '']) ?>
                 <?php if ($importer->hasErrors()) { ?>
                     <div class="form-group">
                         <div class="errorSummary alert alert-danger"><p>Ошибки импорта:</p>
@@ -119,7 +119,7 @@ $this->registerJs("
                             <ul>
                                 <li><?= Yii::t('csv/default', 'IMPORT_INFO1') ?></li>
                                 <li><?= Yii::t('csv/default', 'IMPORT_INFO2') ?></li>
-                                <li><?= Yii::t('csv/default', 'IMPORT_INFO3', array('req' => implode(', ', $importer->required))) ?></li>
+                                <li><?= Yii::t('csv/default', 'IMPORT_INFO3', ['req' => implode(', ', $importer->required)]) ?></li>
                                 <li><?= Yii::t('csv/default', 'IMPORT_INFO4') ?></li>
                             </ul>
                             <br/>
@@ -150,6 +150,9 @@ $this->registerJs("
                 <?php } ?>
                 <?php
                 $groups = [];
+
+
+
                 foreach ($importer->getExportAttributes('eav_') as $k => $v) {
                     if (strpos($k, 'eav_') === false) {
                         $groups['Основные'][$k] = $v;

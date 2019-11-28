@@ -3,6 +3,7 @@
 namespace panix\mod\csv\components;
 
 use Yii;
+use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 
 /**
@@ -10,31 +11,27 @@ use yii\web\UploadedFile;
  */
 class CsvImage extends UploadedFile {
 
-    private $_name;
-    private $_tempName;
-    private $_type;
-    private $_size;
-    private $_error;
     public $isDownloaded = false;
 
     public function __construct($name, $tempName, $type, $size, $error) {
-        $this->_name = $name;
-        $this->_tempName = $tempName;
-        $this->_type = $type;
-        $this->_size = $size;
-        $this->_error = $error;
-        parent::__construct($name, $tempName, $type, $size, $error);
+        $this->name = $name;
+        $this->tempName = $tempName;
+        $this->type = $type;
+        $this->size = $size;
+        $this->error = $error;
+        parent::__construct([]);
     }
 
     /**
      * @param string $image name in ./uploads/importImages/ e.g. somename.jpg
-     * @return CsvImage
+     * @return CsvImage|false
      */
     public static function create($image) {
         $isDownloaded = substr($image, 0, 5) === 'http:';
 
         if ($isDownloaded) {
-            $tmpName = Yii::getPathOfAlias('@runtime') . DIRECTORY_SEPARATOR . sha1(pathinfo($image, PATHINFO_FILENAME)) . '.' . pathinfo($image, PATHINFO_EXTENSION);
+           // echo $image;die;
+            $tmpName = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . sha1(pathinfo($image, PATHINFO_FILENAME)) . '.' . pathinfo($image, PATHINFO_EXTENSION);
 
             if ((bool) parse_url($image) && !file_exists($tmpName)) {
                 $fileHeader = get_headers($image, 1);
@@ -43,12 +40,12 @@ class CsvImage extends UploadedFile {
             }
         }
         else
-            $tmpName = Yii::getPathOfAlias('@uploads/importImages') . DIRECTORY_SEPARATOR . $image;
+            $tmpName = Yii::getAlias('@uploads/importImages') . DIRECTORY_SEPARATOR . $image;
 
         if (!file_exists($tmpName))
             return false;
 
-        $result = new CsvImage($image, $tmpName, CFileHelper::getMimeType($tmpName), filesize($tmpName), false);
+        $result = new CsvImage($image, $tmpName, FileHelper::getMimeType($tmpName), filesize($tmpName), false);
         $result->isDownloaded = $isDownloaded;
         return $result;
     }
@@ -58,12 +55,12 @@ class CsvImage extends UploadedFile {
      * @param bool $deleteTempFile
      * @return bool
      */
-    public function saveAs($file, $deleteTempFile = false) {
-        return copy($this->_tempName, $file);
+    public function saveAs222($file, $deleteTempFile = false) {
+        return copy($this->tempName, $file);
     }
 
     public function deleteTempFile() {
-        @unlink($this->_tempName);
+        @unlink($this->tempName);
     }
 
 }

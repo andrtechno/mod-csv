@@ -68,6 +68,10 @@ class CsvAttributesProcessor extends Component {
             } catch (Exception $e) {
                 // Process eav
                 if (!in_array($key, $this->skipNames) && !empty($val)) {
+
+                    if (substr($key, 0, 4) === 'eav_')
+                        $key = substr($key, 4);
+
                     $this->eav[$key] = $this->processEavData($key, $val);
                 }
             }
@@ -81,6 +85,7 @@ class CsvAttributesProcessor extends Component {
      */
     public function processEavData($attribute_name, $attribute_value) {
         $result = [];
+
         $attribute = $this->getAttributeByName($attribute_name);
 
         $multipleTypes = array(Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY);
@@ -151,8 +156,14 @@ class CsvAttributesProcessor extends Component {
      * @return Attribute
      */
     public function getAttributeByName($name) {
+
+
         if (isset($this->attributesCache[$name]))
             return $this->attributesCache[$name];
+
+
+
+
 
         $attribute = Attribute::find()->where(['name' => $name])->one();
 

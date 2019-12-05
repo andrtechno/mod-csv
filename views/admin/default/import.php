@@ -153,7 +153,7 @@ $this->registerJs("
 
 
 
-                foreach ($importer->getExportAttributes('eav_') as $k => $v) {
+                foreach ($importer->getImportableAttributes('eav_') as $k => $v) {
                     if (strpos($k, 'eav_') === false) {
                         $groups['Основные'][$k] = $v;
                     } else {

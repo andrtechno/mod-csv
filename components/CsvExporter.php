@@ -41,92 +41,54 @@ class CsvExporter
 
     /**
      * @param array $attributes
+     * @param $query \panix\mod\shop\models\query\ProductQuery
      */
-    public function exportold(array $attributes)
+    public function export(array $attributes, $query)
     {
         $this->rows[0] = $attributes;
 
-        foreach ($this->rows[0] as &$v) {
+        /*foreach ($this->rows[0] as &$v) {
             if (substr($v, 0, 4) === 'eav_')
                 $v = substr($v, 4);
-        }
+        }*/
 
-        $limit = 10;
-        $total = ceil(Product::find()->count() / $limit);
-        $offset = 0;
+        /** @var Product $p */
+        foreach ($query->all() as $p) {
+            $row = [];
 
-        for ($i = 0; $i <= $total; ++$i) {
-            $products = Product::find()->limit($limit)->offset($offset)->all();
+            foreach ($attributes as $attr) {
+                if ($attr === 'category') {
+                    $value = $this->getCategory($p);
+                } elseif ($attr === 'manufacturer') {
+                    $value = $this->getManufacturer($p);
+                } elseif ($attr === 'image') {
+                    /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
+                    $img = $p->getImage();
+                    $value = ($img) ? $img->filePath : '';
+                } elseif ($attr === 'additionalCategories') {
+                    $value = $this->getAdditionalCategories($p);
+                } elseif ($attr === 'type') {
+                    $value = $p->type->name;
+                } elseif ($attr === 'unit') {
+                    $value = (isset($p->units[$p->$attr])) ? $p->units[$p->$attr] : NULL;
+                } elseif ($attr === 'full_description') {
+                    $value = <<<EOF
+{$p->$attr}
+EOF;
+                } else {
 
-            foreach ($products as $p) {
-                $row = [];
+                    $value = $p->$attr;
 
-                foreach ($attributes as $attr) {
-                    if ($attr === 'category') {
-                        $value = $this->getCategory($p);
-                    } elseif ($attr === 'manufacturer') {
-                        $value = $this->getManufacturer($p);
-                    } elseif ($attr === 'image') {
-                        $value = $p->mainImage ? $p->mainImage->name : '';
-                    } elseif ($attr === 'additionalCategories') {
-                        $value = $this->getAdditionalCategories($p);
-                    } else {
-                        $value = $p->$attr;
-                    }
-
-                    //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
-                    $row[$attr] = $value; //append iconv by panix
                 }
 
-                array_push($this->rows, $row);
+                //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
+                $row[$attr] = $value; //append iconv by panix
             }
 
-            $offset += $limit;
+            array_push($this->rows, $row);
         }
 
         $this->proccessOutput();
-    }
-
-    /**
-     * @param $attributes
-     * @param $query \panix\mod\shop\models\query\ProductQuery
-     */
-    public function export($attributes, $query)
-    {
-        if ($attributes) {
-            $this->rows[0] = $attributes;
-
-            //foreach ($this->rows[0] as &$v) {
-            //    if (substr($v, 0, 4) === 'eav_')
-            //        $v = substr($v, 4);
-            //}
-            /** @var $p Product */
-            foreach ($query->all() as $p) {
-                $row = [];
-                foreach ($attributes as $attr) {
-                    if ($attr === 'category') {
-                        $value = $this->getCategory($p);
-                    } elseif ($attr === 'manufacturer') {
-                        $value = $this->getManufacturer($p);
-                    } elseif ($attr === 'image') {
-                        /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
-                        $img = $p->getImage();
-                        $value = ($img) ? Url::to($img->getUrl(),true) : '';
-                    } elseif ($attr === 'additionalCategories') {
-                        $value = $this->getAdditionalCategories($p);
-                    } else {
-                        $value = $p->$attr;
-                    }
-
-                    $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
-                    //$row[$attr] = $value; //append iconv by panix
-                }
-
-                array_push($this->rows, $row);
-            }
-
-            $this->proccessOutput();
-        }
     }
 
     /**
@@ -209,6 +171,8 @@ class CsvExporter
      */
     public function proccessOutput()
     {
+
+
         $filename = '';
         if (Yii::$app->request->get('manufacturer_id')) {
             if (Yii::$app->request->get('manufacturer_id') == 'all') {
@@ -221,40 +185,40 @@ class CsvExporter
         $filename .= '(' . CMS::date() . ')';
 
 
-        if (Yii::$app->request->getQueryParam('page')) {
-            $filename .= '_page-' . Yii::$app->request->getQueryParam('page');
+        if (Yii::$app->request->get('page')) {
+            $filename .= '_page-' . Yii::$app->request->get('page');
         }
-        $response = Yii::$app->response;
-        $response->format = Response::FORMAT_RAW;
-        $response->charset = 'utf-8';
-        $response->headers->set('Content-Type', 'application/octet-stream; charset=utf-8');
-         header("Content-type: application/octet-stream");
+        // $response = Yii::$app->response;
+        // $response->format = Response::FORMAT_RAW;
+        // $response->charset = 'utf-8';
+        // $response->headers->set('Content-Type', 'application/octet-stream; charset=utf-8');
+        header("Content-type: application/octet-stream");
         header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
 
 
         // $headers = Yii::$app->response->headers;
         //  $headers->add('Pragma111', 'no-cache');
-        //CMS::dump($this->rows);
-        //die;
+
+
         $csvString = '';
         foreach ($this->rows as $row) {
             foreach ($row as $l) {
-                $csvString .= $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, mb_convert_encoding($l, 'UTF-8', 'Windows-1251')) . $this->enclosure . $this->delimiter;
-                //echo $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, $l) . $this->enclosure . $this->delimiter;
+                // $csvString .= $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, $l) . $this->enclosure . $this->delimiter;
+                //$csvString .= $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, mb_convert_encoding($l, 'UTF-8', 'Windows-1251')) . $this->enclosure . $this->delimiter;
+                echo $this->enclosure . str_replace($this->enclosure, $this->enclosure . $this->enclosure, $l) . $this->enclosure . $this->delimiter;
             }
-            $csvString .= PHP_EOL;
-            // echo PHP_EOL;
+            // $csvString .= PHP_EOL;
+            echo PHP_EOL;
         }
 
-        echo $csvString;
+        // echo $csvString;
         die;
 
-        return $response->sendContentAsFile($csvString, $filename . '.csv', [
+        /*return $response->sendContentAsFile($csvString, $filename . '.csv', [
             'mimeType' => 'application/octet-stream',
-            //  'inline'   => false
-        ]);
+             'inline'   => false
+        ]);*/
 
-        //die;
     }
 
 }

@@ -3,16 +3,13 @@
 namespace panix\mod\csv\controllers\admin;
 
 use yii\data\Pagination;
-use panix\mod\csv\components\DatabaseDumper;
 use Yii;
 use panix\engine\Html;
 use panix\mod\csv\components\CsvExporter;
 use panix\mod\csv\components\CsvImporter;
 use panix\mod\shop\models\Product;
-use panix\engine\data\ActiveDataProvider;
 use panix\engine\controllers\AdminController;
 use yii\web\HttpException;
-use yii\web\Response;
 
 ignore_user_abort(1);
 set_time_limit(0);
@@ -97,22 +94,24 @@ class DefaultController extends AdminController
 
         $query = Product::find();
         $pages = false;
-        if (Yii::$app->request->get('manufacturer_id')) {
+        //if (Yii::$app->request->get('manufacturer_id')) {
 
-            if (Yii::$app->request->get('manufacturer_id') !== 'all') {
+        if (Yii::$app->request->get('manufacturer_id') !== 'all') {
 
-                $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
-                $query->applyManufacturers($manufacturers);
-            }
+            $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
+            $query->applyManufacturers($manufacturers);
+        }
+        if (Yii::$app->request->get('type_id')) {
+            $query->where(['type_id' => Yii::$app->request->get('type_id')]);
+        }
 
             $pages = new Pagination([
                 'totalCount' => $query->count(),
-                'pageSize' => (int)Yii::$app->settings->get('csv', 'pagenum')
+                'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
             ]);
             $query->offset($pages->offset);
             $query->limit($pages->limit);
 
-        }
 
         if (Yii::$app->request->get('attributes')) {
             $exporter->export(
@@ -134,10 +133,10 @@ class DefaultController extends AdminController
      */
     public function actionSample()
     {
-       // $response = Yii::$app->response;
+        // $response = Yii::$app->response;
         //$response->format = Response::FORMAT_RAW;
         //$response->getHeaders()->add('Content-type', 'application/octet-stream');
-       // $response->getHeaders()->add('Content-Disposition', 'attachment; filename=sample.csv');
+        // $response->getHeaders()->add('Content-Disposition', 'attachment; filename=sample.csv');
 
         $content = '"name";"category";"price";"type"' . PHP_EOL;
         $content .= '"Product Name";"Category/Subcategory";"10.99";"Base Product"' . PHP_EOL;
@@ -145,10 +144,10 @@ class DefaultController extends AdminController
 
         return \Yii::$app->response->sendContentAsFile($content, 'sample.csv', [
             'mimeType' => 'application/octet-stream',
-          //  'inline'   => false
+            //  'inline'   => false
         ]);
 
-      //  return $content;
+        //  return $content;
     }
 
     public function getAddonsMenu()

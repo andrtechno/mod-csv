@@ -76,7 +76,7 @@ $this->registerJs('
 
         <?php
         $groups = [];
-        foreach ($importer->getExportAttributes('eav_') as $k => $v) {
+        foreach ($importer->getExportAttributes('eav_', Yii::$app->request->get('type_id')) as $k => $v) {
             if (strpos($k, 'eav_') === false) {
                 $groups['Основные'][$k] = $v;
             } else {
@@ -108,11 +108,13 @@ $this->registerJs('
                 <?php } ?>
             <?php } ?>
         </table>
+        <?php if(Yii::$app->request->get('type_id')){ ?>
         <div class="form-group text-center">
             <?php
             echo Html::submitButton(Yii::t('csv/default', 'EXPORT_PRODUCTS'), ['class' => 'btn btn-success']);
             ?>
         </div>
+        <?php } ?>
         <?= Html::endForm() ?>
     </div>
 </div>

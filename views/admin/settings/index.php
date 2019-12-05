@@ -5,6 +5,9 @@ use panix\engine\bootstrap\ActiveForm;
 use panix\mod\shop\models\ProductType;
 use yii\helpers\ArrayHelper;
 
+/**
+ *
+ */
 ?>
 
 <div class="card">
@@ -16,10 +19,6 @@ use yii\helpers\ArrayHelper;
     ?>
     <div class="card-body">
         <?= $form->field($model, 'pagenum') ?>
-        <?= $form->field($model, 'use_type')->dropDownList(ArrayHelper::map(ProductType::find()->all(), 'id', 'name'), [
-            'prompt' => 'Укажите тип товара'
-        ])->hint('Если не выбрать тип, то параметр "<b>type</b>" станет обязательный для csv файла.'); ?>
-
     </div>
     <div class="card-footer text-center">
         <?= $model->submitButton(); ?>

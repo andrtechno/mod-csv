@@ -44,8 +44,8 @@ $this->registerJs('
         <div class="form-group row">
             <div class="col-sm-4"><?= Html::label(Yii::t('shop/Product', 'TYPE_ID'), 'type_id', ['class' => 'col-form-label']); ?></div>
             <div class="col-sm-8">
-                <?= Html::dropDownList('type_id', Yii::$app->request->get('type_id'), ArrayHelper::merge(['all' => 'All'], ArrayHelper::map(\panix\mod\shop\models\ProductType::find()->all(), 'id', 'name')), [
-                    'prompt' => '---',
+                <?= Html::dropDownList('type_id', Yii::$app->request->get('type_id'), ArrayHelper::map(\panix\mod\shop\models\ProductType::find()->all(), 'id', 'name'), [
+                    //'prompt' => '---',
                     'id' => 'type_id',
                     //'onChange' => 'type(this)',
                     'class' => 'custom-select'

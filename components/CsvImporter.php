@@ -270,21 +270,21 @@ class CsvImporter extends \yii\base\Component
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
                         if ($image && $model->mainImage === null) {
-                            $model->addImage($image);
+                            $model->attachImage($image);
                         }
                         if ($image && $this->deleteDownloadedImages)
                             $image->deleteTempFile();
                     }
                 } else {
-/*
+
                     $image = CsvImage::create($data['image']);
-                    $isImage = $model->getImage();
+                    $isImage = $model->getImage(1);
 
                     if ($image && $isImage === null) {
                         $model->attachImage($image);
                     }
                     if ($image && $this->deleteDownloadedImages)
-                        $image->deleteTempFile();*/
+                        $image->deleteTempFile();
                 }
             }
             // die;

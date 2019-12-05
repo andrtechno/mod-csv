@@ -27,10 +27,9 @@ class CsvImage extends UploadedFile {
      * @return CsvImage|false
      */
     public static function create($image) {
-        $isDownloaded = substr($image, 0, 5) === 'http:';
+        $isDownloaded = substr($image, 0, 4) === 'http';
 
         if ($isDownloaded) {
-           // echo $image;die;
             $tmpName = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . sha1(pathinfo($image, PATHINFO_FILENAME)) . '.' . pathinfo($image, PATHINFO_EXTENSION);
 
             if ((bool) parse_url($image) && !file_exists($tmpName)) {
@@ -45,7 +44,7 @@ class CsvImage extends UploadedFile {
         if (!file_exists($tmpName))
             return false;
 
-        $result = new CsvImage($image, $tmpName, FileHelper::getMimeType($tmpName), filesize($tmpName), false);
+        $result = new CsvImage($image, $tmpName, FileHelper::getMimeType($tmpName), filesize($tmpName), UPLOAD_ERR_OK);
         $result->isDownloaded = $isDownloaded;
         return $result;
     }
@@ -55,7 +54,7 @@ class CsvImage extends UploadedFile {
      * @param bool $deleteTempFile
      * @return bool
      */
-    public function saveAs222($file, $deleteTempFile = false) {
+    public function saveAs($file, $deleteTempFile = false) {
         return copy($this->tempName, $file);
     }
 

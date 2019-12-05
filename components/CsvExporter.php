@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\components;
 
+use panix\mod\shop\models\ProductType;
 use Yii;
 use panix\mod\shop\models\Product;
 use panix\mod\shop\models\Manufacturer;
@@ -182,6 +183,14 @@ EOF;
                 $filename .= $manufacturer->name . '_';
             }
         }
+
+
+        if (Yii::$app->request->get('type_id')) {
+                $type = ProductType::findOne(Yii::$app->request->get('type_id'));
+                $filename .= $type->name . '_';
+        }
+
+
         $filename .= '(' . CMS::date() . ')';
 
 

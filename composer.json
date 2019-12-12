@@ -18,7 +18,7 @@
     }
   ],
   "require": {
-    "panix/mod-shop": "*"
+    "panix/mod-shop": "dev-master"
   },
   "autoload": {
     "psr-4": {

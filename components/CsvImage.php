@@ -23,7 +23,7 @@ class CsvImage extends UploadedFile {
     }
 
     /**
-     * @param string $image name in ./uploads/importImages/ e.g. somename.jpg
+     * @param string $image name in /uploads/importImages/ e.g. somename.jpg
      * @return CsvImage|false
      */
     public static function create($image) {
@@ -39,7 +39,7 @@ class CsvImage extends UploadedFile {
             }
         }
         else
-            $tmpName = Yii::getAlias('@uploads/importImages') . DIRECTORY_SEPARATOR . $image;
+            $tmpName = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . $image;
 
         if (!file_exists($tmpName))
             return false;

@@ -25,7 +25,6 @@ class SettingsController extends AdminController
             if($model->validate()){
                 $model->save();
             }
-            $this->refresh();
         }
 
         return $this->render('index', ['model' => $model]);

@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\controllers\admin;
 
+use panix\mod\csv\models\FilterForm;
 use yii\data\Pagination;
 use Yii;
 use panix\engine\Html;
@@ -92,25 +93,36 @@ class DefaultController extends AdminController
         ];
         $this->breadcrumbs[] = $this->pageName;
 
+
+        $get = Yii::$app->request->get();
+        $model = new FilterForm();
         $query = Product::find();
+        $count = 0;
         $pages = false;
-        //if (Yii::$app->request->get('manufacturer_id')) {
+        if ($model->load(Yii::$app->request->get()) && $model->validate()) {
 
-        if (Yii::$app->request->get('manufacturer_id') !== 'all') {
+            //if (Yii::$app->request->get('manufacturer_id')) {
 
-            $manufacturers = explode(',', Yii::$app->request->get('manufacturer_id', ''));
-            $query->applyManufacturers($manufacturers);
-        }
-        if (Yii::$app->request->get('type_id')) {
-            $query->where(['type_id' => Yii::$app->request->get('type_id')]);
-        }
+            if ($get['FilterForm']['manufacturer_id'] !== 'all') {
 
+                $manufacturers = explode(',', $model->manufacturer_id);
+                $query->applyManufacturers($manufacturers);
+            }
+
+                $query->where(['type_id' => $model->type_id]);
+            $count = $query->count();
             $pages = new Pagination([
-                'totalCount' => $query->count(),
+                'totalCount' => $count,
                 'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
             ]);
             $query->offset($pages->offset);
             $query->limit($pages->limit);
+        }
+
+
+
+
+
 
 
         if (Yii::$app->request->get('attributes')) {
@@ -123,6 +135,8 @@ class DefaultController extends AdminController
             'exporter' => $exporter,
             'pages' => $pages,
             'query' => $query,
+            'count' => $count,
+            'model'=>$model,
             'importer' => new CsvImporter,
         ]);
     }

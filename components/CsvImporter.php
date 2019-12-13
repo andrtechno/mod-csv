@@ -243,11 +243,11 @@ class CsvImporter extends \yii\base\Component
             if (isset($data['additionalCategories']))
                 $categories = array_merge($categories, $this->getAdditionalCategories($data['additionalCategories']));
 
-            /*if (!$newProduct) {
+            if (!$newProduct) {
                 foreach ($model->categorization as $c)
                     $categories[] = $c->category;
                 $categories = array_unique($categories);
-            }*/
+            }
 
 
             // die;
@@ -485,11 +485,12 @@ class CsvImporter extends \yii\base\Component
     public function getImportableAttributes($eav_prefix = '')
     {
         $attributes = [];
+        $units = '';
+        foreach ((new Product)->getUnits() as $id => $unit) {
+            $units .= '<code style="font-size: inherit">' . $unit . '</code><br/>';
+        }
         $shop_config = Yii::$app->settings->get('shop');
-
-        $attributes['type'] = Yii::t('app', 'Тип см. {setting}', [
-            'setting' => Html::a(Yii::t('app', 'SETTINGS'), ['/admin/csv/settings'])
-        ]);
+        $attributes['type'] = Yii::t('shop/Product', 'TYPE_ID');
 
         //if (!$shop_config['auto_gen_url']) {
         $attributes['name'] = Yii::t('shop/Product', 'NAME');
@@ -499,11 +500,12 @@ class CsvImporter extends \yii\base\Component
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
+        $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение <code>1</code> - показать <code>0</code> - скрыть.');
         $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
-        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолча́нию<code>1</code>');
-        $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолча́нию<code>1</code> - есть на складе');
+        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию <code>1</code>, от 0 до 99999');
+        $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолчанию<code>1</code> - есть на складе');
         //$attributes['created_at'] = Yii::t('app', 'Дата создания');
         // $attributes['updated_at'] = Yii::t('app', 'Дата обновления');
         foreach (Attribute::find()->joinWith(['translations'])->asArray()->all() as $attr) {
@@ -517,14 +519,12 @@ class CsvImporter extends \yii\base\Component
 
         $units = '';
         foreach ((new Product)->getUnits() as $id => $unit) {
-            $units .= '<code style="font-size: inherit">' . $id . '</code> &mdash; ' . $unit . '<br/>';
+            $units .= '<code style="font-size: inherit">' . $unit . '</code><br/>';
         }
         $attributes = [];
         $shop_config = Yii::$app->settings->get('shop');
         if (!Yii::$app->settings->get('csv', 'use_type')) {
-            $attributes['type'] = Yii::t('app', 'Тип см. {setting}', [
-                'setting' => Html::a(Yii::t('app', 'SETTINGS'), ['/admin/csv/settings'])
-            ]);
+            $attributes['type'] = Yii::t('shop/Product', 'TYPE_ID');
         }
         //if (!$shop_config['auto_gen_url']) {
         $attributes['name'] = Yii::t('shop/Product', 'NAME');
@@ -535,10 +535,10 @@ class CsvImporter extends \yii\base\Component
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
-        $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть.');
+        $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть');
         $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code style="font-size: inherit">pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code style="font-size: inherit">;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
-        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию &mdash; <code style="font-size: inherit">1</code>');
+        $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию &mdash; <code style="font-size: inherit">1</code>, от 0 до 99999');
         $attributes['availability'] = Yii::t('app', 'Наличие.<br/>Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; есть на складе <strong>(default)</strong><br/><code style="font-size: inherit">2</code> &mdash; нет на складе<br/><code style="font-size: inherit">3</code> &mdash; под заказ.');
         //$attributes['created_at'] = Yii::t('app', 'Дата создания');
         //$attributes['updated_at'] = Yii::t('app', 'Дата обновления');

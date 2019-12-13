@@ -325,10 +325,6 @@ class CsvImporter extends \yii\base\Component
         if (isset($this->manufacturerCache[$name]))
             return $this->manufacturerCache[$name];
 
-
-        //$cr->with = array('man_translate');
-        //$cr->compare('man_translate.name', $name);
-
         $query = Manufacturer::find()
             ->joinWith(['translations translate'])
             ->where(['translate.name' => trim($name)]);
@@ -391,8 +387,6 @@ class CsvImporter extends \yii\base\Component
 
         $parent = $this->rootCategory;
 
-        //$cr = new CDbCriteria;
-        // $cr->compare('name', trim($result[0]));
         $model = Category::find()
             ->joinWith(['translations translate'])
             ->where(['translate.name' => trim($result[0])])

@@ -8,7 +8,6 @@ use panix\engine\CMS;
  */
 
 
-
 ?>
 
 <div class="row">
@@ -27,7 +26,8 @@ use panix\engine\CMS;
 
                 <?php if ($importer->hasErrors()) { ?>
                     <div class="form-group">
-                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>:</p>
+                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>
+                                :</p>
                             <ul>
                                 <?php
                                 $i = 0;
@@ -60,7 +60,17 @@ use panix\engine\CMS;
                 <?php } ?>
 
                 <?php
-                $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
+                $form = ActiveForm::begin([
+                    'options' => ['enctype' => 'multipart/form-data'],
+                    'fieldConfig' => [
+                        'template' => "<div class=\"col-sm-4 col-lg-4\">{label}</div>\n{beginWrapper}\n{input}\n{hint}\n{error}\n{endWrapper}",
+                        'horizontalCssClasses' => [
+                            'label' => 'col-form-label',
+                            'offset' => 'offset-sm-4 offset-lg-4',
+                            'wrapper' => 'col-sm-8 col-lg-8',
+                        ],
+                    ]
+                ]);
                 echo $form->field($model, 'file_csv')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::file_csv_max_size)));
                 echo $form->field($model, 'files')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
                 echo $form->field($model, 'remove_images')->checkbox(['disabled' => true]);
@@ -90,10 +100,8 @@ use panix\engine\CMS;
         </div>
 
 
-
     </div>
     <div class="col-lg-6">
-
 
 
         <?= \panix\engine\grid\GridView::widget([
@@ -113,7 +121,6 @@ use panix\engine\CMS;
                 ],
             ]
         ]); ?>
-
 
 
         <div class="card">

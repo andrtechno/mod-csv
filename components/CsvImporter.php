@@ -106,7 +106,7 @@ class CsvImporter extends \yii\base\Component
         'update' => 0,
     ];
 
-    public $required = ['category', 'price', 'manufacturer', 'sku', 'type'];
+    public $required = ['category', 'price', 'sku', 'type'];
 
     /*public function __construct($config = [])
     {

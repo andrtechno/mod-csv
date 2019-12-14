@@ -6,6 +6,7 @@ use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
 use yii\helpers\FileHelper;
+use yii\web\UploadedFile;
 use panix\engine\Html;
 use panix\engine\CMS;
 use panix\engine\controllers\AdminController;
@@ -106,7 +107,7 @@ class DefaultController extends AdminController
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
 
-            $model->files = \yii\web\UploadedFile::getInstance($model, 'files');
+            $model->files = UploadedFile::getInstance($model, 'files');
             if ($model->files) {
                 $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $model->files->name;
                 if ($model->files->extension == 'zip') {
@@ -128,37 +129,27 @@ class DefaultController extends AdminController
                 }
 
             }
-            if (isset($_FILES['file_csv'])) {
-                $importer->file = $_FILES['file_csv']['tmp_name'];
+            $model->file_csv = UploadedFile::getInstance($model, 'file_csv');
+            if ($model->file_csv) {
+
+                $importer->file = $model->file_csv->tempName;
                 if ($importer->validate() && !$importer->hasErrors()) {
                     $importer->import();
                 }
             }
         }
-        /*if (Yii::$app->request->isPost && isset($_FILES['file'])) {
-            $importer->file = $_FILES['file']['tmp_name'];
 
-            if ($importer->validate() && !$importer->hasErrors()) {
-                // Create db backup
-                if (isset($_POST['create_dump']) && $_POST['create_dump']) {
-                    if (is_writable(Yii::getAlias(Yii::$app->db->backupPath))) {
-                        Yii::$app->getDb()->export();
-                    } else
-                        throw new HttpException(503, Yii::t('csv/default', 'ERROR_WRITE_BACKUP'));
-                }
-                $importer->import();
-            }
-        }*/
-        return $this->render('import', ['importer' => $importer,
+        return $this->render('import', [
+            'importer' => $importer,
             'model' => $model,
-            'filesData' => $provider]);
+            'filesData' => $provider
+        ]);
     }
 
     /**
      * Export products
      */
-    public
-    function actionExport()
+    public function actionExport()
     {
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new CsvExporter;
@@ -222,8 +213,7 @@ class DefaultController extends AdminController
     /**
      * Sample csv file
      */
-    public
-    function actionSample()
+    public function actionSample()
     {
         // $response = Yii::$app->response;
         //$response->format = Response::FORMAT_RAW;
@@ -242,8 +232,7 @@ class DefaultController extends AdminController
         //  return $content;
     }
 
-    public
-    function getAddonsMenu()
+    public function getAddonsMenu()
     {
         return [
             [

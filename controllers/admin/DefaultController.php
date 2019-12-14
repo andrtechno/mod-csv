@@ -21,6 +21,18 @@ set_time_limit(0);
 
 class DefaultController extends AdminController
 {
+
+    public function actions()
+    {
+        return [
+            'delete-file' => [
+                'class' => 'panix\engine\actions\RemoveFileAction',
+                'path' => '@uploads/csv_import_images',
+                'redirect' => ['/admin/csv/default/import']
+            ],
+        ];
+    }
+
     public function beforeAction($action)
     {
         if (!file_exists(Yii::getAlias('@uploads/csv_import_images'))) {

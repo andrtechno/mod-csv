@@ -119,6 +119,16 @@ use panix\engine\CMS;
                     'attribute' => 'name',
                     'format' => 'raw',
                 ],
+                [
+                    'class' => \yii\grid\ActionColumn::class,
+                    'template' => '{delete}',
+                    'contentOptions' => ['class' => 'text-center'],
+                    'buttons' => [
+                        'delete' => function ($url, $model) {
+                            return Html::a(Html::icon('delete'), ['delete-file', 'file' => $model['name']], ['class' => 'btn btn-sm btn-danger']);
+                        }
+                    ]
+                ],
             ]
         ]); ?>
 

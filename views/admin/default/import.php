@@ -123,6 +123,7 @@ use panix\engine\CMS;
                     'class' => \yii\grid\ActionColumn::class,
                     'template' => '{delete}',
                     'contentOptions' => ['class' => 'text-center'],
+                    'header' => Yii::t('app', 'OPTIONS'),
                     'buttons' => [
                         'delete' => function ($url, $model) {
                             return Html::a(Html::icon('delete'), ['delete-file', 'file' => $model['name']], ['class' => 'btn btn-sm btn-danger']);

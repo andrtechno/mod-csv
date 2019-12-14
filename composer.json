@@ -18,7 +18,8 @@
     }
   ],
   "require": {
-    "panix/mod-shop": "dev-master"
+    "panix/mod-shop": "dev-master",
+    "nelexa/zip": "~3"
   },
   "autoload": {
     "psr-4": {

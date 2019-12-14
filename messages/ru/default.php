@@ -6,6 +6,7 @@ return [
     'IMPORT_PRODUCTS' => 'Импорт товаров',
     'EXPORT_PRODUCTS' => 'Экспорт товаров',
     'DOWNLOAD_CSV' => 'Скачать файл csv',
+    'MAX_FILE_SIZE' => 'Максимальный размер файла {0}',
     'CREATE_PRODUCTS' => 'Создано товаров: <span class="badge badge-success">{n}</span>',
     'UPDATE_PRODUCTS' => 'Обновлено товаров: <span class="badge badge-success">{n}</span>',
     'START_IMPORT' => 'Начать импорт',

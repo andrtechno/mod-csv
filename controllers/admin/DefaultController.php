@@ -2,7 +2,10 @@
 
 namespace panix\mod\csv\controllers\admin;
 
+use panix\engine\CMS;
 use panix\mod\csv\models\FilterForm;
+use panix\mod\csv\models\ImportForm;
+use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
 use Yii;
 use panix\engine\Html;
@@ -51,10 +54,68 @@ class DefaultController extends AdminController
         $this->breadcrumbs[] = $this->pageName;
 
 
+        $files = \yii\helpers\FileHelper::findFiles(Yii::getAlias('@uploads/csv_import_images'));
+
+        $data = [];
+        foreach ($files as $f) {
+            $name = basename($f);
+            $data[] = [
+                'file' => $f,
+                'name' => $name,
+                'img' => Html::img('/uploads/csv_import_images/' . $name, ['width' => 100])
+            ];
+        }
+
+
+        $provider = new ArrayDataProvider([
+            'allModels' => $data,
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+            'sort' => [
+                'attributes' => ['id', 'name'],
+            ],
+        ]);
+
         $importer = new CsvImporter;
         $importer->deleteDownloadedImages = Yii::$app->request->post('remove_images');
 
-        if (Yii::$app->request->isPost && isset($_FILES['file'])) {
+
+        $model = new ImportForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+
+            $model->files = \yii\web\UploadedFile::getInstance($model, 'files');
+            if ($model->files) {
+                $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $model->files->name;
+                if ($model->files->extension == 'zip') {
+                    $uploadFiles = $model->files->saveAs($filePath);
+                    if ($uploadFiles) {
+                        if (file_exists($filePath)) {
+                            $zipFile = new \PhpZip\ZipFile();
+                            $zipFile->openFile($filePath);
+                            $extract = $zipFile->extractTo(Yii::getAlias('@uploads/csv_import_images'));
+                            if ($extract)
+                                unlink($filePath);
+                        } else {
+                            die('error 01');
+                        }
+                    }
+                } elseif (in_array($model->files->extension, ['jpg', 'jpeg'])) {
+                    $filePath = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . CMS::gen(10) . '.' . $model->files->extension;
+                    $model->files->saveAs($filePath);
+                }
+
+            }
+            if (isset($_FILES['file_csv'])) {
+                $importer->file = $_FILES['file_csv']['tmp_name'];
+                if ($importer->validate() && !$importer->hasErrors()) {
+                    $importer->import();
+                }
+            }
+        }
+        /*if (Yii::$app->request->isPost && isset($_FILES['file'])) {
             $importer->file = $_FILES['file']['tmp_name'];
 
             if ($importer->validate() && !$importer->hasErrors()) {
@@ -67,16 +128,17 @@ class DefaultController extends AdminController
                 }
                 $importer->import();
             }
-        }
-        return $this->render('import', array(
-            'importer' => $importer
-        ));
+        }*/
+        return $this->render('import', ['importer' => $importer,
+            'model' => $model,
+            'filesData' => $provider]);
     }
 
     /**
      * Export products
      */
-    public function actionExport()
+    public
+    function actionExport()
     {
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new CsvExporter;
@@ -109,7 +171,7 @@ class DefaultController extends AdminController
                 $query->applyManufacturers($manufacturers);
             }
 
-                $query->where(['type_id' => $model->type_id]);
+            $query->where(['type_id' => $model->type_id]);
             $count = $query->count();
             $pages = new Pagination([
                 'totalCount' => $count,
@@ -118,11 +180,6 @@ class DefaultController extends AdminController
             $query->offset($pages->offset);
             $query->limit($pages->limit);
         }
-
-
-
-
-
 
 
         if (Yii::$app->request->get('attributes')) {
@@ -136,7 +193,7 @@ class DefaultController extends AdminController
             'pages' => $pages,
             'query' => $query,
             'count' => $count,
-            'model'=>$model,
+            'model' => $model,
             'importer' => new CsvImporter,
         ]);
     }
@@ -145,7 +202,8 @@ class DefaultController extends AdminController
     /**
      * Sample csv file
      */
-    public function actionSample()
+    public
+    function actionSample()
     {
         // $response = Yii::$app->response;
         //$response->format = Response::FORMAT_RAW;
@@ -164,7 +222,8 @@ class DefaultController extends AdminController
         //  return $content;
     }
 
-    public function getAddonsMenu()
+    public
+    function getAddonsMenu()
     {
         return [
             [

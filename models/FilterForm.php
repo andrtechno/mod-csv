@@ -31,8 +31,8 @@ class FilterForm extends Model
     public function attributeLabels()
     {
         return [
-            'type_id'=>Yii::t('shop/Product','TYPE_ID'),
-            'manufacturer_id'=>Yii::t('shop/Product','MANUFACTURER_ID')
+            'type_id' => Yii::t('shop/Product', 'TYPE_ID'),
+            'manufacturer_id' => Yii::t('shop/Product', 'MANUFACTURER_ID')
         ];
     }
 }

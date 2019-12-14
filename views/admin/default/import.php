@@ -1,5 +1,7 @@
 <?php
 use panix\engine\Html;
+use panix\engine\bootstrap\ActiveForm;
+use panix\engine\CMS;
 
 /**
  * @var $importer \panix\mod\csv\components\CsvImporter
@@ -33,12 +35,28 @@ $this->registerJs("
 ?>
 
 <div class="row">
-    <div class="col-lg-5">
+    <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
                 <h5><?= $this->context->pageName; ?></h5>
             </div>
             <div class="card-body">
+                <div class="col mt-3">
+                    <div class="alert alert-warning">Перед загрузкой <strong>CSV файла</strong>, необходимо загрузить
+                        изображения.
+                    </div>
+                </div>
+                <?php
+                $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
+                echo $form->field($model, 'file_csv')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::file_csv_max_size)));
+                echo $form->field($model, 'files')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
+                echo $form->field($model, 'remove_images')->checkbox(['disabled' => true]);
+                echo $form->field($model, 'db_backup')->checkbox();
+                ?>
+                <?= Html::submitButton(Yii::t('csv/default', 'Загрузить изображения'), ['class' => 'btn btn-success']); ?>
+
+                <?php ActiveForm::end(); // Html::endForm() ?>
+
 
 
                 <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => '']) ?>
@@ -96,6 +114,24 @@ $this->registerJs("
 
                 <div class="form-group row">
                     <div class="col-12">
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="inputGroupFile04"
+                                       aria-describedby="inputGroupFileAddon04">
+                                <label class="custom-file-label"
+                                       for="inputGroupFile04"><?= Yii::t('csv/default', 'SELECT_FILE') ?></label>
+                            </div>
+                            <div class="input-group-append">
+                                <?= Html::submitButton(Yii::t('csv/default', 'Загрузить изображения'), ['class' => 'btn btn-success']); ?>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="col-12">
                         <label style="width: 300px">
                             <input type="checkbox" name="create_dump" value="1" disabled="disabled"/>
                             <?= Yii::t('csv/default', 'DUMP_DB') ?>
@@ -106,7 +142,8 @@ $this->registerJs("
                 <div class="form-group row">
                     <div class="col-12">
                         <label style="width: 300px">
-                            <input type="checkbox" name="remove_images" value="1" checked="checked" disabled="disabled"/>
+                            <input type="checkbox" name="remove_images" value="1" checked="checked"
+                                   disabled="disabled"/>
                             <?= Yii::t('csv/default', 'REMOVE_IMAGES') ?>
                         </label>
                     </div>
@@ -130,8 +167,29 @@ $this->registerJs("
                 </div>
             </div>
         </div>
+
+
+        <?= \panix\engine\grid\GridView::widget([
+            'dataProvider' => $filesData,
+            'layoutOptions' => ['title' => 'Изображения для импорта'],
+            'columns' => [
+                ['class' => 'yii\grid\SerialColumn'],
+                [
+                    'attribute' => 'img',
+                    'format' => 'raw',
+                    'contentOptions' => ['class' => 'text-center']
+
+                ],
+                [
+                    'attribute' => 'name',
+                    'format' => 'raw',
+                ],
+            ]
+        ]); ?>
+
+
     </div>
-    <div class="col-lg-7">
+    <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
                 <h5>Описание</h5>
@@ -150,7 +208,6 @@ $this->registerJs("
                 <?php } ?>
                 <?php
                 $groups = [];
-
 
 
                 foreach ($importer->getImportableAttributes('eav_') as $k => $v) {

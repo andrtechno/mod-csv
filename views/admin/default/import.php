@@ -19,7 +19,7 @@ use panix\engine\CMS;
             <div class="card-body">
                 <div class="col mt-3">
                     <div class="alert alert-warning">Перед загрузкой <strong>CSV файла</strong>, необходимо загрузить
-                        изображения.
+                        изображения, если этого требует файл
                     </div>
                 </div>
 

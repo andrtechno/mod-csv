@@ -2,24 +2,32 @@
 
 namespace panix\mod\csv\controllers\admin;
 
-use panix\engine\CMS;
-use panix\mod\csv\models\FilterForm;
-use panix\mod\csv\models\ImportForm;
+use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
-use Yii;
+use yii\helpers\FileHelper;
 use panix\engine\Html;
+use panix\engine\CMS;
+use panix\engine\controllers\AdminController;
 use panix\mod\csv\components\CsvExporter;
 use panix\mod\csv\components\CsvImporter;
 use panix\mod\shop\models\Product;
-use panix\engine\controllers\AdminController;
-use yii\web\HttpException;
+use panix\mod\csv\models\FilterForm;
+use panix\mod\csv\models\ImportForm;
+
 
 ignore_user_abort(1);
 set_time_limit(0);
 
 class DefaultController extends AdminController
 {
+    public function beforeAction($action)
+    {
+        if (!file_exists(Yii::getAlias('@uploads/csv_import_images'))) {
+            FileHelper::createDirectory(Yii::getAlias('@uploads/csv_import_images'));
+        }
+        return parent::beforeAction($action);
+    }
 
     public function actionIndex()
     {

@@ -7,30 +7,7 @@ use panix\engine\CMS;
  * @var $importer \panix\mod\csv\components\CsvImporter
  */
 
-$this->context->pageName = Yii::t('csv/default', 'IMPORT');
 
-$this->registerJs("
-    /*$(document).on('change', '.btn-file :file', function () {
-        var input = $(this),
-            numFiles = input.get(0).files ? input.get(0).files.length : 1,
-            label = input.val().replace(/.*\//, '');
-        input.trigger('fileselect', [numFiles, label]);
-    });
-
-    $(document).ready(function () {
-        $('.btn-file :file').on('fileselect', function (event, numFiles, label) {
-            var input = $(this).parents('.input-group').find(':text'),
-                log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-            if (input.length) {
-                input.val(log);
-            } else {
-                if (log)
-                    alert(log);
-            }
-        });
-    });*/
-");
 
 ?>
 
@@ -46,23 +23,11 @@ $this->registerJs("
                         изображения.
                     </div>
                 </div>
-                <?php
-                $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
-                echo $form->field($model, 'file_csv')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::file_csv_max_size)));
-                echo $form->field($model, 'files')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
-                echo $form->field($model, 'remove_images')->checkbox(['disabled' => true]);
-                echo $form->field($model, 'db_backup')->checkbox();
-                ?>
-                <?= Html::submitButton(Yii::t('csv/default', 'Загрузить изображения'), ['class' => 'btn btn-success']); ?>
-
-                <?php ActiveForm::end(); // Html::endForm() ?>
 
 
-
-                <?= Html::beginForm('', 'post', ['enctype' => 'multipart/form-data', 'class' => '']) ?>
                 <?php if ($importer->hasErrors()) { ?>
                     <div class="form-group">
-                        <div class="errorSummary alert alert-danger"><p>Ошибки импорта:</p>
+                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>:</p>
                             <ul>
                                 <?php
                                 $i = 0;
@@ -84,7 +49,6 @@ $this->registerJs("
                         </div>
                     </div>
                 <?php } ?>
-
                 <?php if ($importer->stats['create'] > 0 OR $importer->stats['update'] > 0) { ?>
                     <div class="form-group">
                         <div class="successSummary alert alert-info">
@@ -95,61 +59,18 @@ $this->registerJs("
                     </div>
                 <?php } ?>
 
-                <div class="form-group row">
-                    <div class="col-12">
-                        <div class="input-group">
-            <span class="input-group-btn">
-                <span class="btn btn-primary btn-file">
-                    <?= Yii::t('csv/default', 'SELECT_FILE') ?> <input type="file" name="file">
-                </span>
-            </span>
-                            <input type="text" class="form-control" readonly>
-                            <span class="input-group-btn">
-                <input type="submit" value="<?= Yii::t('csv/default', 'START_IMPORT') ?>" class="btn btn-success">
-            </span>
-                        </div>
-                    </div>
+                <?php
+                $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]);
+                echo $form->field($model, 'file_csv')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::file_csv_max_size)));
+                echo $form->field($model, 'files')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
+                echo $form->field($model, 'remove_images')->checkbox(['disabled' => true]);
+                echo $form->field($model, 'db_backup')->checkbox(['disabled' => true]);
+                ?>
+                <div class="form-group text-center">
+                    <?= Html::submitButton(Yii::t('csv/default', 'IMPORT'), ['class' => 'btn btn-success']); ?>
                 </div>
+                <?php ActiveForm::end(); ?>
 
-
-                <div class="form-group row">
-                    <div class="col-12">
-                        <div class="input-group">
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="inputGroupFile04"
-                                       aria-describedby="inputGroupFileAddon04">
-                                <label class="custom-file-label"
-                                       for="inputGroupFile04"><?= Yii::t('csv/default', 'SELECT_FILE') ?></label>
-                            </div>
-                            <div class="input-group-append">
-                                <?= Html::submitButton(Yii::t('csv/default', 'Загрузить изображения'), ['class' => 'btn btn-success']); ?>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="form-group row">
-                    <div class="col-12">
-                        <label style="width: 300px">
-                            <input type="checkbox" name="create_dump" value="1" disabled="disabled"/>
-                            <?= Yii::t('csv/default', 'DUMP_DB') ?>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="col-12">
-                        <label style="width: 300px">
-                            <input type="checkbox" name="remove_images" value="1" checked="checked"
-                                   disabled="disabled"/>
-                            <?= Yii::t('csv/default', 'REMOVE_IMAGES') ?>
-                        </label>
-                    </div>
-                </div>
-
-                <?= Html::endForm() ?>
                 <div class="form-group row">
                     <div class="col">
                         <div class="importDescription alert alert-info">
@@ -167,6 +88,12 @@ $this->registerJs("
                 </div>
             </div>
         </div>
+
+
+
+    </div>
+    <div class="col-lg-6">
+
 
 
         <?= \panix\engine\grid\GridView::widget([
@@ -188,8 +115,7 @@ $this->registerJs("
         ]); ?>
 
 
-    </div>
-    <div class="col-lg-6">
+
         <div class="card">
             <div class="card-header">
                 <h5>Описание</h5>

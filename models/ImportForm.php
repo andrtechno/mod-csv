@@ -27,23 +27,19 @@ class ImportForm extends Model
     public function rules()
     {
         return [
-
             [['file_csv'], 'file', 'extensions' => ['csv'], 'maxSize' => self::file_csv_max_size],
             [['files'], 'file', 'extensions' => $this->filesExt, 'maxSize' => self::files_max_size],
             [['remove_images', 'db_backup'], 'boolean'],
-            // [['type_id'], 'required'],
-            // [['manufacturer_id'], 'integer'],
-
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'file_csv' => Yii::t('shop/Product', 'CSV файл'),
-            'files' => Yii::t('shop/Product', 'Изображения (' . implode(', ', $this->filesExt) . ')'),
-            'remove_images' => Yii::t('shop/Product', 'Удалить загруженные картинки'),
-            'db_backup' => Yii::t('shop/Product', 'Создать резервную копию БД.'),
+            'file_csv' => Yii::t('csv/default', 'FILE_CSV'),
+            'files' => Yii::t('csv/default', 'FILES', implode(', ', $this->filesExt)),
+            'remove_images' => Yii::t('csv/default', 'REMOVE_IMAGES'),
+            'db_backup' => Yii::t('csv/default', 'DB_BACKUP'),
         ];
     }
 }

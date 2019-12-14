@@ -243,11 +243,11 @@ class CsvImporter extends \yii\base\Component
             if (isset($data['additionalCategories']))
                 $categories = array_merge($categories, $this->getAdditionalCategories($data['additionalCategories']));
 
-            if (!$newProduct) {
+            //if (!$newProduct) {
                 foreach ($model->categorization as $c)
                     $categories[] = $c->category;
                 $categories = array_unique($categories);
-            }
+            //}
 
 
             // die;
@@ -269,7 +269,7 @@ class CsvImporter extends \yii\base\Component
                     rsort($imagesArray);
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
-                        if ($image && $model->mainImage === null) {
+                        if ($image) {
                             $model->attachImage($image);
                         }
                         if ($image && $this->deleteDownloadedImages)

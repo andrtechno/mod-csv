@@ -97,7 +97,7 @@ $this->registerJs("
                 <div class="form-group row">
                     <div class="col-12">
                         <label style="width: 300px">
-                            <input type="checkbox" name="create_dump" value="1"/>
+                            <input type="checkbox" name="create_dump" value="1" disabled="disabled"/>
                             <?= Yii::t('csv/default', 'DUMP_DB') ?>
                         </label>
                     </div>
@@ -106,7 +106,7 @@ $this->registerJs("
                 <div class="form-group row">
                     <div class="col-12">
                         <label style="width: 300px">
-                            <input type="checkbox" name="remove_images" value="1" checked="checked"/>
+                            <input type="checkbox" name="remove_images" value="1" checked="checked" disabled="disabled"/>
                             <?= Yii::t('csv/default', 'REMOVE_IMAGES') ?>
                         </label>
                     </div>

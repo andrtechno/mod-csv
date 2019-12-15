@@ -66,7 +66,7 @@ class CsvExporter
         /** @var Product $p */
         foreach ($query->all() as $p) {
             $row = [];
-
+CMS::dump($attributes);die;
             foreach ($attributes as $attr) {
                 if ($attr === 'category') {
                     $value = $this->getCategory($p);
@@ -147,10 +147,10 @@ EOF;
         $mainCategory = $product->mainCategory;
         $categories = $product->categories;
 
-        $result = array();
+        $result = [];
         foreach ($categories as $category) {
             if ($category->id !== $mainCategory->id) {
-                $path = array();
+                $path = [];
                 $ancestors = $category->ancestors()->excludeRoot()->all();
                 foreach ($ancestors as $c)
                     $path[] = preg_replace('/\//', '\/', $c->name);

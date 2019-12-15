@@ -40,7 +40,7 @@ $this->registerJs('
 
             <div class="form-group row">
                 <div class="col-12">
-                    <h4><?= Yii::t('csv/default','EXPORT_PRODUCTS'); ?></h4>
+                    <h4><?= Yii::t('csv/default', 'EXPORT_PRODUCTS'); ?></h4>
                     <?php
                     echo \panix\engine\widgets\LinkPager::widget([
                         'pagination' => $pages,
@@ -84,13 +84,12 @@ $this->registerJs('
                         <th colspan="3" class="text-center"><?= $groupName; ?></th>
                     </tr>
                     <?php foreach ($group as $k => $v) {
-
-                        $dis = (in_array($k,(new \panix\mod\csv\components\CsvImporter)->required))?true:false;
-
+                        $dis = (in_array($k, (new \panix\mod\csv\components\CsvImporter)->required)) ? true : false;
+                        //,'readonly'=>$dis,'disabled'=>$dis
                         ?>
                         <tr>
                             <td align="left" width="10px">
-                                <?= Html::checkbox('attributes[]',true,['value'=>$k,'disabled'=>$dis]); ?>
+                                <?= Html::checkbox('attributes[]', true, ['value' => $k]); ?>
 
                             </td>
                             <td><code style="font-size: inherit"><?= Html::encode($k); ?></code></td>
@@ -104,7 +103,7 @@ $this->registerJs('
 
             <div class="form-group row">
                 <div class="col-12">
-                    <h4><?= Yii::t('csv/default','EXPORT_PRODUCTS'); ?></h4>
+                    <h4><?= Yii::t('csv/default', 'EXPORT_PRODUCTS'); ?></h4>
                     <?php
                     echo \panix\engine\widgets\LinkPager::widget([
                         'pagination' => $pages,

@@ -66,7 +66,7 @@ class CsvExporter
         /** @var Product $p */
         foreach ($query->all() as $p) {
             $row = [];
-CMS::dump($attributes);die;
+
             foreach ($attributes as $attr) {
                 if ($attr === 'category') {
                     $value = $this->getCategory($p);

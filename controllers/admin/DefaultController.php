@@ -137,6 +137,7 @@ class DefaultController extends AdminController
                     $importer->import();
                 }
             }
+            $this->refresh();
         }
 
         return $this->render('import', [

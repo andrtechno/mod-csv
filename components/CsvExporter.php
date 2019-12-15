@@ -218,21 +218,27 @@ EOF;
     public function proccessOutput()
     {
 
-
+        $get = Yii::$app->request->get('FilterForm');
         $filename = '';
-        if (Yii::$app->request->get('manufacturer_id')) {
-            if (Yii::$app->request->get('manufacturer_id') == 'all') {
+        if (isset($get['manufacturer_id'])) {
+            if ($get['manufacturer_id'] == 'all') {
                 $filename .= 'all_';
             } else {
-                $manufacturer = Manufacturer::findOne(Yii::$app->request->get('manufacturer_id'));
-                $filename .= $manufacturer->name . '_';
+                $manufacturer = Manufacturer::findOne($get['manufacturer_id']);
+                if ($manufacturer) {
+                    $filename .= $manufacturer->name . '_';
+                }
+
             }
         }
 
 
-        if (Yii::$app->request->get('type_id')) {
-            $type = ProductType::findOne(Yii::$app->request->get('type_id'));
-            $filename .= $type->name . '_';
+        if ($get['type_id']) {
+            $type = ProductType::findOne($get['type_id']);
+            if ($type) {
+                $filename .= $type->name . '_';
+            }
+
         }
 
 

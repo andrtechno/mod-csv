@@ -41,6 +41,16 @@ class CsvExporter
     public $manufacturerCache = [];
 
     /**
+     * @var array
+     */
+    public $supplierCache = [];
+
+    /**
+     * @var array
+     */
+    public $currencyCache = [];
+
+    /**
      * @param array $attributes
      * @param $query \panix\mod\shop\models\query\ProductQuery
      */
@@ -156,6 +166,9 @@ EOF;
 
     /**
      * Get manufacturer
+     *
+     * @param Product $product
+     * @return mixed|string
      */
     public function getManufacturer(Product $product)
     {
@@ -164,6 +177,38 @@ EOF;
 
         $product->manufacturer ? $result = $product->manufacturer->name : $result = '';
         $this->manufacturerCache[$product->manufacturer_id] = $result;
+        return $result;
+    }
+
+    /**
+     * Get Currency
+     *
+     * @param Product $product
+     * @return mixed|string
+     */
+    public function getCurrency(Product $product)
+    {
+        if (isset($this->currencyCache[$product->currency_id]))
+            return $this->currencyCache[$product->currency_id];
+
+        $product->currency ? $result = $product->currency->iso : $result = '';
+        $this->currencyCache[$product->currency_id] = $result;
+        return $result;
+    }
+
+    /**
+     * Get supplier
+     *
+     * @param Product $product
+     * @return mixed|string
+     */
+    public function getSupplier(Product $product)
+    {
+        if (isset($this->supplierCache[$product->supplier_id]))
+            return $this->supplierCache[$product->supplier_id];
+
+        $product->supplier ? $result = $product->supplier->name : $result = '';
+        $this->supplierCache[$product->supplier_id] = $result;
         return $result;
     }
 
@@ -186,8 +231,8 @@ EOF;
 
 
         if (Yii::$app->request->get('type_id')) {
-                $type = ProductType::findOne(Yii::$app->request->get('type_id'));
-                $filename .= $type->name . '_';
+            $type = ProductType::findOne(Yii::$app->request->get('type_id'));
+            $filename .= $type->name . '_';
         }
 
 

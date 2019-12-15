@@ -4,6 +4,8 @@ namespace panix\mod\csv\components;
 
 use panix\mod\images\behaviors\ImageBehavior;
 use panix\mod\images\models\Image;
+use panix\mod\shop\models\Currency;
+use panix\mod\shop\models\Supplier;
 use Yii;
 use panix\engine\CMS;
 use panix\engine\Html;
@@ -87,6 +89,16 @@ class CsvImporter extends \yii\base\Component
      * @var array
      */
     protected $manufacturerCache = [];
+
+    /**
+     * @var array
+     */
+    protected $supplierCache = [];
+
+    /**
+     * @var array
+     */
+    protected $currencyCache = [];
 
     /**
      * @var int
@@ -188,11 +200,11 @@ class CsvImporter extends \yii\base\Component
         // Search product by name, category
         // or create new one
         //if (isset($data['sku']) && !empty($data['sku']) && $data['sku'] != '') {
-         //   $query->where([Product::tableName() . '.sku' => $data['sku']]);
-       // } else {
-            $query->joinWith('translations as translate');
-            $query->where(['translate.name' => $data['name']]); //$cr->compare('translate.name', $data['name']);
-       // }
+        //   $query->where([Product::tableName() . '.sku' => $data['sku']]);
+        // } else {
+        $query->joinWith('translations as translate');
+        $query->where(['translate.name' => $data['name']]); //$cr->compare('translate.name', $data['name']);
+        // }
 
         $query->applyCategories($category_id);
 
@@ -234,6 +246,14 @@ class CsvImporter extends \yii\base\Component
         if (isset($data['manufacturer']) && !empty($data['manufacturer']))
             $model->manufacturer_id = $this->getManufacturerIdByName($data['manufacturer']);
 
+        // Supplier
+        if (isset($data['supplier']) && !empty($data['supplier']))
+            $model->supplier_id = $this->getSupplierIdByName($data['supplier']);
+
+        // Currency
+        if (isset($data['currency']) && !empty($data['currency']))
+            $model->currency_id = $this->getCurrencyIdByName($data['currency']);
+
         // Update product variables and eav attributes.
         $attributes = new CsvAttributesProcessor($model, $data);
 
@@ -244,13 +264,11 @@ class CsvImporter extends \yii\base\Component
                 $categories = array_merge($categories, $this->getAdditionalCategories($data['additionalCategories']));
 
             //if (!$newProduct) {
-                foreach ($model->categorization as $c)
-                    $categories[] = $c->category;
-                $categories = array_unique($categories);
+            foreach ($model->categorization as $c)
+                $categories[] = $c->category;
+            $categories = array_unique($categories);
             //}
 
-
-            // die;
 
             // Save product
             $model->save();
@@ -266,7 +284,7 @@ class CsvImporter extends \yii\base\Component
             if (isset($data['image']) && !empty($data['image'])) {
                 if (strpos($data['image'], ';')) {
                     $imagesArray = explode(';', $data['image']);
-                    rsort($imagesArray);
+                    //rsort($imagesArray);
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
                         if ($image) {
@@ -340,6 +358,47 @@ class CsvImporter extends \yii\base\Component
         }
 
         $this->manufacturerCache[$name] = $model->id;
+        return $model->id;
+    }
+
+    /**
+     * Find Currency
+     * @param string $name
+     * @return integer
+     */
+    public function getCurrencyIdByName($name)
+    {
+        if (isset($this->currencyCache[$name]))
+            return $this->currencyCache[$name];
+
+        $query = Currency::find()->where(['iso' => trim($name)]);
+
+        $model = $query->one();
+
+        $this->currencyCache[$name] = $model->id;
+        return $model->id;
+    }
+
+    /**
+     * Find or create supplier
+     * @param string $name
+     * @return integer
+     */
+    public function getSupplierIdByName($name)
+    {
+        if (isset($this->supplierCache[$name]))
+            return $this->supplierCache[$name];
+
+        $query = Supplier::find()->where(['name' => trim($name)]);
+
+        $model = $query->one();
+        if (!$model) {
+            $model = new Supplier();
+            $model->name = $name;
+            $model->save();
+        }
+
+        $this->supplierCache[$name] = $model->id;
         return $model->id;
     }
 
@@ -495,9 +554,11 @@ class CsvImporter extends \yii\base\Component
         //if (!$shop_config['auto_gen_url']) {
         $attributes['name'] = Yii::t('shop/Product', 'NAME');
         // }
+        $attributes['currency'] = Yii::t('shop/Product', 'CURRENCY_ID');
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
+        $attributes['supplier'] = Yii::t('shop/Product', 'SUPPLIER_ID');
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
@@ -529,9 +590,11 @@ class CsvImporter extends \yii\base\Component
         //if (!$shop_config['auto_gen_url']) {
         $attributes['name'] = Yii::t('shop/Product', 'NAME');
         // }
+        $attributes['currency'] = Yii::t('shop/Product', 'CURRENCY_ID');
         $attributes['category'] = Yii::t('app', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['additionalCategories'] = Yii::t('app', 'Доп. Категории разделяются точкой с запятой <code style="font-size: inherit">;</code><br/>Например &mdash; <code style="font-size: inherit">MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['manufacturer'] = Yii::t('app', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
+        $attributes['supplier'] = Yii::t('shop/Product', 'SUPPLIER_ID');
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;

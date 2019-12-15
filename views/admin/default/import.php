@@ -73,8 +73,8 @@ use panix\engine\CMS;
                 ]);
                 echo $form->field($model, 'file_csv')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::file_csv_max_size)));
                 echo $form->field($model, 'files')->fileInput(['multiple' => false])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
-                echo $form->field($model, 'remove_images')->checkbox(['disabled' => true]);
-                echo $form->field($model, 'db_backup')->checkbox(['disabled' => true]);
+                echo $form->field($model, 'remove_images')->checkbox([]);
+                echo $form->field($model, 'db_backup')->checkbox([]);
                 ?>
                 <div class="form-group text-center">
                     <?= Html::submitButton(Yii::t('csv/default', 'IMPORT'), ['class' => 'btn btn-success']); ?>

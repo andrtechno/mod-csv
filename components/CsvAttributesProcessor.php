@@ -102,7 +102,7 @@ class CsvAttributesProcessor extends Component
             }
         } else {
             $option = $this->getOption($attribute, $attribute_value);
-            $result[] = $option->id;
+            $result[] = $option->value;
         }
 
         return $result;

@@ -134,11 +134,11 @@ class DefaultController extends AdminController
 
                 $importer->file = $model->file_csv->tempName;
                 if ($importer->validate() && !$importer->hasErrors()) {
-                    Yii::$app->session->addFlash('success','import success');
+                   // Yii::$app->session->addFlash('success','import success');
                     $importer->import();
                 }
             }
-            $this->refresh();
+            //$this->refresh();
         }
 
         return $this->render('import', [

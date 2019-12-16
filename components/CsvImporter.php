@@ -395,7 +395,7 @@ class CsvImporter extends \yii\base\Component
         if (!$model) {
             $model = new Supplier();
             $model->name = $name;
-            $model->save();
+            $model->save(false);
         }
 
         $this->supplierCache[$name] = $model->id;

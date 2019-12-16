@@ -72,6 +72,10 @@ class CsvExporter
                     $value = $this->getCategory($p);
                 } elseif ($attr === 'manufacturer') {
                     $value = $this->getManufacturer($p);
+                } elseif ($attr === 'supplier') {
+                    $value = $this->getSupplier($p);
+                } elseif ($attr === 'currency') {
+                    $value = $this->getCurrency($p);
                 } elseif ($attr === 'image') {
                     /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
                     $img = $p->getImage();
@@ -209,6 +213,7 @@ EOF;
 
         $product->supplier ? $result = $product->supplier->name : $result = '';
         $this->supplierCache[$product->supplier_id] = $result;
+
         return $result;
     }
 

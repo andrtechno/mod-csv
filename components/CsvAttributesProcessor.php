@@ -1,4 +1,5 @@
 <?php
+
 namespace panix\mod\csv\components;
 
 use yii\base\Component;
@@ -12,7 +13,8 @@ use yii\base\Exception;
  * Class CsvAttributesProcessor handles Product class attributes and
  * EAV attributes.
  */
-class CsvAttributesProcessor extends Component {
+class CsvAttributesProcessor extends Component
+{
 
     /**
      * @var Product
@@ -27,7 +29,7 @@ class CsvAttributesProcessor extends Component {
     /**
      * @var array
      */
-    public $skipNames = ['category', 'type', 'manufacturer', 'image', 'additionalCategories'];
+    public $skipNames = ['category', 'type', 'manufacturer', 'supplier', 'currency', 'image', 'additionalCategories'];
 
     /**
      * @var array of ShopAttribute models.
@@ -48,7 +50,8 @@ class CsvAttributesProcessor extends Component {
      * @param Product $product
      * @param array $data
      */
-    public function __construct(Product $product, array $data) {
+    public function __construct(Product $product, array $data)
+    {
         $this->model = $product;
         $this->data = $data;
         $this->process();
@@ -59,7 +62,8 @@ class CsvAttributesProcessor extends Component {
      * Process each data row. First, try to assign value to products model,
      * if attributes does not exists - handle like eav attribute.
      */
-    public function process() {
+    public function process()
+    {
         foreach ($this->data as $key => $val) {
             try {
                 if (!in_array($key, $this->skipNames) && !empty($val)) {
@@ -83,7 +87,8 @@ class CsvAttributesProcessor extends Component {
      * @param $attribute_value
      * @return array
      */
-    public function processEavData($attribute_name, $attribute_value) {
+    public function processEavData($attribute_name, $attribute_value)
+    {
         $result = [];
 
         $attribute = $this->getAttributeByName($attribute_name);
@@ -110,7 +115,8 @@ class CsvAttributesProcessor extends Component {
      * @param $val
      * @return AttributeOption
      */
-    public function getOption(Attribute $attribute, $val) {
+    public function getOption(Attribute $attribute, $val)
+    {
         $val = trim($val);
         $cacheKey = sha1($attribute->id . $val);
 
@@ -121,8 +127,7 @@ class CsvAttributesProcessor extends Component {
         $query = AttributeOption::find();
 
 
-
-        $query->where(['attribute_id'=>$attribute->id]);
+        $query->where(['attribute_id' => $attribute->id]);
         $query->joinWith(['translations translate']);
         $query->andWhere(['translate.value' => $val]);
 
@@ -142,7 +147,8 @@ class CsvAttributesProcessor extends Component {
      * @param $value
      * @return AttributeOption
      */
-    public function addOptionToAttribute($attribute_id, $value) {
+    public function addOptionToAttribute($attribute_id, $value)
+    {
         $option = new AttributeOption;
         $option->attribute_id = $attribute_id;
         $option->value = $value;
@@ -155,14 +161,12 @@ class CsvAttributesProcessor extends Component {
      * @param $name
      * @return Attribute
      */
-    public function getAttributeByName($name) {
+    public function getAttributeByName($name)
+    {
 
 
         if (isset($this->attributesCache[$name]))
             return $this->attributesCache[$name];
-
-
-
 
 
         $attribute = Attribute::find()->where(['name' => $name])->one();
@@ -191,7 +195,8 @@ class CsvAttributesProcessor extends Component {
     /**
      * Append and save product attributes.
      */
-    public function save() {
+    public function save()
+    {
         if (!empty($this->eav))
             $this->model->setEavAttributes($this->eav, true);
     }

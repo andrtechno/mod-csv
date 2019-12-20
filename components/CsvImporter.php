@@ -287,20 +287,27 @@ class CsvImporter extends \yii\base\Component
                     $imagesArray = explode(';', $data['image']);
                     //rsort($imagesArray);
                     foreach ($imagesArray as $n => $im) {
-                        $image = CsvImage::create($im);
-                        if ($image) {
-                            //try{
+                        if (!empty($im)) {
+                            $image = CsvImage::create($im);
+                            if ($image) {
+                                //try{
                                 $model->attachImage($image);
-                            /*}catch (Exception $e){
-                                $this->errors[] = [
-                                    'line' => $this->line,
-                                    'error' => $e->getMessage()
-                                ];
-                            }*/
+                                /*}catch (Exception $e){
+                                    $this->errors[] = [
+                                        'line' => $this->line,
+                                        'error' => $e->getMessage()
+                                    ];
+                                }*/
 
+                            }
+                            if ($image && $this->deleteDownloadedImages)
+                                $image->deleteTempFile();
+                        } else {
+                            $this->errors[] = [
+                                'line' => $this->line,
+                                'error' => Yii::t('csv/default','ERROR_IMAGE')
+                            ];
                         }
-                        if ($image && $this->deleteDownloadedImages)
-                            $image->deleteTempFile();
                     }
                 } else {
 
@@ -319,10 +326,8 @@ class CsvImporter extends \yii\base\Component
             $errors = $model->getErrors();
 
             $error = array_shift($errors);
-            $this->errors[] = [
-                'line' => $this->line,
-                'error' => $error[0]
-            ];
+            $this->errors[] = ['line' => $this->line,
+                'error' => $error[0]];
         }
     }
 

@@ -289,14 +289,14 @@ class CsvImporter extends \yii\base\Component
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
                         if ($image) {
-                            try{
+                            //try{
                                 $model->attachImage($image);
-                            }catch (Exception $e){
+                            /*}catch (Exception $e){
                                 $this->errors[] = [
                                     'line' => $this->line,
                                     'error' => $e->getMessage()
                                 ];
-                            }
+                            }*/
 
                         }
                         if ($image && $this->deleteDownloadedImages)

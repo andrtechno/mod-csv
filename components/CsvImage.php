@@ -37,9 +37,11 @@ class CsvImage extends UploadedFile {
                 if ((int) (substr($fileHeader[0], 9, 3)) === 200)
                     file_put_contents($tmpName, file_get_contents($image));
             }
-        }
-        else
+        } else{
             $tmpName = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . $image;
+
+        }
+
 
         if (!file_exists($tmpName))
             return false;
@@ -55,7 +57,22 @@ class CsvImage extends UploadedFile {
      * @return bool
      */
     public function saveAs($file, $deleteTempFile = false) {
+
+        //if(!file_exists($this->tempName) || empty($this->tempName)){
+        //echo $file;
+       //     echo $this->tempName;die;
+       // }
         return copy($this->tempName, $file);
+
+
+       /* if ($this->error == UPLOAD_ERR_OK) {
+            if ($deleteTempFile) {
+                return move_uploaded_file($this->tempName, $file);
+            } elseif (is_uploaded_file($this->tempName)) {
+                return copy($this->tempName, $file);
+            }
+        }*/
+
     }
 
     public function deleteTempFile() {

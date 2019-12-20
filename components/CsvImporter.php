@@ -15,6 +15,7 @@ use panix\mod\shop\models\translate\CategoryTranslate;
 use panix\mod\shop\models\Attribute;
 use panix\mod\shop\models\Category;
 use panix\mod\shop\models\Product;
+use yii\base\Exception;
 use yii\helpers\VarDumper;
 
 /**
@@ -288,7 +289,15 @@ class CsvImporter extends \yii\base\Component
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
                         if ($image) {
-                            $model->attachImage($image);
+                            try{
+                                $model->attachImage($image);
+                            }catch (Exception $e){
+                                $this->errors[] = [
+                                    'line' => $this->line,
+                                    'error' => $e->getMessage()
+                                ];
+                            }
+
                         }
                         if ($image && $this->deleteDownloadedImages)
                             $image->deleteTempFile();

@@ -178,8 +178,8 @@ class CsvImporter extends \yii\base\Component
 
         while (($row = fgetcsv($file, $this->maxRowLength, $this->delimiter, $this->enclosure)) !== false) {
             $row = $this->prepareRow($row);
-            $this->importRow($row);
             $this->line++;
+            $this->importRow($row);
         }
     }
 
@@ -300,6 +300,7 @@ class CsvImporter extends \yii\base\Component
                                 }*/
 
                             }
+
                             if ($image && $this->deleteDownloadedImages)
                                 $image->deleteTempFile();
                         } else {

@@ -99,7 +99,8 @@ class DefaultController extends AdminController
         ]);
 
         $importer = new CsvImporter;
-        $importer->deleteDownloadedImages = Yii::$app->request->post('remove_images');
+
+        $importer->deleteDownloadedImages = Yii::$app->request->post('ImportForm')['remove_images'];
 
 
         $model = new ImportForm();

@@ -20,7 +20,7 @@ return [
     'REMOVE_IMAGES' => 'Удалить загруженные картинки',
     'ERROR_FILE' => 'Файл недоступен.',
     'ERROR_IMAGE' => 'Ошибка в изображениях.',
-    'ERROR_IMAGE_EXTENSION' => 'Не верный формат файла.',
+    'ERROR_IMAGE_EXTENSION' => 'Неверный формат файла, доступные форматы: <strong>{0}</strong>',
     'REQUIRE_COLUMN' => 'Укажите обязательную колонку {column}.',
     'LINE' => 'Строка',
     'AND_MORE' => 'и еще ({0}).',

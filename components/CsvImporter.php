@@ -2,27 +2,25 @@
 
 namespace panix\mod\csv\components;
 
-use panix\mod\images\behaviors\ImageBehavior;
-use panix\mod\images\models\Image;
-use panix\mod\shop\models\Currency;
-use panix\mod\shop\models\Supplier;
+
 use Yii;
+use yii\base\Component;
 use panix\engine\CMS;
-use panix\engine\Html;
 use panix\mod\shop\models\Manufacturer;
 use panix\mod\shop\models\ProductType;
 use panix\mod\shop\models\translate\CategoryTranslate;
 use panix\mod\shop\models\Attribute;
 use panix\mod\shop\models\Category;
 use panix\mod\shop\models\Product;
-use yii\base\Exception;
-use yii\helpers\VarDumper;
+use panix\mod\images\behaviors\ImageBehavior;
+use panix\mod\shop\models\Currency;
+use panix\mod\shop\models\Supplier;
 
 /**
  * Import products from csv format
  * Images must be located at ./uploads/importImages
  */
-class CsvImporter extends \yii\base\Component
+class CsvImporter extends Component
 {
 
     /**
@@ -332,7 +330,7 @@ class CsvImporter extends \yii\base\Component
             if (!in_array($checkFile, self::$extension)) {
                 $this->errors[] = [
                     'line' => $this->line,
-                    'error' => Yii::t('csv/default', 'ERROR_IMAGE_EXTENSION')
+                    'error' => Yii::t('csv/default', 'ERROR_IMAGE_EXTENSION', implode(', ', self::$extension))
                 ];
                 return false;
             }

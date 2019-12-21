@@ -100,13 +100,12 @@ class DefaultController extends AdminController
 
         $importer = new CsvImporter;
 
-        $importer->deleteDownloadedImages = Yii::$app->request->post('ImportForm')['remove_images'];
 
 
         $model = new ImportForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-
+            $importer->deleteDownloadedImages = $model->remove_images;
 
             $model->files = UploadedFile::getInstance($model, 'files');
             if ($model->files) {
@@ -124,7 +123,7 @@ class DefaultController extends AdminController
                             die('error 01');
                         }
                     }
-                } elseif (in_array($model->files->extension, ['jpg', 'jpeg'])) {
+                } elseif (in_array($model->files->extension, $importer::$extension)) {
                     $filePath = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . CMS::gen(10) . '.' . $model->files->extension;
                     $model->files->saveAs($filePath);
                 }
@@ -134,6 +133,8 @@ class DefaultController extends AdminController
             if ($model->file_csv) {
 
                 $importer->file = $model->file_csv->tempName;
+
+
                 if ($importer->validate() && !$importer->hasErrors()) {
                    // Yii::$app->session->addFlash('success','import success');
                     $importer->import();

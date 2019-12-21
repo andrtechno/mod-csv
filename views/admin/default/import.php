@@ -7,7 +7,6 @@ use panix\engine\CMS;
  * @var $importer \panix\mod\csv\components\CsvImporter
  */
 
-
 ?>
 
 <div class="row">
@@ -18,16 +17,13 @@ use panix\engine\CMS;
             </div>
             <div class="card-body">
                 <div class="col mt-3">
-                    <div class="alert alert-warning">Перед загрузкой <strong>CSV файла</strong>, необходимо загрузить
-                        изображения, если этого требует файл
-                    </div>
+                    <div class="alert alert-warning"><?= Yii::t('csv/default', 'IMPORT_ALERT'); ?></div>
                 </div>
 
 
                 <?php if ($importer->hasErrors()) { ?>
                     <div class="form-group">
-                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>
-                                :</p>
+                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>:</p>
                             <ul>
                                 <?php
                                 $i = 0;
@@ -39,7 +35,7 @@ use panix\engine\CMS;
                                             echo "<li>" . $error['error'] . "</li>";
                                     } else {
                                         $n = count($importer->getErrors()) - $i;
-                                        echo '<li>' . Yii::t('csv/default', 'AND_MORE', ['n' => $n]) . '</li>';
+                                        echo '<li>' . Yii::t('csv/default', 'AND_MORE', $n) . '</li>';
                                         break;
                                     }
                                     $i++;
@@ -52,9 +48,9 @@ use panix\engine\CMS;
                 <?php if ($importer->stats['create'] > 0 OR $importer->stats['update'] > 0) { ?>
                     <div class="form-group">
                         <div class="successSummary alert alert-info">
-                            <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', ['n' => $importer->stats['create']]); ?>
+                            <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', $importer->stats['create']); ?>
                             <br/>
-                            <?php echo Yii::t('csv/default', 'UPDATE_PRODUCTS', ['n' => $importer->stats['update']]); ?>
+                            <?php echo Yii::t('csv/default', 'UPDATE_PRODUCTS', $importer->stats['update']); ?>
                         </div>
                     </div>
                 <?php } ?>

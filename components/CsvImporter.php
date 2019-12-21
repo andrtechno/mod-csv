@@ -118,7 +118,7 @@ class CsvImporter extends \yii\base\Component
         'create' => 0,
         'update' => 0,
     ];
-
+    public static $extension = ['jpg', 'jpeg'];
     public $required = ['category', 'price', 'sku', 'type'];
 
     /*public function __construct($config = [])
@@ -280,55 +280,29 @@ class CsvImporter extends \yii\base\Component
             // Update categories
             $model->setCategories($categories, $category_id);
 
-            /** @var ImageBehavior $model */
-            // Process product main image if product doesn't have one
-            if (isset($data['image']) && !empty($data['image'])) {
-                if (strpos($data['image'], ';')) {
+            if ($this->validateImage($data['image'])) {
+                /** @var ImageBehavior $model */
+                if (isset($data['image']) && !empty($data['image'])) {
                     $imagesArray = explode(';', $data['image']);
-                    //rsort($imagesArray);
                     foreach ($imagesArray as $n => $im) {
-                        if (!empty($im)) {
-                            $image = CsvImage::create($im);
-                            if ($image) {
-                                //try{
-                                $model->attachImage($image);
-                                /*}catch (Exception $e){
-                                    $this->errors[] = [
-                                        'line' => $this->line,
-                                        'error' => $e->getMessage()
-                                    ];
-                                }*/
-
-                            }
-
-                            if ($image && $this->deleteDownloadedImages)
-                                $image->deleteTempFile();
-                        } else {
-                            $this->errors[] = [
-                                'line' => $this->line,
-                                'error' => Yii::t('csv/default','ERROR_IMAGE')
-                            ];
+                        $image = CsvImage::create($im);
+                        if ($image) {
+                            $model->attachImage($image);
                         }
-                    }
-                } else {
 
-                    $image = CsvImage::create($data['image']);
-                    $isImage = $model->getImage(1);
-
-                    if ($image && $isImage === null) {
-                        $model->attachImage($image);
+                        if ($image && $this->deleteDownloadedImages)
+                            $image->deleteTempFile();
                     }
-                    if ($image && $this->deleteDownloadedImages)
-                        $image->deleteTempFile();
                 }
             }
-            // die;
         } else {
             $errors = $model->getErrors();
 
             $error = array_shift($errors);
-            $this->errors[] = ['line' => $this->line,
-                'error' => $error[0]];
+            $this->errors[] = [
+                'line' => $this->line,
+                'error' => $error[0]
+            ];
         }
     }
 
@@ -346,6 +320,31 @@ class CsvImporter extends \yii\base\Component
             $result[] = $this->getCategoryByPath(trim($path), true);
         }
         return $result;
+    }
+
+    private function validateImage($image)
+    {
+        $imagesList = explode(';', $image);
+        foreach ($imagesList as $i => $im) {
+
+            $checkFile = strtolower(pathinfo($im, PATHINFO_EXTENSION));
+
+            if (!in_array($checkFile, self::$extension)) {
+                $this->errors[] = [
+                    'line' => $this->line,
+                    'error' => Yii::t('csv/default', 'ERROR_IMAGE_EXTENSION')
+                ];
+                return false;
+            }
+
+            if (empty($im)) {
+                $this->errors[] = [
+                    'line' => $this->line,
+                    'error' => Yii::t('csv/default', 'ERROR_IMAGE')
+                ];
+                return false;
+            }
+        }
     }
 
     /**

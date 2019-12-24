@@ -101,7 +101,6 @@ class DefaultController extends AdminController
         $importer = new CsvImporter;
 
 
-
         $model = new ImportForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -119,13 +118,18 @@ class DefaultController extends AdminController
                             $extract = $zipFile->extractTo(Yii::getAlias('@uploads/csv_import_images'));
                             if ($extract)
                                 unlink($filePath);
+
+                            Yii::$app->session->addFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
+
                         } else {
                             die('error 01');
                         }
                     }
                 } elseif (in_array($model->files->extension, $importer::$extension)) {
-                    $filePath = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . CMS::gen(10) . '.' . $model->files->extension;
+                    //$filePath = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . CMS::gen(10) . '.' . $model->files->extension;
+                    $filePath = Yii::getAlias('@uploads/csv_import_images') . DIRECTORY_SEPARATOR . $model->files->name;
                     $model->files->saveAs($filePath);
+                    Yii::$app->session->addFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
                 }
 
             }
@@ -136,11 +140,11 @@ class DefaultController extends AdminController
 
 
                 if ($importer->validate() && !$importer->hasErrors()) {
-                   // Yii::$app->session->addFlash('success','import success');
+                    Yii::$app->session->addFlash('success', 'import success');
                     $importer->import();
                 }
             }
-            //$this->refresh();
+            return $this->redirect(['import']);
         }
 
         return $this->render('import', [

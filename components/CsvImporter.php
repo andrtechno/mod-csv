@@ -253,6 +253,7 @@ class CsvImporter extends Component
         if (isset($data['currency']) && !empty($data['currency']))
             $model->currency_id = $this->getCurrencyIdByName($data['currency']);
 
+
         // Update product variables and eav attributes.
         $attributes = new CsvAttributesProcessor($model, $data);
 
@@ -286,10 +287,11 @@ class CsvImporter extends Component
                         $image = CsvImage::create($im);
                         if ($image) {
                             $model->attachImage($image);
+                            if($this->deleteDownloadedImages){
+                                $image->deleteTempFile();
+                            }
                         }
 
-                        if ($image && $this->deleteDownloadedImages)
-                            $image->deleteTempFile();
                     }
                 }
             }
@@ -325,7 +327,7 @@ class CsvImporter extends Component
         $imagesList = explode(';', $image);
         foreach ($imagesList as $i => $im) {
 
-            $checkFile = strtolower(pathinfo($im, PATHINFO_EXTENSION));
+            $checkFile = mb_strtolower(pathinfo($im, PATHINFO_EXTENSION));
 
             if (!in_array($checkFile, self::$extension)) {
                 $this->errors[] = [
@@ -343,6 +345,7 @@ class CsvImporter extends Component
                 return false;
             }
         }
+        return true;
     }
 
     /**

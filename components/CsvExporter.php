@@ -77,7 +77,7 @@ class CsvExporter
                 } elseif ($attr === 'currency') {
                     $value = $this->getCurrency($p);
                 } elseif ($attr === 'image') {
-                    /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
+                    /** @var $img \panix\mod\images\behaviors\ImageBehavior */
                     $img = $p->getImage();
                     $value = ($img) ? $img->filePath : '';
                 } elseif ($attr === 'additionalCategories') {

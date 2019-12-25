@@ -93,7 +93,7 @@ class CsvAttributesProcessor extends Component
 
         $attribute = $this->getAttributeByName($attribute_name);
 
-        $multipleTypes = array(Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY);
+        $multipleTypes = [Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY, Attribute::TYPE_COLOR];
 
         if (in_array($attribute->type, $multipleTypes)) {
             foreach (explode(',', $attribute_value) as $val) {

@@ -119,14 +119,6 @@ class CsvImporter extends Component
     public static $extension = ['jpg', 'jpeg'];
     public $required = ['category', 'price', 'sku', 'type'];
 
-    /*public function __construct($config = [])
-    {
-        $configure = Yii::$app->settings->get('csv');
-        if (!$configure->use_type) {
-            array_push($this->required, 'type');
-        }
-        parent::__construct($config);
-    }*/
 
     /**
      * @return bool validate csv file
@@ -187,6 +179,7 @@ class CsvImporter extends Component
      */
     protected function importRow($data)
     {
+
         if (!isset($data['category']) || empty($data['category']))
             $data['category'] = 'root';
 
@@ -220,26 +213,22 @@ class CsvImporter extends Component
             if (isset($data['deleted']) && $data['deleted']) {
                 $this->stats['deleted']++;
                 $model->delete();
-                //Yii::log('application','info',$model->id.'|'.$model->name);
             }
 
         }
-        // print_r($data);die;
 
-
-        //$model->name = $data['name'];
-        //$model->slug = CMS::translit($data['name']);
         // Process product type
         $config = Yii::$app->settings->get('csv');
         $model->type_id = $this->getTypeIdByName($data['type']);
         $model->main_category_id = $category_id;
         $model->switch = isset($data['switch']) ? $data['switch'] : 1;
 
-
         if (isset($data['unit'])) {
             $model->unit = array_search($data['unit'], $model->getUnits());
         }
 
+
+        // $model->price = $pricesList[0];
 
         // Manufacturer
         if (isset($data['manufacturer']) && !empty($data['manufacturer']))
@@ -273,11 +262,26 @@ class CsvImporter extends Component
             // Save product
             $model->save();
 
+
+            // Set prices
+            if (isset($data['wholesale_prices']) && !empty($data['wholesale_prices'])) {
+                $pricesList = explode(';', $data['wholesale_prices']);
+                $p = [];
+                foreach ($pricesList as $n => $price) {
+                    if (!empty($price)) {
+                        list($priceValue, $num) = explode('=', $price);
+                        $p[] = ['from' => $num, 'value' => $priceValue];
+                    }
+                }
+                $model->processPrices($p);
+
+            }
             // Update EAV data
             $attributes->save();
 
             // Update categories
             $model->setCategories($categories, $category_id);
+
 
             if ($this->validateImage($data['image'])) {
                 /** @var ImageBehavior $model */
@@ -287,7 +291,7 @@ class CsvImporter extends Component
                         $image = CsvImage::create($im);
                         if ($image) {
                             $model->attachImage($image);
-                            if($this->deleteDownloadedImages){
+                            if ($this->deleteDownloadedImages) {
                                 $image->deleteTempFile();
                             }
                         }
@@ -461,6 +465,7 @@ class CsvImporter extends Component
 
         $parent = $this->rootCategory;
 
+        /** @var \panix\engine\behaviors\nestedsets\NestedSetsBehavior $model */
         $model = Category::find()
             ->joinWith(['translations translate'])
             ->where(['translate.name' => trim($result[0])])
@@ -509,7 +514,7 @@ class CsvImporter extends Component
     {
         $row = array_map('trim', $row);
         $row = array_combine($this->csv_columns, $row);
-        $row['created_at'] = time();//date('Y-m-d H:i:s');
+        $row['created_at'] = time();
         $row['updated_at'] = time();//date('Y-m-d H:i:s');
 
         return array_filter($row); // Remove empty keys and return result
@@ -576,9 +581,10 @@ class CsvImporter extends Component
         $attributes['supplier'] = Yii::t('shop/Product', 'SUPPLIER_ID');
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
+        $attributes['wholesale_prices'] = Yii::t('csv/default', 'WHOLESALE_PRICE');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение <code>1</code> - показать <code>0</code> - скрыть.');
-        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
+        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделяя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
         $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию <code>1</code>, от 0 до 99999');
         $attributes['availability'] = Yii::t('app', 'Доступность. Принимает значение <code>1</code> - есть на складе, <code>2</code> - нет на складе, <code>3</code> - под заказ.<br/>По умолчанию<code>1</code> - есть на складе');
@@ -612,9 +618,12 @@ class CsvImporter extends Component
         $attributes['supplier'] = Yii::t('shop/Product', 'SUPPLIER_ID');
         $attributes['sku'] = Yii::t('shop/Product', 'SKU');
         $attributes['price'] = Yii::t('shop/Product', 'PRICE');
+        $attributes['wholesale_prices'] = Yii::t('csv/default', 'WHOLESALE_PRICE');
+
+
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('app', 'Скрыть или показать. Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; показать<br/><code style="font-size: inherit">0</code> &mdash; скрыть');
-        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code style="font-size: inherit">pic1.jpg;pic2.jpg</code> разделя название изображений символом "<code style="font-size: inherit">;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
+        $attributes['image'] = Yii::t('app', 'Изображение (можно указать несколько изображений). Пример: <code style="font-size: inherit">pic1.jpg;pic2.jpg</code> разделяя название изображений символом "<code style="font-size: inherit">;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="text-danger"><i class="flaticon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['full_description'] = Yii::t('app', 'Полное описание HTML');
         $attributes['quantity'] = Yii::t('app', 'Количество на складе.<br/>По умолчанию &mdash; <code style="font-size: inherit">1</code>, от 0 до 99999');
         $attributes['availability'] = Yii::t('app', 'Наличие.<br/>Принимает значение<br/><code style="font-size: inherit">1</code> &mdash; есть на складе <strong>(default)</strong><br/><code style="font-size: inherit">2</code> &mdash; нет на складе<br/><code style="font-size: inherit">3</code> &mdash; под заказ.');

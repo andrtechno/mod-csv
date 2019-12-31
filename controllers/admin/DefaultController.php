@@ -131,7 +131,7 @@ class DefaultController extends AdminController
                     $model->files->saveAs($filePath);
                     Yii::$app->session->addFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
                 }
-
+                 return $this->redirect(['import']);
             }
             $model->file_csv = UploadedFile::getInstance($model, 'file_csv');
             if ($model->file_csv) {
@@ -144,7 +144,7 @@ class DefaultController extends AdminController
                     $importer->import();
                 }
             }
-            return $this->redirect(['import']);
+
         }
 
         return $this->render('import', [

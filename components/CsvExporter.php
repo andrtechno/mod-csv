@@ -63,6 +63,8 @@ class CsvExporter
                 $v = substr($v, 4);
         }*/
 
+
+
         /** @var Product $p */
         foreach ($query->all() as $p) {
             $row = [];
@@ -77,22 +79,44 @@ class CsvExporter
                 } elseif ($attr === 'currency') {
                     $value = $this->getCurrency($p);
                 } elseif ($attr === 'image') {
-                    /** @var $img \panix\mod\images\behaviors\ImageBehavior */
+                    /** @var \panix\mod\images\behaviors\ImageBehavior $img  */
                     $img = $p->getImage();
-                    $value = ($img) ? $img->filePath : '';
+                    $value = ($img) ? $img->filePath : NULL;
                 } elseif ($attr === 'additionalCategories') {
                     $value = $this->getAdditionalCategories($p);
                 } elseif ($attr === 'type') {
                     $value = $p->type->name;
+
+                } elseif ($attr === 'wholesale_prices') {
+                    $price = [];
+                    $result = NULL;
+                    if (isset($p->prices)) {
+                        foreach ($p->prices as $wp) {
+                            $price[] = $wp->value . '=' . $wp->from;
+                        }
+                       $result = implode(';', $price);
+                    }
+                    $value = $result;
+
                 } elseif ($attr === 'unit') {
-                    $value = (isset($p->units[$p->$attr])) ? $p->units[$p->$attr] : NULL;
+                    if (isset($p->units)) {
+                        $value = (isset($p->units[$p->$attr])) ? $p->units[$p->$attr] : NULL;
+                    } else {
+                        $value = NULL;
+                    }
+
                 } elseif ($attr === 'full_description') {
-                    $value = <<<EOF
+                    if (isset($p->$attr)) {
+                        $value = <<<EOF
 {$p->$attr}
 EOF;
+                    }else{
+                        $value=NULL;
+                    }
+
                 } else {
 
-                    $value = $p->$attr;
+                    $value = (isset($p->$attr)) ? $p->$attr : NULL;
 
                 }
 

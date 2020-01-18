@@ -75,8 +75,8 @@ $this->registerJs('
                 <thead>
                 <tr>
                     <th></th>
-                    <th><?= Yii::t('app', 'NAME') ?></th>
-                    <th><?= Yii::t('app', 'DESCRIPTION') ?></th>
+                    <th><?= Yii::t('app/default', 'NAME') ?></th>
+                    <th><?= Yii::t('app/default', 'DESCRIPTION') ?></th>
                 </tr>
                 </thead>
                 <?php foreach ($groups as $groupName => $group) { ?>

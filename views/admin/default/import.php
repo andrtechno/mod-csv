@@ -119,7 +119,7 @@ use panix\engine\CMS;
                     'class' => \yii\grid\ActionColumn::class,
                     'template' => '{delete}',
                     'contentOptions' => ['class' => 'text-center'],
-                    'header' => Yii::t('app', 'OPTIONS'),
+                    'header' => Yii::t('app/default', 'OPTIONS'),
                     'buttons' => [
                         'delete' => function ($url, $model) {
                             return Html::a(Html::icon('delete'), ['delete-file', 'file' => $model['name']], ['class' => 'btn btn-sm btn-danger']);
@@ -163,8 +163,8 @@ use panix\engine\CMS;
                 <table class="table table-striped table-bordered">
                     <thead>
                     <tr>
-                        <th><?= Yii::t('app', 'NAME') ?></th>
-                        <th><?= Yii::t('app', 'DESCRIPTION') ?></th>
+                        <th><?= Yii::t('app/default', 'NAME') ?></th>
+                        <th><?= Yii::t('app/default', 'DESCRIPTION') ?></th>
                     </tr>
                     </thead>
                     <?php foreach ($groups as $groupName => $group) { ?>

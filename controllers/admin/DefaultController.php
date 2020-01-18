@@ -244,7 +244,7 @@ class DefaultController extends AdminController
     {
         return [
             [
-                'label' => Yii::t('app', 'SETTINGS'),
+                'label' => Yii::t('app/default', 'SETTINGS'),
                 'url' => ['/admin/csv/settings/index'],
                 'icon' => Html::icon('settings'),
             ],

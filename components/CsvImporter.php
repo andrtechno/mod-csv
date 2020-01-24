@@ -223,10 +223,9 @@ class CsvImporter extends Component
         $model->main_category_id = $category_id;
         $model->switch = isset($data['switch']) ? $data['switch'] : 1;
 
-        if (isset($data['unit'])) {
-            $model->unit = array_search($data['unit'], $model->getUnits());
+        if (isset($data['unit']) && !empty($data['unit'])) {
+            $model->unit = array_search(trim($data['unit']), $model->getUnits());
         }
-
 
         // $model->price = $pricesList[0];
 
@@ -247,6 +246,7 @@ class CsvImporter extends Component
         $attributes = new CsvAttributesProcessor($model, $data);
 
         if ($model->validate()) {
+
             $categories = [$category_id];
 
             if (isset($data['additionalCategories']))
@@ -282,10 +282,9 @@ class CsvImporter extends Component
             // Update categories
             $model->setCategories($categories, $category_id);
 
-
-            if ($this->validateImage($data['image'])) {
-                /** @var ImageBehavior $model */
-                if (isset($data['image']) && !empty($data['image'])) {
+            if (isset($data['image']) && !empty($data['image'])) {
+                if ($this->validateImage($data['image'])) {
+                    /** @var ImageBehavior $model */
                     $imagesArray = explode(';', $data['image']);
                     foreach ($imagesArray as $n => $im) {
                         $image = CsvImage::create($im);
@@ -299,6 +298,7 @@ class CsvImporter extends Component
                     }
                 }
             }
+
         } else {
             $errors = $model->getErrors();
 

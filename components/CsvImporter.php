@@ -64,7 +64,7 @@ class CsvImporter extends Component
     protected $fileHandler;
 
     /**
-     * Columns from first line. e.g array(category,price,name,etc...)
+     * Columns from first line. e.g array(category, price, name, etc...)
      * @var array
      */
     protected $csv_columns = [];

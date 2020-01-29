@@ -16,7 +16,6 @@ use panix\mod\shop\models\Product;
 use panix\mod\csv\models\FilterForm;
 use panix\mod\csv\models\ImportForm;
 
-
 ignore_user_abort(1);
 set_time_limit(0);
 
@@ -131,7 +130,7 @@ class DefaultController extends AdminController
                     $model->files->saveAs($filePath);
                     Yii::$app->session->addFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
                 }
-                 return $this->redirect(['import']);
+                return $this->redirect(['import']);
             }
             $model->file_csv = UploadedFile::getInstance($model, 'file_csv');
             if ($model->file_csv) {

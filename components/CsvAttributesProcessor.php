@@ -29,15 +29,15 @@ class CsvAttributesProcessor extends Component
     /**
      * @var array
      */
-    public $skipNames = ['category', 'type', 'manufacturer', 'supplier', 'currency', 'image', 'additionalCategories', 'wholesale_prices', 'unit']; //
+    public $skipNames = ['category', 'type', 'manufacturer', 'supplier', 'currency', 'image', 'additionalCategories', 'wholesale_prices', 'unit'];
 
     /**
-     * @var array of ShopAttribute models.
+     * @var array Attribute models.
      */
     protected $attributesCache = [];
 
     /**
-     * @var array of ShopAttributeOption models.
+     * @var array AttributeOption models.
      */
     protected $optionsCache = [];
 

@@ -3,11 +3,12 @@
 namespace panix\mod\csv\components;
 
 use yii\base\Component;
+use yii\base\Exception;
 use panix\mod\shop\models\Attribute;
 use panix\mod\shop\models\AttributeOption;
 use panix\mod\shop\models\Product;
 use panix\mod\shop\models\TypeAttribute;
-use yii\base\Exception;
+use panix\engine\CMS;
 
 /**
  * Class CsvAttributesProcessor handles Product class attributes and
@@ -174,8 +175,8 @@ class CsvAttributesProcessor extends Component
         if (!$attribute) {
             // Create new attribute
             $attribute = new Attribute;
-            $attribute->name = $name;
             $attribute->title = ucfirst(str_replace('_', ' ', $name));
+            $attribute->name = CMS::slug($attribute->title);
             $attribute->type = Attribute::TYPE_DROPDOWN;
             $attribute->display_on_front = true;
             $attribute->save(false);

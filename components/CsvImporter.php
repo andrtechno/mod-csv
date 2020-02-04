@@ -391,8 +391,11 @@ class CsvImporter extends Component
             return $this->currencyCache[$name];
 
         $query = Currency::find()->where(['iso' => trim($name)]);
-
+        /** @var Currency $model */
         $model = $query->one();
+		
+        if (!$model)
+            throw new Exception(Yii::t('csv/default','NO_FIND_CURRENCY',$name));
 
         $this->currencyCache[$name] = $model->id;
         return $model->id;

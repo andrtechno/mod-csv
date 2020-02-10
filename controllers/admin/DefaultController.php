@@ -139,7 +139,7 @@ class DefaultController extends AdminController
 
 
                 if ($importer->validate() && !$importer->hasErrors()) {
-                    Yii::$app->session->addFlash('success', 'import success');
+                    Yii::$app->session->addFlash('success', Yii::t('csv/default', 'SUCCESS_IMPORT'));
                     $importer->import();
                 }
             }

@@ -223,8 +223,10 @@ class CsvImporter extends Component
         $model->main_category_id = $category_id;
         $model->switch = isset($data['switch']) ? $data['switch'] : 1;
 
-        if (isset($data['unit']) && !empty($data['unit'])) {
+        if (isset($data['unit']) && !empty($data['unit']) && array_search(trim($data['unit']), $model->getUnits())) {
             $model->unit = array_search(trim($data['unit']), $model->getUnits());
+        }else{
+            $model->unit=1;
         }
 
         // $model->price = $pricesList[0];

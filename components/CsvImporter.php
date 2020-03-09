@@ -115,6 +115,7 @@ class CsvImporter extends Component
     public $stats = [
         'create' => 0,
         'update' => 0,
+        'deleted' => 0
     ];
     public static $extension = ['jpg', 'jpeg'];
     public $required = ['category', 'price', 'sku', 'type'];
@@ -202,21 +203,22 @@ class CsvImporter extends Component
 
         $model = $query->one();
 
-
+        $hasDeleted = false;
         if (!$model) {
             $newProduct = true;
             $model = new Product;
             $this->stats['create']++;
         } else {
             $this->stats['update']++;
-
             if (isset($data['deleted']) && $data['deleted']) {
                 $this->stats['deleted']++;
+                $hasDeleted = true;
                 $model->delete();
+                $this->externalFinder->removeObject(ExternalFinder::OBJECT_PRODUCT, $data['fleshka_id']);
             }
 
         }
-
+        if (!$hasDeleted) {
         // Process product type
         $config = Yii::$app->settings->get('csv');
         $model->type_id = $this->getTypeIdByName($data['type']);
@@ -298,7 +300,13 @@ class CsvImporter extends Component
                         }
 
                     }
+                }else{
+                        $this->errors[] = [
+                            'line' => $this->line,
+                            'error' => 'error image'
+                        ];
                 }
+				
             }
 
         } else {
@@ -310,6 +318,7 @@ class CsvImporter extends Component
                 'error' => $error[0]
             ];
         }
+		}
     }
 
     /**

@@ -9,6 +9,7 @@ return [
     'MAX_FILE_SIZE' => 'Максимальный размер файла {0}',
     'CREATE_PRODUCTS' => 'Создано товаров: <span class="badge badge-success">{0}</span>',
     'UPDATE_PRODUCTS' => 'Обновлено товаров: <span class="badge badge-success">{0}</span>',
+    'DELETED_PRODUCTS' => 'Удалено товаров: <span class="badge badge-success">{0}</span>',
     'IMPORT' => 'Импорт',
     'EXPORT' => 'Экспорт',
 	'SUCCESS_IMPORT' => 'Вы успешно загрузили товары',

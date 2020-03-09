@@ -51,7 +51,10 @@ use panix\engine\CMS;
                             <?php echo Yii::t('csv/default', 'CREATE_PRODUCTS', $importer->stats['create']); ?>
                             <br/>
                             <?php echo Yii::t('csv/default', 'UPDATE_PRODUCTS', $importer->stats['update']); ?>
-                        </div>
+                            <br/>
+                            <?php echo Yii::t('csv/default', 'DELETED_PRODUCTS', $importer->stats['deleted']); ?>
+
+					   </div>
                     </div>
                 <?php } ?>
 

@@ -22,7 +22,7 @@ class Module extends WebModule
                                 'label' => Yii::t('csv/default', 'MODULE_NAME'),
                                 'url' => ['/admin/csv'],
                                 'icon' => $this->icon,
-                                // 'active' => $this->getIsActive('csv/default'),
+                                'visible' => Yii::$app->user->can('/csv/admin/default/index') || Yii::$app->user->can('/csv/admin/default/*')
                             ],
                         ]
                     ]

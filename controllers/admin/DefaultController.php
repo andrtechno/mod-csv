@@ -62,11 +62,13 @@ class DefaultController extends AdminController
     {
 
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
-        $this->buttons[] = [
-            'label' => Yii::t('csv/default', 'EXPORT'),
-            'url' => ['/admin/csv/default/export'],
-            'options' => ['class' => 'btn btn-success']
-        ];
+        if (Yii::$app->user->can("/{$this->module->id}/{$this->id}/*") || Yii::$app->user->can("/{$this->module->id}/{$this->id}/export")) {
+            $this->buttons[] = [
+                'label' => Yii::t('csv/default', 'EXPORT'),
+                'url' => ['export'],
+                'options' => ['class' => 'btn btn-success']
+            ];
+        }
         $this->breadcrumbs[] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']
@@ -160,13 +162,13 @@ class DefaultController extends AdminController
     {
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new CsvExporter;
-
-        $this->buttons[] = [
-            'label' => Yii::t('csv/default', 'IMPORT'),
-            'url' => ['/admin/csv/default/import'],
-            'options' => ['class' => 'btn btn-success']
-        ];
-
+        if (Yii::$app->user->can("/{$this->module->id}/{$this->id}/*") || Yii::$app->user->can("/{$this->module->id}/{$this->id}/import")) {
+            $this->buttons[] = [
+                'label' => Yii::t('csv/default', 'IMPORT'),
+                'url' => ['import'],
+                'options' => ['class' => 'btn btn-success']
+            ];
+        }
         $this->breadcrumbs[] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']

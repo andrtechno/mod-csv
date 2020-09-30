@@ -14,11 +14,11 @@ class SettingsController extends AdminController
     public function actionIndex()
     {
         $this->pageName = Yii::t('app/default', 'SETTINGS');
-        $this->breadcrumbs[] = [
+        $this->view->params['breadcrumbs'][] = [
             'label' => Yii::t('csv/default', 'MODULE_NAME'),
             'url' => ['/admin/csv']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
         $model = new SettingsForm;
 
         if ($model->load(Yii::$app->request->post())) {

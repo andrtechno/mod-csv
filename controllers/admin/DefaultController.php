@@ -46,11 +46,11 @@ class DefaultController extends AdminController
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
 
 
-        $this->breadcrumbs[] = [
+        $this->view->params['breadcrumbs'][] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
         return $this->render('index');
     }
@@ -69,11 +69,11 @@ class DefaultController extends AdminController
                 'options' => ['class' => 'btn btn-success']
             ];
         }
-        $this->breadcrumbs[] = [
+        $this->view->params['breadcrumbs'][] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
 
         $files = \yii\helpers\FileHelper::findFiles(Yii::getAlias('@uploads/csv_import_images'));
@@ -169,11 +169,11 @@ class DefaultController extends AdminController
                 'options' => ['class' => 'btn btn-success']
             ];
         }
-        $this->breadcrumbs[] = [
+        $this->view->params['breadcrumbs'][] = [
             'label' => Yii::t('shop/default', 'MODULE_NAME'),
             'url' => ['/admin/shop']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
 
         $get = Yii::$app->request->get();

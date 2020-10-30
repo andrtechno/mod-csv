@@ -141,6 +141,7 @@ class Importer extends Component
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
         $worksheet = $spreadsheet->getActiveSheet();
         //$props = $spreadsheet->getProperties();
+
         $rows = [];
         $cellsHeaders = [];
         foreach ($worksheet->getRowIterator($indentRow, 1) as $k => $row) {
@@ -156,6 +157,7 @@ class Importer extends Component
             }
 
         }
+
         foreach ($worksheet->getRowIterator($indentRow + 1) as $k2 => $row) {
 
             $cellIterator = $row->getCellIterator(Helper::num2alpha($indentColumn));
@@ -209,7 +211,6 @@ class Importer extends Component
 
         $this->columns = $this->getFileHandler();
 
-        // CMS::dump($this->columns[1]);
         //Проверка чтобы небыло атрибутов с таким же названием как и системные параметры
         $i = 1;
 
@@ -228,9 +229,6 @@ class Importer extends Component
             }
             $i++;
         }
-        //CMS::dump($this->columns[0]);
-        //CMS::dump($this->columns[1]);
-        //die;
 
         foreach ($this->required as $column) {
             if (!in_array($column, $this->columns[0]))
@@ -263,7 +261,12 @@ class Importer extends Component
                     $row = $this->prepareRow($row);
 
                     $this->line = $columnIndex;
-                    $this->importRow($row);
+
+                    //if ($counter <= 50) {
+                        $this->importRow($row);
+                    //}else{
+                    //    Yii::$app->queue->push(new QueueImport(['row' => $row]));
+                   // }
                 }
             }
             // }
@@ -388,8 +391,8 @@ class Importer extends Component
                 $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
 
             if (isset($data['Скидка']) && !empty($data['Скидка'])) {
-                CMS::dump($data['Скидка']);
-                die;
+               // CMS::dump($data['Скидка']);
+               // die;
                 $model->discount = $data['Скидка'];
             }
 
@@ -741,6 +744,7 @@ class Importer extends Component
             if (!$model) {
                 $model = new Category;
                 $model->name_ru = end($object);
+                $model->slug = CMS::slug($model->name_ru);
                 $model->appendTo($parent);
             }
 
@@ -750,7 +754,7 @@ class Importer extends Component
         }
         // Cache category id
         $this->categoriesPathCache[$path] = $model->id;
-
+      //  CMS::dump($model);die;
         if (isset($model)) {
             return $model->id;
         }

@@ -243,7 +243,6 @@ class AttributesProcessor extends Component
 
         $shop_config = Yii::$app->settings->get('shop');
 
-        $attributes['custom_id'] = 'Пользовательский идентификатор';
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
         $attributes['Тип'] = Yii::t('shop/Product', 'TYPE_ID');
         $attributes['Категория'] = Yii::t('csv/default', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');

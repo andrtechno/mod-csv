@@ -20,21 +20,19 @@ class SettingsForm extends SettingsModel
     public $indent_row;
     public $indent_column;
     public $ignore_columns;
-    //public $google_token;
     public $google_sheet_id;
     public $google_sheet_list;
-    public $google_service;
+    public $google_credentials;
 
     public function rules()
     {
         return [
             [['pagenum', 'indent_row', 'indent_column'], 'required'],
             [['indent_column', 'indent_row'], 'integer', 'min' => 1],
-            [['ignore_columns', 'google_sheet_id', 'google_sheet_list','google_service'], 'string'],
+            [['ignore_columns', 'google_sheet_id', 'google_sheet_list'], 'string'],
             [['google_sheet_id', 'google_sheet_list'], 'trim'],
-
+            [['google_credentials'], 'file', 'skipOnEmpty' => true, 'extensions' => ['json']],
             [['google_sheet_id'], 'connectValidation'],
-            //[['google_token'], 'file', 'skipOnEmpty' => true, 'extensions' => ['json']],
         ];
     }
 
@@ -45,7 +43,7 @@ class SettingsForm extends SettingsModel
             'indent_row' => 1,
             'indent_column' => 1,
             'ignore_columns' => '',
-            //'google_token' => '',
+            //'google_credentials' => '',
             'google_sheet_id' => '',
             'google_sheet_list' => ''
         ];
@@ -53,46 +51,51 @@ class SettingsForm extends SettingsModel
 
     public function connectValidation($attribute)
     {
+
         try {
             $service = new \Google_Service_Sheets($this->getGoogleClient());
             $get = $service->spreadsheets->get($this->google_sheet_id);
+
             return true;
         } catch (\Google_Service_Exception $e) {
             $error = json_decode($e->getMessage());
+
             if ($error) {
                 $this->addError($attribute, $error->error->message);
             } else {
                 $this->addError($attribute, 'unknown error');
             }
-
         }
+
     }
 
+    public function getCredentialsPath(){
+        return Yii::$app->runtimePath . DIRECTORY_SEPARATOR . Yii::$app->settings->get('csv','google_credentials');
+    }
     /**
      * @return \Google_Client|mixed
      */
     public function getGoogleClient()
     {
-        $config['credentials']=Yii::$app->runtimePath . '/shopiumbot-1595272867229-5e5d50e9a483.json';
-       // if (file_exists($config['credentials'])) {
+
+
+        $config['credentials'] = $this->getCredentialsPath();
+
+        if (file_exists($config['credentials'])) {
             try {
 
-                $config['client_id']='113080523440486524239';
-                $config['client_secret']='5e5d50e9a48361d54557f74a4949fd1b82d61d8e';
-                //$config['client_email']='shopiumbot@shopiumbot-1595272867229.iam.gserviceaccount.com';
-                $client = new \Google_Client($config);
+                // $config['client_id']='113080523440486524239';
+                // $config['client_secret']='5e5d50e9a48361d54557f74a4949fd1b82d61d8e';
+                $client = new \Google\Client($config);
 
                 $client->useApplicationDefaultCredentials();
                 $client->setApplicationName("Something to do with my representatives");
                 $client->setScopes(['https://spreadsheets.google.com/feeds']); //'https://www.googleapis.com/auth/drive',
 
 
-
-             //   if ($client->isAccessTokenExpired()) {
-             //       $client->refreshTokenWithAssertion();
-             //  }
-               // CMS::dump($client);die;
-
+                if ($client->isAccessTokenExpired()) {
+                    $client->refreshTokenWithAssertion();
+                }
 
                 return $client;
             } catch (\Google_Service_Exception $e) {
@@ -100,13 +103,15 @@ class SettingsForm extends SettingsModel
                 // \panix\engine\CMS::dump($error->error->message);
                 return $error;
             }
-      //  }else{
-      //      return false;
-      //  }
+        } else {
+            return false;
+        }
     }
 
     public function getSheetsDropDownList()
     {
+
+
         try {
             $sheets = $this->getSheets();
             if ($sheets) {

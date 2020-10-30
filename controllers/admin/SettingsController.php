@@ -35,10 +35,19 @@ class SettingsController extends AdminController
             'options' => ['class' => 'btn btn-success']
         ];
         $model = new SettingsForm;
+        $oldGoogle_credentials = $model->google_credentials;
        // $oldGoogleTokenFile = $model->google_token;
         if ($model->load(Yii::$app->request->post())) {
+            $model->google_credentials = UploadedFile::getInstance($model, 'google_credentials');
+           // CMS::dump($model->google_credentials);die;
             if ($model->validate()) {
+                if ($model->google_credentials) {
 
+                    $model->google_credentials->saveAs(Yii::$app->runtimePath . DIRECTORY_SEPARATOR . $model->google_credentials->name);
+                   $model->google_credentials = $model->google_credentials->name;
+                } else {
+                    $model->google_credentials = $oldGoogle_credentials;
+                }
 
                 /*$upload = UploadedFile::getInstance($model, 'google_token');
                 if ($upload) {
@@ -50,11 +59,12 @@ class SettingsController extends AdminController
 
                 $model->save();
                 Yii::$app->session->setFlash("success", Yii::t('app/default', 'SUCCESS_UPDATE'));
-            }else{
-               // CMS::dump($model->errors);die;
-                Yii::$app->session->setFlash("error", Yii::t('app/default', 'ERROR_UPDATE'));
+                return $this->refresh();
+           // }else{
+            //CMS::dump($model->errors);die;
+               // Yii::$app->session->setFlash("error", Yii::t('app/default', 'ERROR_UPDATE'));
             }
-            return $this->refresh();
+
         }
 
         return $this->render('index', ['model' => $model]);

@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\models;
 
+use panix\engine\CMS;
 use Yii;
 use panix\engine\SettingsModel;
 
@@ -22,13 +23,14 @@ class SettingsForm extends SettingsModel
     //public $google_token;
     public $google_sheet_id;
     public $google_sheet_list;
+    public $google_service;
 
     public function rules()
     {
         return [
             [['pagenum', 'indent_row', 'indent_column'], 'required'],
             [['indent_column', 'indent_row'], 'integer', 'min' => 1],
-            [['ignore_columns', 'google_sheet_id', 'google_sheet_list'], 'string'],
+            [['ignore_columns', 'google_sheet_id', 'google_sheet_list','google_service'], 'string'],
             [['google_sheet_id', 'google_sheet_list'], 'trim'],
 
             [['google_sheet_id'], 'connectValidation'],
@@ -71,23 +73,36 @@ class SettingsForm extends SettingsModel
      */
     public function getGoogleClient()
     {
-        try {
-            $client = new \Google_Client([
-                'credentials' => Yii::getAlias('@core') . '/shopiumbot-1595272867229-5e5d50e9a483.json'
-            ]);
+        $config['credentials']=Yii::$app->runtimePath . '/shopiumbot-1595272867229-5e5d50e9a483.json';
+       // if (file_exists($config['credentials'])) {
+            try {
 
-            $client->useApplicationDefaultCredentials();
-            $client->setApplicationName("Something to do with my representatives");
-            $client->setScopes(['https://spreadsheets.google.com/feeds']); //'https://www.googleapis.com/auth/drive',
-            if ($client->isAccessTokenExpired()) {
-                $client->refreshTokenWithAssertion();
+                $config['client_id']='113080523440486524239';
+                $config['client_secret']='5e5d50e9a48361d54557f74a4949fd1b82d61d8e';
+                //$config['client_email']='shopiumbot@shopiumbot-1595272867229.iam.gserviceaccount.com';
+                $client = new \Google_Client($config);
+
+                $client->useApplicationDefaultCredentials();
+                $client->setApplicationName("Something to do with my representatives");
+                $client->setScopes(['https://spreadsheets.google.com/feeds']); //'https://www.googleapis.com/auth/drive',
+
+
+
+             //   if ($client->isAccessTokenExpired()) {
+             //       $client->refreshTokenWithAssertion();
+             //  }
+               // CMS::dump($client);die;
+
+
+                return $client;
+            } catch (\Google_Service_Exception $e) {
+                $error = json_decode($e->getMessage());
+                // \panix\engine\CMS::dump($error->error->message);
+                return $error;
             }
-            return $client;
-        } catch (\Google_Service_Exception $e) {
-            $error = json_decode($e->getMessage());
-            // \panix\engine\CMS::dump($error->error->message);
-            return $error;
-        }
+      //  }else{
+      //      return false;
+      //  }
     }
 
     public function getSheetsDropDownList()

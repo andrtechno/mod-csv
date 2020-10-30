@@ -1,7 +1,7 @@
 <?php
 use panix\engine\Html;
-use core\modules\shop\models\Manufacturer;
-use core\modules\shop\models\ProductType;
+use panix\mod\shop\models\Manufacturer;
+use panix\mod\shop\models\ProductType;
 use yii\helpers\ArrayHelper;
 use panix\engine\bootstrap\ActiveForm;
 use panix\mod\csv\components\AttributesProcessor;
@@ -21,7 +21,7 @@ $this->registerJs('
 
         delete fields["attributes[]"];
         
-        window.location = "/csv/default/export?" + jQuery.param($.extend({}, fields));
+        window.location = "/admin/csv/default/export?" + jQuery.param($.extend({}, fields));
     });
 ');
 

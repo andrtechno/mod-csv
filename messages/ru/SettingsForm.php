@@ -6,4 +6,5 @@ return [
     'IGNORE_COLUMNS' => 'Игнорировать столбцы',
     'GOOGLE_SHEET_ID' => 'ID таблицы',
     'GOOGLE_SHEET_LIST' => 'Список таблицы',
+    'GOOGLE_SERVICE' => 'Google service'
 ];

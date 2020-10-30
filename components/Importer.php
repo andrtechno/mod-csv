@@ -4,6 +4,7 @@ namespace panix\mod\csv\components;
 
 
 use panix\mod\shop\components\ExternalFinder;
+use panix\mod\shop\models\Supplier;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use panix\mod\csv\components\AttributesProcessor;
 use panix\mod\csv\components\Image;
@@ -95,6 +96,11 @@ class Importer extends Component
     /**
      * @var array
      */
+    protected $supplierCache = [];
+
+    /**
+     * @var array
+     */
     protected $currencyCache = [];
 
     /**
@@ -159,14 +165,8 @@ class Importer extends Component
                 $value = trim($cell->getValue());
                 if (isset($cellsHeaders[$column2])) {
                     if (!in_array(mb_strtolower($column2), $ignoreColumns)) {
-
                         if ($cell->getDataType() == 'f') {
-                            //todo: need Re-pattern...
-                            //string: =IMAGE("https://sun9-22.userapi.com/c855128/v855128088/114004/x7FdunGhaWc.jpg",2)
-                           /// preg_match('/(IMAGE).*(https?:\/\/?[-\w]+\.[-\w\.]+\w(:\d+)?[-\w\/_\.]*(\?\S+)?)/iu', $cell->getValue(), $match);
-                            ///
-                         preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $cell->getValue(), $match);
-
+                            preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $cell->getValue(), $match);
                             if (isset($match[1]) && isset($match[2])) {
                                 if (mb_strtolower($match[1]) == 'image') {
 
@@ -182,6 +182,7 @@ class Importer extends Component
 
             $rows[$k2] = $cells;
         }
+
         return [$cellsHeaders, $rows];
 
     }
@@ -259,7 +260,6 @@ class Importer extends Component
             // if ($counter >= 100) {
             if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
                 if (!empty($row['Наименование']) && !empty($row['Цена']) && !empty($row['Тип'])) {
-                  //  CMS::dump($row);die;
                     $row = $this->prepareRow($row);
 
                     $this->line = $columnIndex;
@@ -322,7 +322,7 @@ class Importer extends Component
             $this->totalProductCount++;
 
             //if ($this->totalProductCount <= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
-                $this->stats['create']++;
+            $this->stats['create']++;
             //}
         } else {
             $this->stats['update']++;
@@ -350,6 +350,8 @@ class Importer extends Component
 
             $model->price = $data['Цена'];
             $model->name_ru = $data['Наименование'];
+            if (isset($data['Цена закупки']) && !empty($data['Цена закупки']))
+                $model->price_purchase = $data['Цена закупки'];
 
             if (isset($data['unit']) && !empty($data['unit']) && array_search(trim($data['unit']), $model->getUnits())) {
                 $model->unit = array_search(trim($data['unit']), $model->getUnits());
@@ -357,25 +359,39 @@ class Importer extends Component
                 $model->unit = 1;
             }
 
-            // $model->price = $pricesList[0];
 
             // Manufacturer
             if (isset($data['Бренд']) && !empty($data['Бренд']))
                 $model->manufacturer_id = $this->getManufacturerIdByName($data['Бренд']);
 
+            // Supplier
+            if (isset($data['Поставщик']) && !empty($data['Поставщик']))
+                $model->supplier_id = $this->getSupplierIdByName($data['Поставщик']);
 
             if (isset($data['Артикул']) && !empty($data['Артикул']))
                 $model->sku = $data['Артикул'];
 
             if (isset($data['Описание']) && !empty($data['Описание']))
-                $model->description_ru = $data['Описание'];
+                $model->full_description_ru = $data['Описание'];
 
             if (isset($data['Наличие']) && !empty($data['Наличие']))
-                $model->availability = (is_numeric($data['Наличие']))?$data['Наличие']:1;
+                $model->availability = (is_numeric($data['Наличие'])) ? $data['Наличие'] : 1;
+
+
+            if (isset($data['Конфигурация']) && !empty($data['Конфигурация'])) {
+                $model->use_configurations = 1;
+            }
+
 
             // Currency
             if (isset($data['Валюта']) && !empty($data['Валюта']))
                 $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
+
+            if (isset($data['Скидка']) && !empty($data['Скидка'])) {
+                CMS::dump($data['Скидка']);
+                die;
+                $model->discount = $data['Скидка'];
+            }
 
 
             // Update product variables and eav attributes.
@@ -397,6 +413,23 @@ class Importer extends Component
 
                 // Save product
                 $model->save();
+                if ($model->use_configurations) {
+                    $db = $model::getDb()->createCommand();
+                    $configure_attribute_list = explode(';', $data['Конфигурация']);
+                    $configureIds = [];
+                    $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
+                    foreach ($configure_attribute_list as $configure_attribute) {
+
+                        $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
+                        $db->insert('{{%shop__product_configurable_attributes}}', [
+                            'product_id' => $model->id,
+                            'attribute_id' => $configure->id
+                        ])->execute();
+                    }
+
+
+                }
+
                 // Create product external id
                 if ($newProduct === true) {
                     $this->external->createExternalId(ExternalFinder::OBJECT_PRODUCT, $model->id, $data['Наименование']);
@@ -432,54 +465,54 @@ class Importer extends Component
                         //        'line' => $this->line,
                         //        'error' => Yii::t('shop/default', 'PRODUCT_LIMIT_IMAGE', count($imagesArray))
                         //    ];
-                       // } else {
-                            foreach ($imagesArray as $n => $im) {
-                                $imageName = $model->id . '_' . basename($im);
-                                $externalFinderImage = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName);
+                        // } else {
+                        foreach ($imagesArray as $n => $im) {
+                            $imageName = $model->id . '_' . basename($im);
+                            $externalFinderImage = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName);
 
-                                if (!$externalFinderImage) {
-                                    $images = $model->getImages();
-                                    if ($images) {
-                                        foreach ($images as $image) {
-                                            //$mi = $model->removeImage($image);
-                                            // if ($mi) {
-                                            $externalFinderImage2 = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName, true, false, true);
-                                            if ($externalFinderImage2) {
-                                                $mi = $model->removeImage($image);
-                                                $externalFinderImage2->delete();
-                                                $this->external->removeByPk(ExternalFinder::OBJECT_IMAGE, $image->id);
-                                            }
-                                            // }
+                            if (!$externalFinderImage) {
+                                $images = $model->getImages();
+                                if ($images) {
+                                    foreach ($images as $image) {
+                                        //$mi = $model->removeImage($image);
+                                        // if ($mi) {
+                                        $externalFinderImage2 = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName, true, false, true);
+                                        if ($externalFinderImage2) {
+                                            $mi = $model->removeImage($image);
+                                            $externalFinderImage2->delete();
+                                            $this->external->removeByPk(ExternalFinder::OBJECT_IMAGE, $image->id);
                                         }
-                                    }
-                                    $image = Image::create(trim($im));
-                                    if ($image) {
-
-                                        $result = $model->attachImage($image);
-
-                                        if ($this->deleteDownloadedImages) {
-                                            $image->deleteTempFile();
-                                        }
-                                        if ($result) {
-                                            /*$this->warnings[] = [
-                                                'line' => $this->line,
-                                                'error' => $imageName . ' ' . $result->id
-                                            ];*/
-                                            $this->external->createExternalId(ExternalFinder::OBJECT_IMAGE, $result->id, $imageName);
-                                        } else {
-                                            $this->errors[] = [
-                                                'line' => $this->line,
-                                                'error' => 'Ошибка изображения #0001'
-                                            ];
-                                        }
-                                    } else {
-                                        $this->warnings[] = [
-                                            'line' => $this->line,
-                                            'error' => 'Ошибка изображения'
-                                        ];
+                                        // }
                                     }
                                 }
+                                $image = Image::create(trim($im));
+                                if ($image) {
+
+                                    $result = $model->attachImage($image);
+
+                                    if ($this->deleteDownloadedImages) {
+                                        $image->deleteTempFile();
+                                    }
+                                    if ($result) {
+                                        /*$this->warnings[] = [
+                                            'line' => $this->line,
+                                            'error' => $imageName . ' ' . $result->id
+                                        ];*/
+                                        $this->external->createExternalId(ExternalFinder::OBJECT_IMAGE, $result->id, $imageName);
+                                    } else {
+                                        $this->errors[] = [
+                                            'line' => $this->line,
+                                            'error' => 'Ошибка изображения #0001'
+                                        ];
+                                    }
+                                } else {
+                                    $this->warnings[] = [
+                                        'line' => $this->line,
+                                        'error' => 'Ошибка изображения'
+                                    ];
+                                }
                             }
+                        }
                         //}
                     }
                 }
@@ -540,6 +573,37 @@ class Importer extends Component
     }
 
     /**
+     * Find or create supplier
+     * @param $name
+     * @return integer
+     */
+    public function getSupplierIdByName($name)
+    {
+        if (isset($this->supplierCache[$name]))
+            return $this->supplierCache[$name];
+
+
+        $model = $this->external->getObject(ExternalFinder::OBJECT_SUPPLIER, trim($name), true);
+
+        if (!$model) {
+            $exist = Supplier::findOne(['name' => trim($name)]);
+            if ($exist) {
+                $model = $exist;
+            } else {
+                $model = new Supplier();
+                $model->name = trim($name);
+            }
+
+            if ($model->save()) {
+                $this->external->createExternalId(ExternalFinder::OBJECT_SUPPLIER, $model->id, $model->name);
+            }
+        }
+
+        $this->supplierCache[$name] = $model->id;
+        return $model->id;
+    }
+
+    /**
      * Find or create manufacturer
      * @param $name
      * @return integer
@@ -555,15 +619,20 @@ class Importer extends Component
         // $query = Manufacturer::find()
         //    ->where(['name' => trim($name)]);
 
-        // ->where(['name' => $name]);
-
         // $model = $query->one();
         if (!$model) {
-            $model = new Manufacturer();
-            $model->name_ru = trim($name);
+            $exist = Manufacturer::findOne(['name_ru' => trim($name)]);
+            if ($exist) {
+                $model = $exist;
+            } else {
+                $model = new Manufacturer();
+                $model->name_ru = trim($name);
+                $model->slug = CMS::slug($model->name_ru);
+            }
             if ($model->save()) {
                 $this->external->createExternalId(ExternalFinder::OBJECT_MANUFACTURER, $model->id, $model->name_ru);
             }
+
         }
 
         $this->manufacturerCache[$name] = $model->id;
@@ -585,11 +654,14 @@ class Importer extends Component
         /** @var Currency $model */
         $model = $query->one();
 
-        if (!$model)
-            throw new Exception(Yii::t('csv/default', 'NO_FIND_CURRENCY', $name));
+        if (!$model) {
+            $this->warnings[] = ['line' => $this->line, 'error' => Yii::t('csv/default', 'NO_FIND_CURRENCY', $name)];
 
-        $this->currencyCache[$name] = $model->id;
-        return $model->id;
+        }
+        if ($model) {
+            $this->currencyCache[$name] = $model->id;
+            return $model->id;
+        }
     }
 
 
@@ -663,7 +735,9 @@ class Importer extends Component
             $object = explode('/', $name);
 
             $model = Category::find()->where(['path_hash' => md5($name)])->one();
-
+            //$exist = Category::find()->where(['path_hash' => md5($name)])->one();
+            //if ($exist) {
+            //    $model = $exist;
             if (!$model) {
                 $model = new Category;
                 $model->name_ru = end($object);

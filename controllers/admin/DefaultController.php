@@ -64,7 +64,7 @@ class DefaultController extends AdminController
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
         $this->buttons[] = [
             'label' => Yii::t('csv/default', 'EXPORT'),
-            'url' => ['/csv/default/export'],
+            'url' => ['/csv/admin/default/export'],
             'options' => ['class' => 'btn btn-success']
         ];
         $this->view->params['breadcrumbs'][] = $this->pageName;
@@ -223,7 +223,7 @@ class DefaultController extends AdminController
 
         $this->buttons[] = [
             'label' => Yii::t('csv/default', 'IMPORT'),
-            'url' => ['/csv/default/import'],
+            'url' => ['/csv/admin/default/import'],
             'options' => ['class' => 'btn btn-success']
         ];
         $this->view->params['breadcrumbs'][] = $this->pageName;
@@ -243,17 +243,12 @@ class DefaultController extends AdminController
             //if (Yii::$app->request->get('manufacturer_id')) {
 
             if ($get['FilterForm']['manufacturer_id'] !== '') {
-
                 $manufacturers = explode(',', $model->manufacturer_id);
                 $query->applyManufacturers($manufacturers);
             }
 
 
             $query->where(['type_id' => $model->type_id]);
-
-
-
-
 
 
             $count = $query->count();
@@ -359,7 +354,7 @@ class DefaultController extends AdminController
         return [
             [
                 'label' => Yii::t('app/default', 'SETTINGS'),
-                'url' => ['/csv/settings/index'],
+                'url' => ['/csv/admin/settings/index'],
                 'icon' => Html::icon('settings'),
             ],
         ];

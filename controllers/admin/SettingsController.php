@@ -26,12 +26,12 @@ class SettingsController extends AdminController
 
         $this->buttons[] = [
             'label' => Yii::t('csv/default', 'EXPORT'),
-            'url' => ['/csv/default/export'],
+            'url' => ['/csv/admin/default/export'],
             'options' => ['class' => 'btn btn-success']
         ];
         $this->buttons[] = [
             'label' => Yii::t('csv/default', 'IMPORT'),
-            'url' => ['/csv/default/import'],
+            'url' => ['/csv/admin/default/import'],
             'options' => ['class' => 'btn btn-success']
         ];
         $model = new SettingsForm;

@@ -20,7 +20,7 @@
   "require": {
     "nelexa/zip": "~3",
     "phpoffice/phpspreadsheet": "~1.14",
-    "google/apiclient": "^2.7"
+    "google/apiclient": "^2.8"
   },
   "autoload": {
     "psr-4": {

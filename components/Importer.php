@@ -3,20 +3,20 @@
 namespace panix\mod\csv\components;
 
 
-use core\modules\shop\components\ExternalFinder;
+use panix\mod\shop\components\ExternalFinder;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use panix\mod\csv\components\AttributesProcessor;
 use panix\mod\csv\components\Image;
 use Yii;
 use yii\base\Component;
 use panix\engine\CMS;
-use core\modules\shop\models\Manufacturer;
-use core\modules\shop\models\ProductType;
-use core\modules\shop\models\Attribute;
-use core\modules\shop\models\Category;
-use core\modules\shop\models\Product;
-use core\modules\images\behaviors\ImageBehavior;
-use core\modules\shop\models\Currency;
+use panix\mod\shop\models\Manufacturer;
+use panix\mod\shop\models\ProductType;
+use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\Category;
+use panix\mod\shop\models\Product;
+use panix\mod\images\behaviors\ImageBehavior;
+use panix\mod\shop\models\Currency;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
 use yii\web\UploadedFile;

@@ -6,7 +6,7 @@ namespace panix\mod\csv\controllers\admin;
 use panix\engine\CMS;
 use Yii;
 use panix\mod\csv\models\SettingsForm;
-use core\components\controllers\AdminController;
+use panix\engine\controllers\AdminController;
 use yii\web\UploadedFile;
 
 class SettingsController extends AdminController
@@ -17,11 +17,11 @@ class SettingsController extends AdminController
     public function actionIndex()
     {
         $this->pageName = Yii::t('app/default', 'SETTINGS');
-        $this->breadcrumbs[] = [
+        $this->view->params['breadcrumbs'][] = [
             'label' => Yii::t('csv/default', 'MODULE_NAME'),
             'url' => ['/admin/csv']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
 
         $this->buttons[] = [

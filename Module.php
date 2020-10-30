@@ -4,7 +4,7 @@ namespace panix\mod\csv;
 
 use panix\mod\admin\widgets\sidebar\BackendNav;
 use Yii;
-use core\components\WebModule;
+use panix\engine\WebModule;
 use yii\base\BootstrapInterface;
 use yii\web\GroupUrlRule;
 

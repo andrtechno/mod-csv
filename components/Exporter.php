@@ -4,9 +4,9 @@ namespace panix\mod\csv\components;
 
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use Yii;
-use core\modules\shop\models\Product;
-use core\modules\shop\models\Manufacturer;
-use core\modules\shop\models\ProductType;
+use panix\mod\shop\models\Product;
+use panix\mod\shop\models\Manufacturer;
+use panix\mod\shop\models\ProductType;
 use panix\engine\CMS;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;

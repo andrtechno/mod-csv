@@ -6,10 +6,10 @@ use core\modules\shop\models\ProductType;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
-use core\modules\shop\models\Attribute;
-use core\modules\shop\models\AttributeOption;
-use core\modules\shop\models\Product;
-use core\modules\shop\models\TypeAttribute;
+use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\AttributeOption ;
+use panix\mod\shop\models\Product;
+use panix\mod\shop\models\TypeAttribute;
 use panix\engine\CMS;
 
 /**
@@ -267,11 +267,11 @@ class AttributesProcessor extends Component
         if ($type_id) {
             $type = ProductType::findOne($type_id);
             foreach ($type->shopAttributes as $attr) {
-                $attributes[$attr->title] = $attr->title;
+                $attributes[$attr->title_ru] = $attr->title_ru;
             }
         } else {
             foreach (Attribute::find()->asArray()->all() as $attr) {
-                $attributes[$attr['title']] = $attr['title'];
+                $attributes[$attr['title_ru']] = $attr['title_ru'];
             }
         }
 

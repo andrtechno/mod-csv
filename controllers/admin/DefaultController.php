@@ -10,8 +10,8 @@ use yii\data\Pagination;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 use panix\engine\Html;
-use core\modules\shop\models\Product;
-use core\components\controllers\AdminController;
+use panix\mod\shop\models\Product;
+use panix\engine\controllers\AdminController;
 use panix\mod\csv\models\UploadForm;
 use panix\mod\csv\models\FilterForm;
 use panix\mod\csv\models\ImportForm;
@@ -50,7 +50,7 @@ class DefaultController extends AdminController
         $this->pageName = Yii::t('csv/default', 'IMPORT_PRODUCTS');
 
 
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
         return $this->render('index');
     }
@@ -67,7 +67,7 @@ class DefaultController extends AdminController
             'url' => ['/csv/default/export'],
             'options' => ['class' => 'btn btn-success']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
 
         $files = \yii\helpers\FileHelper::findFiles(Yii::getAlias(Yii::$app->getModule('csv')->uploadPath));
@@ -226,7 +226,7 @@ class DefaultController extends AdminController
             'url' => ['/csv/default/import'],
             'options' => ['class' => 'btn btn-success']
         ];
-        $this->breadcrumbs[] = $this->pageName;
+        $this->view->params['breadcrumbs'][] = $this->pageName;
 
 
         $get = Yii::$app->request->get();

@@ -1,18 +1,19 @@
 <?php
 use panix\engine\Html;
-use panix\mod\shop\models\Manufacturer;
-use panix\mod\shop\models\ProductType;
+use core\modules\shop\models\Manufacturer;
+use core\modules\shop\models\ProductType;
 use yii\helpers\ArrayHelper;
 use panix\engine\bootstrap\ActiveForm;
+use panix\mod\csv\components\AttributesProcessor;
 
 /**
  * @var $pages \panix\engine\data\Pagination
- * @var $query \panix\mod\shop\models\query\ProductQuery
- * @var $importer \panix\mod\csv\components\CsvImporter
+ * @var $query \shopium\mod\shop\models\query\ProductQuery
+ * @var $importer \panix\mod\csv\components\Importer
  */
 
 $this->registerJs('
-    $(document).on("change","#manufacturer_id, #type_id, #filterform-manufacturer_id, #filterform-type_id", function(){
+    $(document).on("change","#manufacturer_id, #type_id, #filterform-manufacturer_id, #filterform-type_id, #filterform-format", function(){
         var fields = [];
         $.each($("#csv-form").serializeArray(), function(i, field){
             fields[field.name]=field.value;
@@ -20,7 +21,7 @@ $this->registerJs('
 
         delete fields["attributes[]"];
         
-        window.location = common.url("/admin/csv/default/export?" + jQuery.param($.extend({}, fields)));
+        window.location = "/csv/default/export?" + jQuery.param($.extend({}, fields));
     });
 ');
 
@@ -34,6 +35,8 @@ $this->registerJs('
         $form = ActiveForm::begin(['id' => 'csv-form', 'method' => 'GET']);
         echo $form->field($model, 'manufacturer_id')->dropDownList(ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'type_id')->dropDownList(ArrayHelper::map(ProductType::find()->all(), 'id', 'name'), ['prompt' => '-']);
+        echo $form->field($model, 'format')->dropDownList(['csv'=>'csv','xls'=>'xls','xlsx'=>'xlsx']);
+        echo $form->field($model, 'page')->hiddenInput()->label(false);
 
         ?>
         <?php if ($count) { ?>
@@ -61,7 +64,10 @@ $this->registerJs('
         <?php } ?>
         <?php
         $groups = [];
-        foreach ($importer->getExportAttributes('eav_', Yii::$app->request->get('type_id')) as $k => $v) {
+
+        $type_id = (isset(Yii::$app->request->get('FilterForm')['type_id'])) ? Yii::$app->request->get('FilterForm')['type_id']:null;
+        foreach (AttributesProcessor::getImportExportData('eav_', $type_id) as $k => $v) {
+        //foreach ($importer->getExportAttributes('eav_', Yii::$app->request->get('type_id')) as $k => $v) {
             if (strpos($k, 'eav_') === false) {
                 $groups['Основные'][$k] = $v;
             } else {
@@ -84,7 +90,7 @@ $this->registerJs('
                         <th colspan="3" class="text-center"><?= $groupName; ?></th>
                     </tr>
                     <?php foreach ($group as $k => $v) {
-                        $dis = (in_array($k, (new \panix\mod\csv\components\CsvImporter)->required)) ? true : false;
+                        $dis = (in_array($k, (new \panix\mod\csv\components\Importer)->required)) ? true : false;
                         //,'readonly'=>$dis,'disabled'=>$dis
                         ?>
                         <tr>
@@ -92,7 +98,7 @@ $this->registerJs('
                                 <?= Html::checkbox('attributes[]', true, ['value' => $k]); ?>
 
                             </td>
-                            <td><code style="font-size: inherit"><?= Html::encode($k); ?></code></td>
+                            <td><code style="font-size: inherit"><?= Html::encode(str_replace('eav_', '', $k)); ?></code></td>
                             <td><?= $v; ?></td>
                         </tr>
                     <?php } ?>

@@ -18,8 +18,9 @@
     }
   ],
   "require": {
-    "panix/mod-shop": "dev-master",
-    "nelexa/zip": "~3"
+    "nelexa/zip": "~3",
+    "phpoffice/phpspreadsheet": "~1.14",
+    "google/apiclient": "^2.7"
   },
   "autoload": {
     "psr-4": {

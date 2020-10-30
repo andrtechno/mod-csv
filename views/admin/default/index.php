@@ -21,7 +21,7 @@ $this->widget('zii.widgets.jui.CJuiTabs', array(
 Yii::app()->tpl->closeWidget();*/
 ?>
 <div class="text-center">
-<?=Html::a(Yii::t('csv/default', 'IMPORT'),['/admin/csv/default/import'],['class'=>'btn btn-info']);?>
+<?=Html::a(Yii::t('csv/default', 'IMPORT'),['/csv/default/import'],['class'=>'btn btn-info']);?>
 
-<?=Html::a(Yii::t('csv/default', 'EXPORT'),['/admin/csv/default/export'],['class'=>'btn btn-info']);?>
+<?=Html::a(Yii::t('csv/default', 'EXPORT'),['/csv/default/export'],['class'=>'btn btn-info']);?>
 </div>

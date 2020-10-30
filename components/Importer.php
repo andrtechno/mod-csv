@@ -284,6 +284,8 @@ class Importer extends Component
         $newProduct = false;
 
         $category_id = $this->getCategoryByPath($data['Категория']);
+
+
         // $query = Product::find();
 
         // Search product by name, category
@@ -309,19 +311,19 @@ class Importer extends Component
             $model = new Product;
 
 
-            if ($this->totalProductCount >= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
+            /*if ($this->totalProductCount >= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
                 $this->warnings[] = [
                     'line' => $this->line,
                     'error' => Yii::t('shop/default', 'PRODUCT_LIMIT', Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit'])
                 ];
                 $limitFlag = false;
-            }
+            }*/
 
             $this->totalProductCount++;
 
-            if ($this->totalProductCount <= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
+            //if ($this->totalProductCount <= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
                 $this->stats['create']++;
-            }
+            //}
         } else {
             $this->stats['update']++;
             if (isset($data['deleted']) && $data['deleted']) {
@@ -347,7 +349,7 @@ class Importer extends Component
             }
 
             $model->price = $data['Цена'];
-            $model->name = $data['Наименование'];
+            $model->name_ru = $data['Наименование'];
 
             if (isset($data['unit']) && !empty($data['unit']) && array_search(trim($data['unit']), $model->getUnits())) {
                 $model->unit = array_search(trim($data['unit']), $model->getUnits());
@@ -365,11 +367,8 @@ class Importer extends Component
             if (isset($data['Артикул']) && !empty($data['Артикул']))
                 $model->sku = $data['Артикул'];
 
-            if (isset($data['custom_id']) && !empty($data['custom_id']))
-                $model->custom_id = $data['custom_id'];
-
             if (isset($data['Описание']) && !empty($data['Описание']))
-                $model->description = $data['Описание'];
+                $model->description_ru = $data['Описание'];
 
             if (isset($data['Наличие']) && !empty($data['Наличие']))
                 $model->availability = (is_numeric($data['Наличие']))?$data['Наличие']:1;
@@ -400,8 +399,6 @@ class Importer extends Component
                 $model->save();
                 // Create product external id
                 if ($newProduct === true) {
-
-
                     $this->external->createExternalId(ExternalFinder::OBJECT_PRODUCT, $model->id, $data['Наименование']);
                 }
 
@@ -429,13 +426,13 @@ class Importer extends Component
                         /** @var ImageBehavior $model */
                         $imagesArray = explode(';', $data['Фото']);
 
-                        $limit = Yii::$app->params['plan'][Yii::$app->user->planId]['product_upload_files'];
-                        if ((count($imagesArray) > $limit) || $model->imagesCount > $limit) {
-                            $this->errors[] = [
-                                'line' => $this->line,
-                                'error' => Yii::t('shop/default', 'PRODUCT_LIMIT_IMAGE', count($imagesArray))
-                            ];
-                        } else {
+                        //$limit = Yii::$app->params['plan'][Yii::$app->user->planId]['product_upload_files'];
+                        //if ((count($imagesArray) > $limit) || $model->imagesCount > $limit) {
+                        //    $this->errors[] = [
+                        //        'line' => $this->line,
+                        //        'error' => Yii::t('shop/default', 'PRODUCT_LIMIT_IMAGE', count($imagesArray))
+                        //    ];
+                       // } else {
                             foreach ($imagesArray as $n => $im) {
                                 $imageName = $model->id . '_' . basename($im);
                                 $externalFinderImage = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName);
@@ -483,13 +480,12 @@ class Importer extends Component
                                     }
                                 }
                             }
-                        }
+                        //}
                     }
                 }
 
             } else {
                 $errors = $model->getErrors();
-
                 $error = array_shift($errors);
                 $this->errors[] = [
                     'line' => $this->line,
@@ -564,9 +560,9 @@ class Importer extends Component
         // $model = $query->one();
         if (!$model) {
             $model = new Manufacturer();
-            $model->name = trim($name);
+            $model->name_ru = trim($name);
             if ($model->save()) {
-                $this->external->createExternalId(ExternalFinder::OBJECT_MANUFACTURER, $model->id, $model->name);
+                $this->external->createExternalId(ExternalFinder::OBJECT_MANUFACTURER, $model->id, $model->name_ru);
             }
         }
 
@@ -627,6 +623,7 @@ class Importer extends Component
      */
     protected function getCategoryByPath($path)
     {
+
         if (isset($this->categoriesPathCache[$path]))
             return $this->categoriesPathCache[$path];
 
@@ -664,11 +661,12 @@ class Importer extends Component
 
         foreach ($tree as $key => $name) {
             $object = explode('/', $name);
+
             $model = Category::find()->where(['path_hash' => md5($name)])->one();
 
             if (!$model) {
                 $model = new Category;
-                $model->name = end($object);
+                $model->name_ru = end($object);
                 $model->appendTo($parent);
             }
 

@@ -205,8 +205,8 @@ class AttributesProcessor extends Component
 
             // Create new attribute
             $attribute = new Attribute;
-            $attribute->title = $name;
-            $attribute->name = $key;
+            $attribute->title_ru = $name;
+            $attribute->name_ru = $key;
             $attribute->type = Attribute::TYPE_DROPDOWN;
             $attribute->save(false);
 

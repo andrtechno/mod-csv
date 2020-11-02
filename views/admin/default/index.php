@@ -1,27 +1,13 @@
 <?php
 use panix\engine\Html;
-/*Yii::app()->tpl->openWidget(array(
-    'title' => $this->pageName,
-));
-$this->widget('zii.widgets.jui.CJuiTabs', array(
-    'tabs' => array(
-        Yii::t('csv/admin', 'IMPORT') => array('ajax' => $this->createUrl('/admin/csv/default/import'), 'id' => 'import'),
-        Yii::t('csv/admin', 'EXPORT') => array('ajax' => $this->createUrl('/admin/csv/default/export'), 'id' => 'export'),
-    ),
-    'options' => array(
-        'collapsible' => true,
-        'beforeLoad' => 'js:function (e, ui) {
-            common.addLoader();
-        }',
-        'load' => 'js:function(e, ui) {
-            common.removeLoader();
-        }',
-    ),
-));
-Yii::app()->tpl->closeWidget();*/
+
+/**
+ * @var \yii\web\View $this
+ */
+
 ?>
 <div class="text-center">
-<?=Html::a(Yii::t('csv/default', 'IMPORT'),['/csv/default/import'],['class'=>'btn btn-info']);?>
+<?=Html::a(Yii::t('csv/default', 'IMPORT'),['/csv/admin/default/import'],['class'=>'btn btn-info']);?>
 
-<?=Html::a(Yii::t('csv/default', 'EXPORT'),['/csv/default/export'],['class'=>'btn btn-info']);?>
+<?=Html::a(Yii::t('csv/default', 'EXPORT'),['/csv/admin/default/export'],['class'=>'btn btn-info']);?>
 </div>

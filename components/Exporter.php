@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\components;
 
+use panix\mod\shop\models\Attribute;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use Yii;
 use panix\mod\shop\models\Product;
@@ -83,6 +84,8 @@ class Exporter
                     $value = $p->name;
                 } elseif ($attr === 'Цена') {
                     $value = $p->price;
+                } elseif ($attr === 'Цена закупки') {
+                    $value = $p->price_purchase;
                 } elseif ($attr === 'Валюта') {
                     $value = $this->getCurrency($p);
                 } elseif ($attr === 'Артикул') {
@@ -92,7 +95,21 @@ class Exporter
                 } elseif ($attr === 'Количество') {
                     $value = $p->quantity;
                 } elseif ($attr === 'Описание') {
-                    $value = $p->description;
+                    $value = $p->full_description;
+                } elseif ($attr === 'Конфигурация') {
+                    $value = '';
+                    if ($p->use_configurations) {
+                        $attribute_id = $p->configurable_attributes;
+                        $attributeModels = Attribute::find()->where(['id' => $attribute_id])->all();
+                        if ($attributeModels) {
+                            $list = [];
+                            foreach ($attributeModels as $configure) {
+                                $list[] = $configure->title_ru;
+                            }
+                            $value = implode(';', $list);
+                        }
+                    }
+
                 } elseif ($attr === 'wholesale_prices') {
                     $price = [];
                     $result = NULL;
@@ -110,26 +127,26 @@ class Exporter
                     } else {
                         $value = NULL;
                     }
-                } elseif (in_array($attr, ['switch','custom_id'])) {
+                } elseif (in_array($attr, ['switch', 'custom_id'])) {
                     $value = $p->$attr;
                 } else {
                     $name = CMS::slug($attr);
 
 
-if($p->{'eav_' . $name}){
-    //CMS::dump($p->{'eav_' . $name});die;
+                    if ($p->{'eav_' . $name}) {
+                        //CMS::dump($p->{'eav_' . $name});die;
 
-                    $value = $p->{'eav_' . $name}['value'];
-}else{
-    //CMS::dump($name);die;
-   // CMS::dump($p->{'eav_' . $name});die;
-    $value='';
-}
+                        $value = $p->{'eav_' . $name}->value;
+                    } else {
+                        //CMS::dump($name);die;
+                        // CMS::dump($p->{'eav_' . $name});die;
+                        $value = '';
+                    }
                 }
 
                 //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
 
-                    $row[$attr] = $value; //append iconv by panix
+                $row[$attr] = $value; //append iconv by panix
             }
 
             array_push($this->rows, $row);
@@ -192,7 +209,7 @@ if($p->{'eav_' . $name}){
             }
         }
 
-        if (!empty($result)){
+        if (!empty($result)) {
             return implode(';', $result);
             //return $result[array_key_last($result)];
         }
@@ -277,12 +294,12 @@ if($p->{'eav_' . $name}){
         $spreadsheet = new Spreadsheet();
 
         $props = new Properties();
-       // $props->setTitle($filename);
+        // $props->setTitle($filename);
         $props->setCreator(Yii::$app->name);
         $props->setLastModifiedBy(Yii::$app->name);
         $props->setCompany(Yii::$app->name);
         //$props->setDescription(iconv('CP1251','utf-8',$filename));
-       // $props->setDescription(mb_convert_encoding($filename, 'UTF-8', 'UTF-8'));
+        // $props->setDescription(mb_convert_encoding($filename, 'UTF-8', 'UTF-8'));
 
 
         $props->setCategory('ExportProducts');

@@ -2,14 +2,14 @@
 
 namespace panix\mod\csv\components;
 
-use core\modules\shop\models\ProductType;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
 use panix\mod\shop\models\Attribute;
-use panix\mod\shop\models\AttributeOption ;
+use panix\mod\shop\models\AttributeOption;
 use panix\mod\shop\models\Product;
 use panix\mod\shop\models\TypeAttribute;
+use panix\mod\shop\models\ProductType;
 use panix\engine\CMS;
 
 /**

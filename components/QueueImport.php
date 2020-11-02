@@ -18,10 +18,11 @@ class QueueImport extends BaseObject implements RetryableJobInterface
        // $importer->importRow($row);
         foreach ($this->rows as $k=>$row){
             $row = $importer->prepareRow($row);
-            $res = $importer->importRow($row);
+           $result = $importer->importRow($row);
+          //  print_r($result);
         }
 
-       // print_r($result);
+
         echo 'done import' . PHP_EOL;
         return true;
     }
@@ -29,7 +30,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
 
     public function getTtr()
     {
-        return 2 * 60;
+        return 15 * 60;
     }
 
     public function canRetry($attempt, $error)

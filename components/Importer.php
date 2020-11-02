@@ -20,6 +20,7 @@ use panix\mod\images\behaviors\ImageBehavior;
 use panix\mod\shop\models\Currency;
 use yii\base\Exception;
 use yii\helpers\ArrayHelper;
+use yii\queue\Queue;
 use yii\web\UploadedFile;
 
 /**
@@ -269,22 +270,24 @@ class Importer extends Component
 
                     $this->line = $columnIndex;
 
-                    //if ($counter <= 50) {
-                    $this->importRow($row);
-                    // } else {
-                    //     $queueList[] = $row;
-                    // }
+                    if ($counter <= 50) {
+                        $this->importRow($row);
+                    } else {
+                        $queueList[] = $row;
+                    }
                 }
             }
             // }
             $counter++;
         }
-        /*if ($queueList) {
+        if ($queueList) {
             $sss = array_chunk($queueList, 50);
-            foreach ($sss as $items) {
-                Yii::$app->queue->push(new QueueImport(['rows' => $items]));
+            foreach ($sss as $index=>$items) {
+                /** @var Queue $q */
+                $q = Yii::$app->queue;
+                $q->priority($index)->push(new QueueImport(['rows' => $items]));
             }
-        }*/
+        }
     }
 
     /**
@@ -294,10 +297,8 @@ class Importer extends Component
     public function importRow($data)
     {
 
-
-        if (!isset($data['Категория']) || empty($data['Категория'])) {
-            $category_id = 1;
-        } else {
+        $category_id = 1;
+        if (isset($data['Категория']) || !empty($data['Категория'])) {
             $category_id = $this->getCategoryByPath($data['Категория']);
         }
 
@@ -316,6 +317,7 @@ class Importer extends Component
 
 
         $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
+
 
 
         $limitFlag = true;
@@ -438,11 +440,11 @@ class Importer extends Component
                     $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
                     foreach ($configure_attribute_list as $configure_attribute) {
 
-                       // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
-                        $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'),$configure_attribute);
-                       // if (!$configure) {
+                        // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
+                        $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'), $configure_attribute);
+                        // if (!$configure) {
 
-                       // }
+                        // }
 
                         $db->insert('{{%shop__product_configurable_attributes}}', [
                             'product_id' => $model->id,

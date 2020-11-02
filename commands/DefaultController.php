@@ -48,7 +48,7 @@ class DefaultController extends ConsoleController
         $sheet->setCellValue('F1', 'Артикул');
         $sheet->setCellValue('G1', 'Описание');
 
-        for ($i = 2; $i <= 100; $i++) {
+        for ($i = 2; $i <= 10000; $i++) {
             $sheet->setCellValue('A'.$i, 'Product Name'.$i);
             $sheet->setCellValue('B'.$i, 'Category/Subcategory');
             $sheet->setCellValue('C'.$i, rand(100,6000));

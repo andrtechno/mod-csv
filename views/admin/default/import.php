@@ -37,15 +37,7 @@ foreach ($worksheet->getRowIterator(2) as $row) {
 CMS::dump($rows);die;*/
 ?>
 
-<?php if (Yii::$app->session->hasFlash('success') && $flashed = Yii::$app->session->getFlash('success')) { ?>
-    <?php if (is_array($flashed)) { ?>
-        <?php foreach ($flashed as $flash) { ?>
-            <div class="alert alert-success"><?= $flash; ?></div>
-        <?php } ?>
-    <?php } else { ?>
-        <div class="alert alert-success"><?= $flashed; ?></div>
-    <?php } ?>
-<?php } ?>
+
 <div class="row">
     <div class="col-lg-6">
         <div class="card">

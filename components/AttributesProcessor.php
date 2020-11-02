@@ -103,7 +103,7 @@ class AttributesProcessor extends Component
                     //    $key = substr($key, 4);
 
                     $name = $key;
-                    $key = CMS::slug($key);
+                    $key = CMS::slug($key, '_');
 
 
                     $this->eav[$key] = $this->processEavData($name,$key, $val);
@@ -207,7 +207,7 @@ class AttributesProcessor extends Component
             // Create new attribute
             $attribute = new Attribute;
             $attribute->title_ru = $name;
-            $attribute->name_ru = $key;
+            $attribute->name = $key;
             $attribute->type = Attribute::TYPE_DROPDOWN;
             $attribute->save(false);
 

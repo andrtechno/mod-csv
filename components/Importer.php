@@ -106,7 +106,7 @@ class Importer extends Component
     /**
      * @var int
      */
-    protected $line = 1;
+    public $line = 1;
 
     /**
      * @var array
@@ -131,6 +131,12 @@ class Importer extends Component
      * @var ExternalFinder
      */
     public $external;
+
+    public function __construct(array $config = [])
+    {
+        $this->external = new ExternalFinder('{{%csv}}');
+        parent::__construct($config);
+    }
 
     public function getFileHandler()
     {
@@ -251,8 +257,9 @@ class Importer extends Component
         //fgets($file); // Skip first
         // Process lines
         $this->line = 1;
-        $this->external = new ExternalFinder('{{%csv}}');
+
         $counter = 0;
+        $queueList = [];
         foreach ($this->columns[1] as $columnIndex => $row) {
 
             // if ($counter >= 100) {
@@ -263,31 +270,39 @@ class Importer extends Component
                     $this->line = $columnIndex;
 
                     //if ($counter <= 50) {
-                        $this->importRow($row);
-                    //}else{
-                    //    Yii::$app->queue->push(new QueueImport(['row' => $row]));
-                   // }
+                    $this->importRow($row);
+                    // } else {
+                    //     $queueList[] = $row;
+                    // }
                 }
             }
             // }
             $counter++;
         }
+        /*if ($queueList) {
+            $sss = array_chunk($queueList, 50);
+            foreach ($sss as $items) {
+                Yii::$app->queue->push(new QueueImport(['rows' => $items]));
+            }
+        }*/
     }
 
     /**
      * Create/update product from key=>value array
      * @param $data array of product attributes
      */
-    protected function importRow($data)
+    public function importRow($data)
     {
 
-        if (!isset($data['Категория']) || empty($data['Категория']))
-            $data['Категория'] = 'root';
+
+        if (!isset($data['Категория']) || empty($data['Категория'])) {
+            $category_id = 1;
+        } else {
+            $category_id = $this->getCategoryByPath($data['Категория']);
+        }
+
 
         $newProduct = false;
-
-        $category_id = $this->getCategoryByPath($data['Категория']);
-
 
         // $query = Product::find();
 
@@ -391,8 +406,8 @@ class Importer extends Component
                 $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
 
             if (isset($data['Скидка']) && !empty($data['Скидка'])) {
-               // CMS::dump($data['Скидка']);
-               // die;
+                // CMS::dump($data['Скидка']);
+                // die;
                 $model->discount = $data['Скидка'];
             }
 
@@ -423,7 +438,12 @@ class Importer extends Component
                     $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
                     foreach ($configure_attribute_list as $configure_attribute) {
 
-                        $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
+                       // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
+                        $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'),$configure_attribute);
+                       // if (!$configure) {
+
+                       // }
+
                         $db->insert('{{%shop__product_configurable_attributes}}', [
                             'product_id' => $model->id,
                             'attribute_id' => $configure->id
@@ -754,7 +774,6 @@ class Importer extends Component
         }
         // Cache category id
         $this->categoriesPathCache[$path] = $model->id;
-      //  CMS::dump($model);die;
         if (isset($model)) {
             return $model->id;
         }
@@ -783,7 +802,7 @@ class Importer extends Component
      * @param $row array
      * @return array e.g array(key=>value)
      */
-    protected function prepareRow($row)
+    public function prepareRow($row)
     {
         $row = array_map('trim', $row);
         // $row = array_combine($this->csv_columns[1], $row);

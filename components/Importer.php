@@ -273,7 +273,7 @@ class Importer extends Component
                     if ($counter <= 50) {
                         $this->importRow($row);
                     } else {
-                        $queueList[] = $row;
+                        $queueList[$this->line] = $row;
                     }
                 }
             }
@@ -281,8 +281,8 @@ class Importer extends Component
             $counter++;
         }
         if ($queueList) {
-            $sss = array_chunk($queueList, 50);
-            foreach ($sss as $index=>$items) {
+            $list = array_chunk($queueList, 50,true);
+            foreach ($list as $index=>$items) {
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
                 $q->priority($index)->push(new QueueImport(['rows' => $items]));

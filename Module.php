@@ -12,7 +12,7 @@ class Module extends WebModule implements BootstrapInterface
 {
 
     public $icon = 'file-csv';
-
+    public $mailPath = '@csv/mail';
     /**
      * @inheritdoc
      */

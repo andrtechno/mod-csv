@@ -62,9 +62,9 @@ CMS::dump($rows);die;*/
 
                 <?php if (Yii::$app->session->hasFlash('import-error')) { ?>
                     <div class="form-group">
-                        <div class="errorSummary alert alert-danger"><p><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?>
-                                :</p>
-                            <ul>
+                        <div class="errorSummary alert alert-danger">
+                            <strong><?= Yii::t('csv/default', 'ERRORS_IMPORT'); ?></strong>
+                            <ul class="mt-3">
                                 <?php
                                 foreach (Yii::$app->session->getFlash('import-error') as $flash) {
                                     echo '<li>' . $flash . '</li>';
@@ -79,8 +79,8 @@ CMS::dump($rows);die;*/
                 <?php if (Yii::$app->session->hasFlash('import-warning')) { ?>
                     <div class="form-group">
                         <div class="errorSummary alert alert-warning">
-                            <p><?= Yii::t('csv/default', 'WARNING_IMPORT'); ?></p>
-                            <ul>
+                            <strong><?= Yii::t('csv/default', 'WARNING_IMPORT'); ?></strong>
+                            <ul class="mt-3">
                                 <?php
                                 foreach (Yii::$app->session->getFlash('import-warning') as $flash) {
                                     echo '<li>' . $flash . '</li>';

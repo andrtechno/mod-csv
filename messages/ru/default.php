@@ -28,8 +28,9 @@ return [
     'ERROR_COLUMN_ATTRIBUTE' => 'Атрибут <strong>{attribute}</strong> используеться основым параметром товаров.',
     'ERROR_IMAGE' => 'Ошибка в изображениях.',
     'ERROR_IMAGE_EXTENSION' => 'Неверный формат файла, доступные форматы: <strong>{0}</strong>',
-    'REQUIRE_COLUMN' => 'Укажите обязательную колонку {column}.',
-    'LINE' => 'Строка',
+    'REQUIRE_COLUMN' => 'Укажите обязательную колонку <strong>{column}</strong>',
+    'REQUIRE_COLUMN_EMPTY' => 'Не заполнена обязательная колонка <strong>{column}</strong>',
+    'LINE' => 'Строка <strong>{0}</strong>:',
     'AND_MORE' => 'и еще ({0}).',
     'FILENAME' => 'Файл',
     'EXPORT_FORMAT' => 'Формат экспорта',
@@ -37,6 +38,6 @@ return [
     'DB_BACKUP' => 'Создать резервную копию БД',
     'IMPORT_ALERT' => 'Перед загрузкой <strong>файла</strong>, необходимо загрузить изображения, если этого требует файл',
     'NO_FIND_CURRENCY' => 'Не найдена валюта: {0}',
-    'PAGE'=>'Количество товаров в файле',
-    'QUEUE_SUBJECT'=>'Ошибка фонового импорта товаров'
+    'PAGE' => 'Количество товаров в файле',
+    'QUEUE_SUBJECT' => 'Ошибка фонового импорта товаров'
 ];

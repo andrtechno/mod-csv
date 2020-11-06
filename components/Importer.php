@@ -254,8 +254,6 @@ class Importer extends Component
      */
     public function import()
     {
-        // $file = $this->getFileHandler();
-        //fgets($file); // Skip first
         // Process lines
         $this->line = 1;
 
@@ -271,23 +269,33 @@ class Importer extends Component
             }
             return [];
         });
-//CMS::dump($columns);die;
+
 
         foreach ($columns as $columnIndex => $row) {
-
-
+            $this->line = $columnIndex;
             if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
-                //if (!empty($row['Наименование']) && !empty($row['Цена']) && !empty($row['Тип'])) {
-                $row = $this->prepareRow($row);
 
-                $this->line = $columnIndex;
+                $row = array_filter($row, function ($value, $key) {
+                    if (in_array($key, $this->required)) {
+                        if (empty($value)) {
+                            $this->errors[] = [
+                                'line' => $this->line,
+                                'error' => Yii::t('csv/default', 'REQUIRE_COLUMN_EMPTY', ['column' => $key])
+                            ];
+                        }
+                    }
+                    return [$key => $value];
+                }, ARRAY_FILTER_USE_BOTH);
 
-                if ($counter <= 50) {
-                    $this->importRow($row);
-                } else {
-                    $queueList[$this->line] = $row;
+                if (!$this->errors) {
+                    $row = $this->prepareRow($row);
+                    if ($counter <= 50) {
+                        $this->importRow($row);
+                    } else {
+                        $queueList[$this->line] = $row;
+                    }
                 }
-                // }
+
             }
 
             $counter++;

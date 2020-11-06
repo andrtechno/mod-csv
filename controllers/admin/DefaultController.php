@@ -31,7 +31,7 @@ class DefaultController extends AdminController
             'delete-file' => [
                 'class' => 'panix\engine\actions\RemoveFileAction',
                 'path' => Yii::$app->getModule('csv')->uploadPath,
-                'redirect' => ['/csv/default/import']
+                'redirect' => ['/csv/admin/default/import']
             ],
         ];
     }

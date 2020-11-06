@@ -261,28 +261,40 @@ class Importer extends Component
 
         $counter = 0;
         $queueList = [];
-        foreach ($this->columns[1] as $columnIndex => $row) {
 
-            // if ($counter >= 100) {
-            if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
-                if (!empty($row['Наименование']) && !empty($row['Цена']) && !empty($row['Тип'])) {
-                    $row = $this->prepareRow($row);
-
-                    $this->line = $columnIndex;
-
-                    if ($counter <= 50) {
-                        $this->importRow($row);
-                    } else {
-                        $queueList[$this->line] = $row;
-                    }
+        //Remove empty rows
+        $columns = array_filter($this->columns[1], function ($value) {
+            foreach ($value as $row) {
+                if (!is_null($row) && !empty($row)) {
+                    return $row;
                 }
             }
-            // }
+            return [];
+        });
+//CMS::dump($columns);die;
+
+        foreach ($columns as $columnIndex => $row) {
+
+
+            if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
+                //if (!empty($row['Наименование']) && !empty($row['Цена']) && !empty($row['Тип'])) {
+                $row = $this->prepareRow($row);
+
+                $this->line = $columnIndex;
+
+                if ($counter <= 50) {
+                    $this->importRow($row);
+                } else {
+                    $queueList[$this->line] = $row;
+                }
+                // }
+            }
+
             $counter++;
         }
         if ($queueList) {
-            $list = array_chunk($queueList, 50,true);
-            foreach ($list as $index=>$items) {
+            $list = array_chunk($queueList, 50, true);
+            foreach ($list as $index => $items) {
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
                 $q->priority($index)->push(new QueueImport(['rows' => $items]));
@@ -319,42 +331,22 @@ class Importer extends Component
         $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
 
 
-
-        $limitFlag = true;
         // $model = $query->one();
         $hasDeleted = false;
 
-
         if (!$model) {
-
             $newProduct = true;
             $model = new Product;
-
-
-            /*if ($this->totalProductCount >= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
-                $this->warnings[] = [
-                    'line' => $this->line,
-                    'error' => Yii::t('shop/default', 'PRODUCT_LIMIT', Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit'])
-                ];
-                $limitFlag = false;
-            }*/
-
             $this->totalProductCount++;
-
-            //if ($this->totalProductCount <= Yii::$app->params['plan'][Yii::$app->user->planId]['product_limit']) {
-            $this->stats['create']++;
-            //}
         } else {
-            $this->stats['update']++;
             if (isset($data['deleted']) && $data['deleted']) {
                 $this->stats['deleted']++;
                 $hasDeleted = true;
                 $model->delete();
             }
-
         }
 
-        if (!$hasDeleted && $limitFlag) {
+        if (!$hasDeleted) {
             // Process product type
             $config = Yii::$app->settings->get('csv');
 
@@ -367,9 +359,15 @@ class Importer extends Component
             } else {
                 $model->switch = 1;
             }
+            if (isset($data['Цена']) && !empty($data['Цена'])) {
+                $model->price = $data['Цена'];
+            }
 
-            $model->price = $data['Цена'];
-            $model->name_ru = $data['Наименование'];
+            if (isset($data['Наименование']) && !empty($data['Наименование'])) {
+                $model->name_ru = $data['Наименование'];
+            }
+
+
             if (isset($data['Цена закупки']) && !empty($data['Цена закупки']))
                 $model->price_purchase = $data['Цена закупки'];
 
@@ -430,6 +428,8 @@ class Importer extends Component
                 $categories = array_unique($categories);
                 //}
 
+
+                $this->stats[(($model->isNewRecord) ? 'create' : 'update')]++;
 
                 // Save product
                 $model->save();
@@ -544,6 +544,7 @@ class Importer extends Component
 
             } else {
                 $errors = $model->getErrors();
+
                 $error = array_shift($errors);
                 $this->errors[] = [
                     'line' => $this->line,

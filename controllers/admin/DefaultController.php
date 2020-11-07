@@ -3,7 +3,9 @@
 namespace panix\mod\csv\controllers\admin;
 
 use panix\engine\CMS;
+use panix\mod\csv\components\Helper;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
@@ -77,7 +79,7 @@ class DefaultController extends AdminController
             $name = basename($f);
             $data[] = [
                 'name' => $name,
-                'filePath'=>'/uploads/csv_import_image/' . Yii::$app->user->id . '/' . $name,
+                'filePath' => '/uploads/csv_import_image/' . Yii::$app->user->id . '/' . $name,
             ];
         }
 
@@ -101,7 +103,7 @@ class DefaultController extends AdminController
 
             if ($uploadModel->files) {
                 foreach ($uploadModel->files as $file) {
-                   // CMS::dump($file);die;
+                    // CMS::dump($file);die;
                     $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $file->name;
                     if ($file->extension == 'zip') {
                         $uploadFiles = $file->saveAs($filePath);
@@ -241,20 +243,14 @@ class DefaultController extends AdminController
         $pages = false;
 
         if ($model->load(Yii::$app->request->get())) {
-
             if ($model->validate()) {
-
-
-                //if (Yii::$app->request->get('manufacturer_id')) {
 
                 if ($get['FilterForm']['manufacturer_id'] !== '') {
                     $manufacturers = explode(',', $model->manufacturer_id);
                     $query->applyManufacturers($manufacturers);
                 }
 
-
                 $query->where(['type_id' => $model->type_id]);
-
 
                 $count = $query->count();
                 $pages = new Pagination([
@@ -263,12 +259,90 @@ class DefaultController extends AdminController
                 ]);
                 $query->offset($pages->offset);
                 $query->limit($pages->limit);
-            } else {
-                CMS::dump($model->errors);
-                die;
             }
         }
 
+        if (false) {
+            /*$spreadsheet = IOFactory::load(Yii::getAlias('@runtime').'/test.xlsx');
+            $worksheet = $spreadsheet->getActiveSheet();
+
+
+            $rows = [];
+            foreach ($worksheet->getRowIterator() AS $row) {
+                $cellIterator = $row->getCellIterator();
+                $cellIterator->setIterateOnlyExistingCells(false);
+                $cells = [];
+                foreach ($cellIterator as $cell) {
+                    if(!is_null($cell->getValue()))
+                        $cells[] = $cell->getValue();
+                }
+                $rows[] = $cells;
+            }*/
+
+
+            //$row1 = Helper::newSpreadsheet(Yii::getAlias('@runtime').'/test.xlsx')->getRows();
+
+
+            // print_r($row1);
+            $filePath = Yii::getAlias('@runtime') . '/test.xlsx';
+            if (file_exists($filePath)) {
+                /** @var Helper $data2 */
+                $data2 = Helper::newSpreadsheet($filePath);
+                //CMS::dump($data2->getSpreadsheet());die;
+                $rows = $data2->getRows();
+                unset($rows[0]);
+
+
+                /*  $spreadsheet = Helper::newSpreadsheet()
+                      ->getSpreadsheet();
+
+                  $arrayData = [
+                      [NULL, 2010, 2011, 2012],
+                      ['Q1',   12,   15,   21],
+                      ['Q2',   56,   73,   86],
+                      ['Q3',   52,   61,   69],
+                      ['Q4',   30,   32,    0],
+                  ];
+                  $spreadsheet->getActiveSheet()
+                      ->fromArray($arrayData, NULL);
+
+                  Helper::save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
+                  die;*/
+
+
+            } else {
+                $data2 = Helper::newSpreadsheet();
+                $data2->addRow(['id', 'name', 'email']);
+                $data2->setWrapText()
+                    ->setStyle([
+                        'borders' => [
+                            'inside' => ['borderStyle' => 'hair'],
+                            'outline' => ['borderStyle' => 'thin'],
+                        ],
+                        'fill' => [
+                            'fillType' => 'solid',
+                            'startColor' => ['argb' => 'FFCCCCCC'],
+                        ],
+                    ]);
+            }
+
+            $products = Product::find()->all();
+            foreach ($products as $product) {
+                $rows[] = [$product->id, $product->name, $product->price];
+            }
+
+            if(isset($rows))
+                $data2->addRows($rows);
+
+            $data2->setAutoSize();
+
+
+            $data2->save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
+            // ->output('My Excel');
+
+            //CMS::dump($rows);
+            die;
+        }
 
         if (Yii::$app->request->get('attributes')) {
             $exporter->export(

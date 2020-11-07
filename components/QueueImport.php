@@ -2,11 +2,10 @@
 
 namespace panix\mod\csv\components;
 
-use yii\base\BaseObject;
-use yii\helpers\Console;
-use yii\queue\JobInterface;
 use Yii;
 use yii\queue\RetryableJobInterface;
+use yii\base\BaseObject;
+use yii\helpers\Console;
 
 class QueueImport extends BaseObject implements RetryableJobInterface
 {
@@ -21,14 +20,14 @@ class QueueImport extends BaseObject implements RetryableJobInterface
         $i = 0;
         $count = count($this->rows);
         $errors = [];
-        Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
+        echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
             $row = $importer->prepareRow($row);
             $result = $importer->importRow($row);
 
             $i++;
-            Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
+            echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
 
         }
 
@@ -43,7 +42,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
                 ->setSubject(Yii::t('csv/default', 'QUEUE_SUBJECT'))
                 ->send();
         }
-        Console::endProgress(false) . PHP_EOL;
+        echo Console::endProgress(false) . PHP_EOL;
         return true;
     }
 

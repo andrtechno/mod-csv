@@ -50,7 +50,7 @@ class Exporter
 
     /**
      * @param array $attributes
-     * @param $query \core\modules\shop\models\query\ProductQuery
+     * @param $query \panix\mod\shop\models\query\ProductQuery
      */
     public function export(array $attributes, $query)
     {
@@ -73,7 +73,7 @@ class Exporter
                     $value = $this->getManufacturer($p);
 
                 } elseif ($attr === 'Фото') {
-                    /** @var \core\modules\images\behaviors\ImageBehavior $img */
+                    /** @var \panix\mod\images\behaviors\ImageBehavior $img */
                     $img = $p->getImage();
                     $value = ($img) ? $img->filePath : NULL;
                 } elseif ($attr === 'Доп. Категории') {
@@ -308,7 +308,9 @@ class Exporter
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('List');
 
+
         $index = 1;
+        $alpha = 1;
         foreach ($this->rows as $key => $row) {
             $alpha = 1;
             foreach ($row as $l) {
@@ -318,7 +320,9 @@ class Exporter
             $index++;
         }
 
-
+        foreach(range(1,$alpha) as $columnID) {
+            $sheet->getColumnDimension(Helper::num2alpha($columnID))->setAutoSize(true);
+        }
         if ($format == 'xls') {
             $writer = new Xls($spreadsheet);
         } elseif ($format == 'xlsx') {

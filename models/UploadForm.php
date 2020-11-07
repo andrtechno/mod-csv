@@ -23,7 +23,7 @@ class UploadForm extends Model
     public function rules()
     {
         return [
-            [['files'], 'file', 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => self::files_max_size],
+            [['files'], 'file', 'maxFiles' => 100, 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => self::files_max_size],
         ];
     }
 

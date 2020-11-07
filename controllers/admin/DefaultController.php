@@ -76,9 +76,8 @@ class DefaultController extends AdminController
         foreach ($files as $f) {
             $name = basename($f);
             $data[] = [
-                'file' => $f,
                 'name' => $name,
-                'img' => Html::img('/uploads/csv_import_image/' . Yii::$app->user->id . '/' . $name, ['width' => 100])
+                'filePath'=>'/uploads/csv_import_image/' . Yii::$app->user->id . '/' . $name,
             ];
         }
 
@@ -86,7 +85,7 @@ class DefaultController extends AdminController
         $provider = new ArrayDataProvider([
             'allModels' => $data,
             'pagination' => [
-                'pageSize' => 10,
+                'pageSize' => 20,
             ],
             'sort' => [
                 'attributes' => ['name', 'img'],
@@ -97,29 +96,35 @@ class DefaultController extends AdminController
         $model = new ImportForm();
         $uploadModel = new UploadForm();
         if ($uploadModel->load(Yii::$app->request->post()) && $uploadModel->validate()) {
-            $uploadModel->files = UploadedFile::getInstance($uploadModel, 'files');
+            $uploadModel->files = UploadedFile::getInstances($uploadModel, 'files');
+
+
             if ($uploadModel->files) {
-                $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $uploadModel->files->name;
-                if ($uploadModel->files->extension == 'zip') {
-                    $uploadFiles = $uploadModel->files->saveAs($filePath);
-                    if ($uploadFiles) {
-                        if (file_exists($filePath)) {
-                            $zipFile = new \PhpZip\ZipFile();
-                            $zipFile->openFile($filePath);
-                            $extract = $zipFile->extractTo(Yii::getAlias(Yii::$app->getModule('csv')->uploadPath));
-                            if ($extract)
-                                unlink($filePath);
+                foreach ($uploadModel->files as $file) {
+                   // CMS::dump($file);die;
+                    $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $file->name;
+                    if ($file->extension == 'zip') {
+                        $uploadFiles = $file->saveAs($filePath);
+                        if ($uploadFiles) {
+                            if (file_exists($filePath)) {
+                                $zipFile = new \PhpZip\ZipFile();
+                                $zipFile->openFile($filePath);
+                                $extract = $zipFile->extractTo(Yii::getAlias(Yii::$app->getModule('csv')->uploadPath));
+                                if ($extract)
+                                    unlink($filePath);
 
-                            Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
+                                Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
 
-                        } else {
-                            die('error 01');
+                            } else {
+                                die('error 01');
+                            }
                         }
+                    } elseif (in_array($file->extension, $uploadModel::$extension)) {
+                        $filePath = Yii::getAlias(Yii::$app->getModule('csv')->uploadPath) . DIRECTORY_SEPARATOR . $file->name;
+                        $file->saveAs($filePath);
+                        Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
                     }
-                } elseif (in_array($uploadModel->files->extension, $uploadModel::$extension)) {
-                    $filePath = Yii::getAlias(Yii::$app->getModule('csv')->uploadPath) . DIRECTORY_SEPARATOR . $uploadModel->files->name;
-                    $uploadModel->files->saveAs($filePath);
-                    Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
+
                 }
                 return $this->redirect(['import']);
             }
@@ -146,7 +151,7 @@ class DefaultController extends AdminController
 
                         if ($errImport < 10) {
                             if ($error['line'] > 0)
-                                Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'LINE',$error['line']) . " " . $error['error']);
+                                Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'LINE', $error['line']) . " " . $error['error']);
                             else
                                 Yii::$app->session->addFlash('import-error', $error['error']);
                         } else {
@@ -237,32 +242,32 @@ class DefaultController extends AdminController
 
         if ($model->load(Yii::$app->request->get())) {
 
-            if($model->validate()){
+            if ($model->validate()) {
 
 
-            //if (Yii::$app->request->get('manufacturer_id')) {
+                //if (Yii::$app->request->get('manufacturer_id')) {
 
-            if ($get['FilterForm']['manufacturer_id'] !== '') {
-                $manufacturers = explode(',', $model->manufacturer_id);
-                $query->applyManufacturers($manufacturers);
-            }
-
-
-            $query->where(['type_id' => $model->type_id]);
+                if ($get['FilterForm']['manufacturer_id'] !== '') {
+                    $manufacturers = explode(',', $model->manufacturer_id);
+                    $query->applyManufacturers($manufacturers);
+                }
 
 
-            $count = $query->count();
-            $pages = new Pagination([
-                'totalCount' => $count,
-                'pageSize' => $get['FilterForm']['page']
-            ]);
-            $query->offset($pages->offset);
-            $query->limit($pages->limit);
-            }else{
-                CMS::dump($model->errors);die;
+                $query->where(['type_id' => $model->type_id]);
+
+
+                $count = $query->count();
+                $pages = new Pagination([
+                    'totalCount' => $count,
+                    'pageSize' => $get['FilterForm']['page']
+                ]);
+                $query->offset($pages->offset);
+                $query->limit($pages->limit);
+            } else {
+                CMS::dump($model->errors);
+                die;
             }
         }
-
 
 
         if (Yii::$app->request->get('attributes')) {
@@ -302,7 +307,6 @@ class DefaultController extends AdminController
         $spreadsheet->setProperties($props);
 
 
-
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('List');
         $sheet->setCellValue('A1', 'Наименование');
@@ -336,7 +340,7 @@ class DefaultController extends AdminController
 
         $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
 
-       // $writer->save('php://output');
+        // $writer->save('php://output');
 
 
         $writer->save($tmpFilePath);

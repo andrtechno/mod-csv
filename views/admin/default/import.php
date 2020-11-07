@@ -4,40 +4,13 @@ use panix\engine\bootstrap\ActiveForm;
 use panix\engine\CMS;
 use yii\widgets\Pjax;
 use panix\mod\csv\components\AttributesProcessor;
+
 /**
  * @var $importer \panix\mod\csv\components\Importer
  * @var $uploadModel \panix\mod\csv\models\UploadForm
  * @var $filesData array
  * @var $model \panix\mod\csv\models\ImportForm
  */
-/*
-$inputFileName = Yii::getAlias('@runtime').DIRECTORY_SEPARATOR.'tmp.xlsx';
-
-$inputFileName = Yii::getAlias('@runtime').DIRECTORY_SEPARATOR.'tmp.csv';
-$spreadsheet  = \PhpOffice\PhpSpreadsheet\IOFactory::load($inputFileName);
-$worksheet = $spreadsheet->getActiveSheet();
-
-$rows = [];
-$cellsHeaders = [];
-foreach ($worksheet->getRowIterator(1,1) as $row) {
-    $cellIterator2 = $row->getCellIterator();
-    $cellIterator2->setIterateOnlyExistingCells(false); // This loops through all cells,
-    foreach ($cellIterator2 as $k=>$cell2) {
-        $cellsHeaders[$k] = $cell2->getValue();
-    }
-
-}
-foreach ($worksheet->getRowIterator(2) as $row) {
-    $cellIterator = $row->getCellIterator();
-    $cellIterator->setIterateOnlyExistingCells(false); // This loops through all cells,
-    $cells = [];
-    foreach ($cellIterator as $k=>$cell) {
-        $cells[$cellsHeaders[$k]] = $cell->getValue();
-    }
-    $rows[] = $cells;
-}
-
-CMS::dump($rows);die;*/
 ?>
 
 
@@ -186,7 +159,7 @@ CMS::dump($rows);die;*/
                     'options' => ['class' => 'list-view row '],
                     'itemOptions' => ['class' => 'item col-6 col-md-6 col-lg-6 col-xl-4 d-md-flex justify-content-center'],
                     'emptyTextOptions' => ['class' => 'col-12 alert alert-info'],
-                     'pager' => [
+                    'pager' => [
                         'options' => ['class' => 'pagination justify-content-center']
                     ],
                 ]);

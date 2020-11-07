@@ -4,12 +4,14 @@ namespace panix\mod\csv\controllers\admin;
 
 use panix\engine\CMS;
 use panix\mod\csv\components\Helper;
+use panix\mod\csv\components\QueueExport;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
 use yii\helpers\FileHelper;
+use yii\queue\Queue;
 use yii\web\UploadedFile;
 use panix\engine\Html;
 use panix\mod\shop\models\Product;
@@ -255,10 +257,30 @@ class DefaultController extends AdminController
                 $count = $query->count();
                 $pages = new Pagination([
                     'totalCount' => $count,
-                    'pageSize' => $get['FilterForm']['page']
+                    //'pageSize' => $get['FilterForm']['page'],
+                    'pageSize' => 50
                 ]);
                 $query->offset($pages->offset);
                 $query->limit($pages->limit);
+
+
+
+
+
+
+
+
+               // $list = array_chunk($query->indexBy('id')->limit(10)->all(), $pages->pageSize, true);
+               // foreach ($list as $index => $items) {
+                    /** @var Queue $q */
+                   // print_r($items);
+                    $q = Yii::$app->queue;
+                   // $q->push(new QueueExport(['test' => $pages]));
+               // }
+
+
+                //CMS::dump($items);
+                die;
             }
         }
 

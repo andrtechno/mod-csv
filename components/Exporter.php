@@ -256,6 +256,7 @@ class Exporter
     {
 
         $get = Yii::$app->request->get('FilterForm');
+
         $format = $get['format'] ? $get['format'] : 'csv';
         $filename = '';
         if (isset($get['manufacturer_id'])) {
@@ -320,7 +321,7 @@ class Exporter
             $index++;
         }
 
-        foreach(range(1,$alpha) as $columnID) {
+        foreach (range(1, $alpha) as $columnID) {
             $sheet->getColumnDimension(Helper::num2alpha($columnID))->setAutoSize(true);
         }
         if ($format == 'xls') {

@@ -10,26 +10,12 @@ use yii\helpers\Console;
 class QueueExport extends BaseObject implements RetryableJobInterface
 {
     public $rows;
-    public $line;
+    public $test;
 
     public function execute($queue)
     {
 
-        $exporter = new Exporter();
-        $i = 0;
-        $count = count($this->rows);
-        echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
-        foreach ($this->rows as $line => $row) {
-            $exporter->line = $line;
-           // $row = $importer->prepareRow($row);
-           // $result = $importer->importRow($row);
-
-            $i++;
-            echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
-
-        }
-
-        echo Console::endProgress(false) . PHP_EOL;
+print_r($this->test);die;
         return true;
     }
 

@@ -336,15 +336,14 @@ class Importer extends Component
         // }
 
       //  if(true){
-        $full_name = $data['Наименование'].$data['Бренд'].$data['Артикул'];
+        $full_name = $data['Бренд'].$data['Артикул'];
 
             //$brand = $data['Бренд'];
             //$sku = $data['Артикул'];
        // }
-//echo $full_name;die;
+
         //$model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
         $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $full_name);
-
 
         // $model = $query->one();
         $hasDeleted = false;
@@ -405,7 +404,7 @@ class Importer extends Component
                 $model->sku = $data['Артикул'];
 
             if (isset($data['Описание']) && !empty($data['Описание']))
-                $model->full_description_ru = $data['Описание'];
+                $model->full_description = $data['Описание'];
 
             if (isset($data['Наличие']) && !empty($data['Наличие']))
                 $model->availability = (is_numeric($data['Наличие'])) ? $data['Наличие'] : 1;

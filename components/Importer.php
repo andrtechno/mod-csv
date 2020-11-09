@@ -335,8 +335,15 @@ class Importer extends Component
         //$query->where(['name' => $data['Наименование']]);
         // }
 
+      //  if(true){
+        $full_name = $data['Наименование'].$data['Бренд'].$data['Артикул'];
 
-        $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
+            //$brand = $data['Бренд'];
+            //$sku = $data['Артикул'];
+       // }
+//echo $full_name;die;
+        //$model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
+        $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $full_name);
 
 
         // $model = $query->one();
@@ -372,7 +379,7 @@ class Importer extends Component
             }
 
             if (isset($data['Наименование']) && !empty($data['Наименование'])) {
-                $model->name_ru = $data['Наименование'];
+                $model->name = $data['Наименование'];
             }
 
 
@@ -441,7 +448,11 @@ class Importer extends Component
 
                 // Save product
                 $model->save();
+              //  var_dump($model->use_configurations);die;
                 if ($model->use_configurations) {
+                   // if(!isset($data['Конфигурация'])){
+                   //     die('err'.$this->line);
+                  //  }
                     $db = $model::getDb()->createCommand();
                     $configure_attribute_list = explode(';', $data['Конфигурация']);
                     $configureIds = [];
@@ -465,7 +476,7 @@ class Importer extends Component
 
                 // Create product external id
                 if ($newProduct === true) {
-                    $this->external->createExternalId(ExternalFinder::OBJECT_PRODUCT, $model->id, $data['Наименование']);
+                    $this->external->createExternalId(ExternalFinder::OBJECT_PRODUCT, $model->id, $full_name);
                 }
 
 

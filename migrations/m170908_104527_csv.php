@@ -22,9 +22,10 @@ class m170908_104527_csv extends Migration
         $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci ENGINE=InnoDB';
         $this->createTable('{{%csv}}', [
             'id' => $this->primaryKey()->unsigned(),
-            'object_id' => $this->integer()->null(),
+            'object_id' => $this->integer()->unsigned()->null(),
             'object_type' => $this->tinyInteger()->null(),
-            'external_id' => $this->string(255)->null(),
+            'external_id' => $this->integer()->unsigned()->null(),
+            'external_data' => $this->string(255)->null(),
         ], $tableOptions);
 
         $this->createIndex('object_id', '{{%csv}}', 'object_id');

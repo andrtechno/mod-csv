@@ -14,7 +14,7 @@ return [
     'IMPORT' => 'Import',
     'EXPORT' => 'Export',
     'SUCCESS_IMPORT' => 'You have successfully uploaded products',
-    'WHOLESALE_PRICE' => 'Wholesale price. <br/> Example: <code> 950 = 2 </code> - The first number is the price, after the sign "<code>=</code>" the number is the quantity. <br/> Supports multiple prices, separated by semicolons "<code>;</code>"',
+    'WHOLESALE_PRICE' => 'Wholesale price. <br/> Example: <code>950=2</code> - The first number is the price, after the sign "<code>=</code>" the number is the quantity. <br/> Supports multiple prices, separated by semicolons "<code>;</code>"',
     'ERRORS_IMPORT' => 'Import errors',
     'WARNING_IMPORT' => 'Import warning',
     'IMPORT_INFO1' => 'The columns to import must be specified in the first line of the file.',

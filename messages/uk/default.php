@@ -31,14 +31,15 @@ return [
     'REQUIRE_COLUMN' => 'Вкажіть обов\'язкову колонку <strong>{column}</strong>',
     'REQUIRE_COLUMN_EMPTY' => 'Не заповнена обов\'язкова колонка <strong>{column}</strong>',
     'LINE' => 'Рядок <strong> {0} </strong>:',
-    'AND_MORE' => 'і ще ({0}).',
+    'AND_MORE' => 'та ще ({0}).',
     'FILENAME' => 'Файл',
     'EXPORT_FORMAT' => 'Формат експорту',
     'FILES' => 'Зображення ({0})',
     'DB_BACKUP' => 'Створити резервну копію БД',
     'IMPORT_ALERT' => 'Перед завантаженням <strong>файлу</strong>, необхідно завантажити зображення, якщо цього вимагає файл',
-    'NO_FIND_CURRENCY' => 'Не знайдено валюта: {0} ',
+    'NO_FIND_CURRENCY' => 'Не знайдено валюта: {0}',
     'PAGE' => 'Кількість товарів у файлі',
     'QUEUE_SUBJECT' => 'Помилка фонового імпорту товарів',
     'UPLOAD' => 'Завантажити',
+    'IMAGE_FOR_UPLOAD' => 'Зображення для імпорту'
 ];

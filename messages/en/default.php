@@ -41,4 +41,5 @@ return [
     'PAGE' => 'Number of products in file',
     'QUEUE_SUBJECT' => 'Background import of goods failed',
     'UPLOAD' => 'Upload',
+    'IMAGE_FOR_UPLOAD' => 'Images to import'
 ];

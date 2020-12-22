@@ -127,7 +127,7 @@ class AttributesProcessor extends Component
         $multipleTypes = [Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY, Attribute::TYPE_COLOR];
 
         if (in_array($attribute->type, $multipleTypes)) {
-            foreach (explode(',', $attribute_value) as $val) {
+            foreach (explode(';', $attribute_value) as $val) {
                 $option = $this->getOption($attribute, $val);
                 $result[] = $option->id;
             }

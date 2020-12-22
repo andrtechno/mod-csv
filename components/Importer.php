@@ -114,7 +114,7 @@ class Importer extends Component
      */
     protected $errors = [];
     protected $warnings = [];
-
+    const QUEUE_ROW = 25;
     /**
      * @var array
      */
@@ -289,7 +289,7 @@ class Importer extends Component
 
                 if (!$this->errors) {
                     $row = $this->prepareRow($row);
-                    if ($counter <= 50) {
+                    if ($counter <= self::QUEUE_ROW) {
                         $this->importRow($row);
                     } else {
                         $queueList[$this->line] = $row;
@@ -301,7 +301,7 @@ class Importer extends Component
             $counter++;
         }
         if ($queueList) {
-            $list = array_chunk($queueList, 50, true);
+            $list = array_chunk($queueList, self::QUEUE_ROW, true);
             foreach ($list as $index => $items) {
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
@@ -335,12 +335,12 @@ class Importer extends Component
         //$query->where(['name' => $data['Наименование']]);
         // }
 
-      //  if(true){
-        $full_name = $data['Бренд'].$data['Артикул'];
+        //  if(true){
+        $full_name = $data['Бренд'] . $data['Артикул'];
 
-            //$brand = $data['Бренд'];
-            //$sku = $data['Артикул'];
-       // }
+        //$brand = $data['Бренд'];
+        //$sku = $data['Артикул'];
+        // }
 
         //$model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
         $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $full_name);
@@ -447,11 +447,11 @@ class Importer extends Component
 
                 // Save product
                 $model->save();
-              //  var_dump($model->use_configurations);die;
+                //  var_dump($model->use_configurations);die;
                 if ($model->use_configurations) {
-                   // if(!isset($data['Конфигурация'])){
-                   //     die('err'.$this->line);
-                  //  }
+                    // if(!isset($data['Конфигурация'])){
+                    //     die('err'.$this->line);
+                    //  }
                     $db = $model::getDb()->createCommand();
                     $configure_attribute_list = explode(';', $data['Конфигурация']);
                     $configureIds = [];
@@ -770,15 +770,16 @@ class Importer extends Component
         $pathName = '';
         $tree = [];
         foreach ($result as $key => $name) {
-            $pathName .= '/' . $name;
+            $pathName .= '/' . trim($name);
             $tree[] = substr($pathName, 1);
         }
 
 
-        foreach ($tree as $key => $name) {
-            $object = explode('/', $name);
 
-            $model = Category::find()->where(['path_hash' => md5($name)])->one();
+        foreach ($tree as $key => $name) {
+            $object = explode('/', trim($name));
+
+            $model = Category::find()->where(['path_hash' => md5(mb_strtolower($name))])->one();
             //$exist = Category::find()->where(['path_hash' => md5($name)])->one();
             //if ($exist) {
             //    $model = $exist;

@@ -15,7 +15,7 @@ class QueueExport extends BaseObject implements RetryableJobInterface
     public function execute($queue)
     {
 
-print_r($this->test);die;
+//print_r($this->test);die;
         return true;
     }
 

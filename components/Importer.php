@@ -146,7 +146,20 @@ class Importer extends Component
         $indentColumn = (isset($config->indent_column)) ? $config->indent_column : 1;
         $ignoreColumns = (isset($config->ignore_columns)) ? explode(',', $config->ignore_columns) : [];
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
-        $worksheet = $spreadsheet->getActiveSheet();
+
+
+       if($spreadsheet->getSheetCount() > 1){
+           $worksheet = $spreadsheet->getAllSheets();
+           foreach ($worksheet as $ss){
+               CMS::dump($ss);
+               echo '-----------';
+           }
+           die;
+       }else{
+           $worksheet = $spreadsheet->getActiveSheet();
+       }
+
+
         //$props = $spreadsheet->getProperties();
 
         $rows = [];
@@ -352,6 +365,9 @@ class Importer extends Component
             $newProduct = true;
             $model = new Product;
             $this->totalProductCount++;
+            if (isset($data['deleted']) && $data['deleted']) {
+                $hasDeleted = true;
+            }
         } else {
             if (isset($data['deleted']) && $data['deleted']) {
                 $this->stats['deleted']++;
@@ -551,7 +567,7 @@ class Importer extends Component
                                 } else {
                                     $this->warnings[] = [
                                         'line' => $this->line,
-                                        'error' => 'Ошибка изображения'
+                                        'error' => 'Ошибка изображения: Не найдено! '.trim($im)
                                     ];
                                 }
                             }

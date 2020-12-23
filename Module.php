@@ -13,6 +13,7 @@ class Module extends WebModule implements BootstrapInterface
 
     public $icon = 'file-csv';
     public $mailPath = '@csv/mail';
+    public $uploadPath = '@uploads/csv_import_image';
     /**
      * @inheritdoc
      */
@@ -29,11 +30,7 @@ class Module extends WebModule implements BootstrapInterface
             ],
         ]);
         $app->getUrlManager()->addRules($groupUrlRule->rules, false);
-
-
-        if (Yii::$app->id !== 'console') {
-            $this->uploadPath = '@uploads/csv_import_image/' . Yii::$app->user->id;
-        }
+        $this->uploadPath = '@uploads/csv_import_image';
     }
 
     public function getAdminMenu()

@@ -81,7 +81,7 @@ class DefaultController extends AdminController
             $name = basename($f);
             $data[] = [
                 'name' => $name,
-                'filePath' => '/uploads/csv_import_image/' . Yii::$app->user->id . '/' . $name,
+                'filePath' => '/uploads/csv_import_image/' . $name,
             ];
         }
 

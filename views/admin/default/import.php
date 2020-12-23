@@ -155,7 +155,7 @@ use panix\mod\csv\components\AttributesProcessor;
                     'dataProvider' => $filesData,
                     'itemView' => '_image',
                     //'layout' => '{sorter}{summary}{items}{pager}',
-                    'layout' => '{items}<div class="col-12">{pager}</div>',
+                    'layout' => '{items}<div class="col-12"><div class="text-center">{summary}</div>{pager}</div>',
                     'options' => ['class' => 'list-view row '],
                     'itemOptions' => ['class' => 'item col-6 col-md-6 col-lg-6 col-xl-4 d-md-flex justify-content-center'],
                     'emptyTextOptions' => ['class' => 'col-12 alert alert-info'],

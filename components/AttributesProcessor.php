@@ -51,7 +51,8 @@ class AttributesProcessor extends Component
         'Поставщик',
         'Наличие',
         'Скидка',
-        'Конфигурация'
+        'Конфигурация',
+        'deleted'
     ];
 
     /**
@@ -259,6 +260,7 @@ class AttributesProcessor extends Component
         $attributes['Описание'] = Yii::t('csv/default', 'Полное описание HTML');
         $attributes['Количество'] = Yii::t('csv/default', 'Количество на складе.<br/>По умолчанию <code>1</code>, от 0 до 99999');
         $attributes['Наличие'] = Yii::t('csv/default', 'Доступность.<br/><code>1</code> &mdash; есть в наличие <strong>(по умолчанию)</strong><br/><code>2</code> &mdash; под заказ<br/><code>3</code> &mdash; нет в наличие.');
+        $attributes['deleted'] = Yii::t('csv/default', 'Удаление товара.<br/><code>1</code> &mdash; удалить<br/><code>0</code> &mdash; не удалять');
         //$attributes['created_at'] = Yii::t('app/default', 'Дата создания');
         // $attributes['updated_at'] = Yii::t('app/default', 'Дата обновления');
         /*foreach (Attribute::find()->asArray()->all() as $attr) {

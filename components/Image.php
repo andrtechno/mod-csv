@@ -61,7 +61,6 @@ class Image extends UploadedFile
             }
         } else {
             $tmpName = Yii::getAlias(Yii::$app->getModule('csv')->uploadPath) . DIRECTORY_SEPARATOR . $image;
-
         }
 
 

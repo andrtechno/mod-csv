@@ -260,7 +260,7 @@ class Importer extends Component
 
         return !$this->hasErrors();
     }
-
+public $skipRows = []; //@todo: need test
 
     /**
      * Here we go
@@ -295,12 +295,13 @@ class Importer extends Component
                                 'line' => $this->line,
                                 'error' => Yii::t('csv/default', 'REQUIRE_COLUMN_EMPTY', ['column' => $key])
                             ];
+                            $this->skipRows[]=$this->line;
                         }
                     }
                     return [$key => $value];
                 }, ARRAY_FILTER_USE_BOTH);
 
-                if (!$this->errors) {
+                if (!in_array($columnIndex,$this->skipRows)) {//if (!$this->errors) {
                     $row = $this->prepareRow($row);
                     if ($counter <= self::QUEUE_ROW) {
                         $this->importRow($row);

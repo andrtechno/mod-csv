@@ -78,5 +78,5 @@ $client = $model->getGoogleClient();
 
 
 
-    \panix\engine\CMS::dump($client->getConfig('client_email'));
+  //  \panix\engine\CMS::dump($client->getConfig('client_email'));
 

@@ -12,20 +12,22 @@ class QueueImport extends BaseObject implements RetryableJobInterface
     public $rows;
     public $line;
 
+    /**
+     * @param \yii\queue\Queue $queue
+     * @return bool
+     */
     public function execute($queue)
     {
-
         $importer = new Importer();
-        // $importer->importRow($row);
         $i = 0;
         $count = count($this->rows);
+       // echo count($this->rows);die;
         $errors = [];
         echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
             $row = $importer->prepareRow($row);
             $result = $importer->importRow($row);
-
             $i++;
             echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
 

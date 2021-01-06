@@ -314,10 +314,11 @@ class Importer extends Component
             $counter++;
         }
         if ($queueList) {
+            Yii::$app->session->addFlash('success','В очередь добавлено: <strong>'.count($queueList).'</strong> товара');
             $list = array_chunk($queueList, self::QUEUE_ROW, true);
+            /** @var Queue $q */
+            $q = Yii::$app->queue;
             foreach ($list as $index => $items) {
-                /** @var Queue $q */
-                $q = Yii::$app->queue;
                 $q->priority($index)->push(new QueueImport(['rows' => $items]));
             }
         }
@@ -354,7 +355,6 @@ class Importer extends Component
 
         //$model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
         $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $full_name);
-
         // $model = $query->one();
         $hasDeleted = false;
 

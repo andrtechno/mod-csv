@@ -148,16 +148,16 @@ class Importer extends Component
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
 
 
-       if($spreadsheet->getSheetCount() > 1){
-           $worksheet = $spreadsheet->getAllSheets();
-           foreach ($worksheet as $ss){
-               CMS::dump($ss);
-               echo '-----------';
-           }
-           die;
-       }else{
-           $worksheet = $spreadsheet->getActiveSheet();
-       }
+        if ($spreadsheet->getSheetCount() > 1) {
+            $worksheet = $spreadsheet->getAllSheets();
+            foreach ($worksheet as $ss) {
+                CMS::dump($ss);
+                echo '-----------';
+            }
+            die;
+        } else {
+            $worksheet = $spreadsheet->getActiveSheet();
+        }
 
 
         //$props = $spreadsheet->getProperties();
@@ -331,9 +331,6 @@ class Importer extends Component
     {
 
         $category_id = 1;
-        if (isset($data['Категория']) || !empty($data['Категория'])) {
-            $category_id = $this->getCategoryByPath($data['Категория']);
-        }
 
 
         $newProduct = false;
@@ -377,6 +374,9 @@ class Importer extends Component
         }
 
         if (!$hasDeleted) {
+            if (isset($data['Категория']) || !empty($data['Категория'])) {
+                $category_id = $this->getCategoryByPath($data['Категория']);
+            }
             // Process product type
             $config = Yii::$app->settings->get('csv');
 
@@ -547,7 +547,7 @@ class Importer extends Component
                                 $image = Image::create(trim($im));
                                 if ($image) {
 
-                                    $result = $model->attachImage($image);
+                                    $result = $model->attachImage($image,true);
 
                                     if ($this->deleteDownloadedImages) {
                                         $image->deleteTempFile();
@@ -567,7 +567,7 @@ class Importer extends Component
                                 } else {
                                     $this->warnings[] = [
                                         'line' => $this->line,
-                                        'error' => 'Ошибка изображения: Не найдено! '.trim($im)
+                                        'error' => 'Ошибка изображения: Не найдено! ' . trim($im)
                                     ];
                                 }
                             }
@@ -789,7 +789,6 @@ class Importer extends Component
             $pathName .= '/' . trim($name);
             $tree[] = substr($pathName, 1);
         }
-
 
 
         foreach ($tree as $key => $name) {

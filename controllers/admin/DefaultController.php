@@ -96,7 +96,6 @@ class DefaultController extends AdminController
             ],
         ]);
 
-
         $model = new ImportForm();
         $uploadModel = new UploadForm();
         if ($uploadModel->load(Yii::$app->request->post()) && $uploadModel->validate()) {
@@ -104,9 +103,11 @@ class DefaultController extends AdminController
 
 
             if ($uploadModel->files) {
+
                 foreach ($uploadModel->files as $file) {
                     // CMS::dump($file);die;
                     $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $file->name;
+
                     if ($file->extension == 'zip') {
                         $uploadFiles = $file->saveAs($filePath);
                         if ($uploadFiles) {
@@ -122,11 +123,23 @@ class DefaultController extends AdminController
                             } else {
                                 die('error 01');
                             }
+                        }else{
+                            die('no save');
                         }
                     } elseif (in_array($file->extension, $uploadModel::$extension)) {
                         $filePath = Yii::getAlias(Yii::$app->getModule('csv')->uploadPath) . DIRECTORY_SEPARATOR . $file->name;
-                        $file->saveAs($filePath);
-                        Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
+
+                        if($file->getHasError()){
+                            die($file->error);
+                        }
+
+                        $uploadFiles = $file->saveAs($filePath);
+                        if($uploadFiles){
+                            Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
+                        }else{
+                            die('eeeeeeeeeeeeee');
+                        }
+
                     }
 
                 }

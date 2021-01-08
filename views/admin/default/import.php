@@ -142,7 +142,7 @@ use panix\mod\csv\components\AttributesProcessor;
                         ],
                     ]
                 ]);
-                echo $formUpload->field($uploadModel, 'files[]')->fileInput(['multiple' => true])->hint(Yii::t('csv/default', 'MAX_FILE_SIZE', CMS::fileSize($model::files_max_size)));
+                echo $formUpload->field($uploadModel, 'files[]')->fileInput(['multiple' => true])->hint(Yii::t('csv/default', 'HINT_UPLOAD_FILE', ['size'=>CMS::fileSize($model::files_max_size),'num'=>$uploadModel::$maxFiles]));
                 ?>
                 <div class="form-group text-center">
                     <?= Html::submitButton(Yii::t('csv/default', 'UPLOAD'), ['class' => 'btn btn-success']); ?>

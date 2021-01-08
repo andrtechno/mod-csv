@@ -7,7 +7,7 @@ return [
     'EXPORT_PRODUCTS' => 'Експорт товарів',
     'DOWNLOAD_CSV' => 'Завантажити файл csv',
     'FILE_INPUT_HINT' => 'Максимальний розмір файлу: <strong>{0}</strong> <br/> Доступні формати: <strong>{1}</strong>',
-    'MAX_FILE_SIZE' => 'Максимальний розмір файлу: <strong>{0}</strong>',
+    'HINT_UPLOAD_FILE' => 'Максимальний розмір файлу: <strong>{size}</strong><br/>Максимальний кол. файлів: <strong>{num}</strong>',
     'CREATE_PRODUCTS' => 'Створено товарів: <span class="badge badge-success">{0}</span>',
     'UPDATE_PRODUCTS' => 'Додано товарів: <span class="badge badge-success">{0}</span>',
     'DELETED_PRODUCTS' => 'Вилучено товарів: <span class="badge badge-success">{0}</span>',

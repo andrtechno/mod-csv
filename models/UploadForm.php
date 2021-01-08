@@ -19,11 +19,20 @@ class UploadForm extends Model
     protected $filesExt = ['zip'];
     public static $extension = ['jpg', 'jpeg'];
     public $files;
+    public static $maxFiles = 100;
+
+    public function init()
+    {
+        $core = ini_get('max_file_uploads');
+        self::$maxFiles = ($core > 100) ?: $core;
+        parent::init();
+    }
 
     public function rules()
     {
+
         return [
-            [['files'], 'file', 'maxFiles' => 100, 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => self::files_max_size],
+            [['files'], 'file', 'maxFiles' => self::$maxFiles, 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => self::files_max_size],
         ];
     }
 

@@ -7,7 +7,7 @@ return [
     'EXPORT_PRODUCTS' => 'Экспорт товаров',
     'DOWNLOAD_CSV' => 'Скачать файл csv',
     'FILE_INPUT_HINT' => 'Максимальный размер файла: <strong>{0}</strong><br/>Доступные форматы: <strong>{1}</strong>',
-    'MAX_FILE_SIZE' => 'Максимальный размер файла: <strong>{0}</strong>',
+    'HINT_UPLOAD_FILE' => 'Максимальный размер файла: <strong>{size}</strong><br/>Максимальный кол. файлов: <strong>{num}</strong>',
     'CREATE_PRODUCTS' => 'Создано товаров: <span class="badge badge-success">{0}</span>',
     'UPDATE_PRODUCTS' => 'Обновлено товаров: <span class="badge badge-success">{0}</span>',
     'DELETED_PRODUCTS' => 'Удалено товаров: <span class="badge badge-success">{0}</span>',

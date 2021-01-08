@@ -7,7 +7,7 @@ return [
     'EXPORT_PRODUCTS' => 'Export goods',
     'DOWNLOAD_CSV' => 'Download csv file',
     'FILE_INPUT_HINT' => 'Maximum file size: <strong>{0}</strong> <br/> Available formats: <strong>{1}</strong>',
-    'MAX_FILE_SIZE' => 'Maximum file size: <strong>{0}</strong>',
+    'HINT_UPLOAD_FILE' => 'Maximum file size: <strong>{size}</strong><br/>Maximum num. files: <strong>{num}</strong>',
     'CREATE_PRODUCTS' => 'Created products: <span class="badge badge-success">{0}</span>',
     'UPDATE_PRODUCTS' => 'Updated products: <span class="badge badge-success">{0}</span>',
     'DELETED_PRODUCTS' => 'Products removed: <span class="badge badge-success">{0}</span>',

@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\models;
 
+use panix\engine\CMS;
 use Yii;
 use yii\base\Model;
 use yii\helpers\ArrayHelper;

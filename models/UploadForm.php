@@ -32,7 +32,7 @@ class UploadForm extends Model
     {
 
         return [
-            [['files'], 'file', 'maxFiles' => self::$maxFiles, 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => self::files_max_size],
+            [['files'], 'file', 'maxFiles' => self::$maxFiles, 'extensions' => ArrayHelper::merge($this->filesExt, self::$extension), 'maxSize' => CMS::convertPHPSizeToBytes(ini_get('upload_max_filesize'))],
         ];
     }
 

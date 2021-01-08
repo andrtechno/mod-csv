@@ -132,9 +132,6 @@ use panix\mod\csv\components\AttributesProcessor;
             <div class="card-body">
                 <?php
 
-
-
-                echo CMS::convertPHPSizeToBytes(ini_get('upload_max_filesize'));
                 $formUpload = ActiveForm::begin([
                     'options' => ['enctype' => 'multipart/form-data'],
                     'fieldConfig' => [

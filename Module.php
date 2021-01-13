@@ -44,6 +44,7 @@ class Module extends WebModule implements BootstrapInterface
                                 'label' => Yii::t('csv/default', 'MODULE_NAME'),
                                 'url' => ['/admin/csv/default/import'],
                                 'icon' => $this->icon,
+                                'visible' => Yii::$app->user->can('/csv/admin/default/index') || Yii::$app->user->can('/csv/admin/default/*')
                             ],
                         ]
                     ]

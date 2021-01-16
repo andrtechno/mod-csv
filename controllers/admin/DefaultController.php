@@ -293,7 +293,7 @@ class DefaultController extends AdminController
 
 
                 //CMS::dump($items);
-                die;
+              //  die;
             }
         }
 
@@ -376,7 +376,7 @@ class DefaultController extends AdminController
             // ->output('My Excel');
 
             //CMS::dump($rows);
-            die;
+            //die;
         }
 
         if (Yii::$app->request->get('attributes')) {

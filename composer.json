@@ -1,6 +1,6 @@
 {
   "name": "panix/mod-csv",
-  "description": "Module csv",
+  "description": "Module import/export csv, xls, xlsx",
   "keywords": [
     "pixelion-cms",
     "module",

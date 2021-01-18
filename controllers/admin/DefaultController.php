@@ -241,6 +241,7 @@ class DefaultController extends AdminController
      */
     public function actionExport()
     {
+        die('test');
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new Exporter();
 

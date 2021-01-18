@@ -11,7 +11,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
 {
     public $rows;
     public $line;
-
+    public $type;
     /**
      * @param \yii\queue\Queue $queue
      * @return bool
@@ -27,13 +27,13 @@ class QueueImport extends BaseObject implements RetryableJobInterface
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
             $row = $importer->prepareRow($row);
-            $result = $importer->importRow($row);
+            $result = $importer->importRow($row,$this->type);
             $i++;
             echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
 
         }
 
-        if ($importer->getErrors() || $importer->getWarnings()) {
+        /*if ($importer->getErrors() || $importer->getWarnings()) {
             $mailer = Yii::$app->mailer;
             $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl'], [
                 'errors' => $importer->getErrors(),
@@ -43,7 +43,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
                 ->setTo([Yii::$app->settings->get('app', 'email') => Yii::$app->name])
                 ->setSubject(Yii::t('csv/default', 'QUEUE_SUBJECT'))
                 ->send();
-        }
+        }*/
         echo Console::endProgress(false) . PHP_EOL;
         return true;
     }

@@ -14,6 +14,7 @@ class Module extends WebModule implements BootstrapInterface
     public $icon = 'file-csv';
     public $mailPath = '@csv/mail';
     public $uploadPath = '@uploads/csv_import_image';
+
     /**
      * @inheritdoc
      */
@@ -32,6 +33,7 @@ class Module extends WebModule implements BootstrapInterface
         $app->getUrlManager()->addRules($groupUrlRule->rules, false);
         $this->uploadPath = '@uploads/csv_import_image';
     }
+
 
     public function getAdminMenu()
     {

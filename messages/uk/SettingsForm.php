@@ -6,5 +6,7 @@ return [
     'IGNORE_COLUMNS' => 'Ігнорувати стовпці',
     'GOOGLE_SHEET_ID' => 'ID таблиці',
     'GOOGLE_SHEET_LIST' => 'Список таблиці',
-    'GOOGLE_SERVICE' => 'Google service'
+    'GOOGLE_SERVICE' => 'Google service',
+    'TAB_MAIN' => 'Основні',
+    'TAB_QUEUE' => 'Черга',
 ];

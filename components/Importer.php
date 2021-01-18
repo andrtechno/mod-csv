@@ -108,7 +108,7 @@ class Importer extends Component
      * @var int
      */
     public $line = 1;
-
+    public $type;
     /**
      * @var array
      */
@@ -124,7 +124,7 @@ class Importer extends Component
         'deleted' => 0
     ];
     public static $extension = ['jpg', 'jpeg'];
-    public $required = ['Наименование', 'Категория', 'Цена'];
+    public $required = ['наименование', 'категория', 'цена'];
 
     public $totalProductCount = 0;
 
@@ -149,83 +149,72 @@ class Importer extends Component
 
         $result = [];
         $columns = [];
-        if ($spreadsheet->getSheetCount() > 1) {
-            $worksheets = $spreadsheet->getAllSheets();
-            foreach ($worksheets as $worksheet) {
-                $title = $worksheet->getTitle();
-                $result[$title] = [];
-                //  CMS::dump($ss->getTitle());
-                // echo '-----------';
 
+        $worksheets = $spreadsheet->getAllSheets();
+        foreach ($worksheets as $worksheet) {
+            $title = $worksheet->getTitle();
+            $result[$title] = [];
 
-                $rows = [];
-                $cellsHeaders = [];
-                foreach ($worksheet->getRowIterator($indentRow, 1) as $k => $row) {
-                    $cellIterator2 = $row->getCellIterator(Helper::num2alpha($indentColumn));
-                    $cellIterator2->setIterateOnlyExistingCells(false); // This loops through all cells,
-                    foreach ($cellIterator2 as $column => $cell2) {
-                        $value = trim($cell2->getValue());
-                        if (!in_array(mb_strtolower($column), $ignoreColumns)) {
-                            if (!empty($value)) {
-                                $cellsHeaders[$column] = $value;
-                                $result[$title][1][] = $value;
-                            }
+            //$rows = [];
+            $cellsHeaders = [];
+            foreach ($worksheet->getRowIterator($indentRow, 1) as $k => $row) {
+                $cellIterator2 = $row->getCellIterator(Helper::num2alpha($indentColumn));
+                $cellIterator2->setIterateOnlyExistingCells(false); // This loops through all cells,
+                foreach ($cellIterator2 as $column => $cell2) {
+                    $value = trim($cell2->getValue());
+                    if (!in_array(mb_strtolower($column), $ignoreColumns)) {
+                        if (!empty($value)) {
+                            $cellsHeaders[$column] = mb_strtolower($value);
+                            $result[$title][1][] = mb_strtolower($value);
                         }
                     }
-
                 }
 
-                foreach ($worksheet->getRowIterator($indentRow + 1) as $column_key => $row) {
-
-                    $cellIterator = $row->getCellIterator(Helper::num2alpha($indentColumn));
-                    $cellIterator->setIterateOnlyExistingCells(false); // This loops through all cells,
-                    $cells = [];
-                    foreach ($cellIterator as $column2 => $cell) {
-                        $value = trim($cell->getValue());
-                        if (isset($cellsHeaders[$column2])) {
-                            if (!in_array(mb_strtolower($column2), $ignoreColumns)) {
-                                if ($cell->getDataType() == 'f') {
-                                    preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $cell->getValue(), $match);
-                                    if (isset($match[1]) && isset($match[2])) {
-                                        if (mb_strtolower($match[1]) == 'image') {
-
-                                            $cells[$cellsHeaders[$column2]] = trim($match[2]);
-                                        }
-                                    }
-                                } else {
-                                    $cells[$cellsHeaders[$column2]] = $value;
-                                }
-                            }
-                        }
-                    }
-
-                    $result[$title][$column_key] = $cells;
-                }
-
-                $columns[$title] = array_filter($result[$title], function ($value) {
-                    if ($value) {
-                        foreach ($value as $row) {
-                            if (!is_null($row) && !empty($row)) {
-                                return $row;
-                            }
-                        }
-                    }
-                    return [];
-                });
             }
-            $worksheet = $worksheets[0];
-            //die;
-        } else {
-            $worksheet = $spreadsheet->getActiveSheet();
+
+            foreach ($worksheet->getRowIterator($indentRow + 1) as $column_key => $row) {
+
+                $cellIterator = $row->getCellIterator(Helper::num2alpha($indentColumn));
+                $cellIterator->setIterateOnlyExistingCells(false); // This loops through all cells,
+                $cells = [];
+                foreach ($cellIterator as $column2 => $cell) {
+                    $value = trim($cell->getValue());
+                    if (isset($cellsHeaders[$column2])) {
+                        if (!in_array(mb_strtolower($column2), $ignoreColumns)) {
+                            if ($cell->getDataType() == 'f') {
+                                preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $cell->getValue(), $match);
+                                if (isset($match[1]) && isset($match[2])) {
+                                    if (mb_strtolower($match[1]) == 'image') {
+
+                                        $cells[$cellsHeaders[$column2]] = trim($match[2]);
+                                    }
+                                }
+                            } else {
+                                $cells[$cellsHeaders[$column2]] = $value;
+                            }
+                        }
+                    }
+                }
+
+                $result[$title][$column_key] = $cells;
+            }
+
+            $columns[$title] = array_filter($result[$title], function ($value) {
+                if ($value) {
+                    foreach ($value as $row) {
+                        if (!is_null($row) && !empty($row)) {
+                            return $row;
+                        }
+                    }
+                }
+                return [];
+            });
         }
 
 
-        //$props = $spreadsheet->getProperties();
-
-
+        // CMS::dump($columns);die;
         return $columns;
-//CMS::dump($columns);die;
-        //  return [$cellsHeaders, $rows];
+
 
     }
 
@@ -265,7 +254,8 @@ class Importer extends Component
                         'line' => 0,
                         'error' => Yii::t('csv/default', 'ERROR_COLUMN_ATTRIBUTE', [
                             'attribute' => $attributeName
-                        ])
+                        ]),
+                        'type' => Yii::t('csv/default', 'LIST', $this->type)
                     ];
                     return false;
                 }
@@ -274,12 +264,15 @@ class Importer extends Component
         }
 
         foreach ($this->required as $column) {
-            foreach ($this->columns as $col) {
+            foreach ($this->columns as $listName => $col) {
 
                 if (!in_array($column, $col[1])) {
                     $this->errors[] = [
                         'line' => 0,
-                        'error' => Yii::t('csv/default', 'REQUIRE_COLUMN', ['column' => $column])
+                        'error' => Yii::t('csv/default', 'REQUIRE_COLUMN', [
+                            'column' => $column,
+                            'type' => Yii::t('csv/default', 'LIST', $listName)
+                        ])
                     ];
                 }
             }
@@ -296,28 +289,30 @@ class Importer extends Component
     public function import()
     {
         // Process lines
-        $this->line = 1;
+
 
         $counter = 0;
         $queueList = [];
 
         //Remove empty rows
         foreach ($this->columns as $type => $cols) {
+            $this->type = $type;
             unset($cols[1]);
             //   foreach ($cols as $col) {
-
+            $this->line = 1;
 
             foreach ($cols as $columnIndex => $row) {
                 $this->line = $columnIndex;
 
-                if (isset($row['Наименование'], $row['Цена'], $row['Категория'])) {
+                if (isset($row['наименование'], $row['цена'], $row['категория'])) {
 
                     $row = array_filter($row, function ($value, $key) {
                         if (in_array($key, $this->required)) {
                             if (empty($value)) {
                                 $this->errors[] = [
                                     'line' => $this->line,
-                                    'error' => Yii::t('csv/default', 'REQUIRE_COLUMN_EMPTY', ['column' => $key])
+                                    'error' => Yii::t('csv/default', 'REQUIRE_COLUMN_EMPTY', ['column' => $key]),
+                                    'type' => Yii::t('csv/default', 'LIST', $this->type)
                                 ];
                                 $this->skipRows[] = $this->line;
                             }
@@ -340,9 +335,9 @@ class Importer extends Component
             }
 
             if ($queueList) {
-                Yii::$app->session->addFlash('success', Yii::t('csv/default','QUEUE_ADD',[
-                    'type'=>$type,
-                    'count'=>count($queueList)
+                Yii::$app->session->addFlash('success', Yii::t('csv/default', 'QUEUE_ADD', [
+                    'type' => $type,
+                    'count' => count($queueList)
                 ]));
                 $list = array_chunk($queueList, self::QUEUE_ROW, true);
                 /** @var Queue $q */
@@ -382,7 +377,7 @@ class Importer extends Component
         // }
 
         //  if(true){
-        $full_name = $data['Бренд'] . $data['Артикул'];
+        $full_name = $data['бренд'] . $data['артикул'];
 
         //$brand = $data['Бренд'];
         //$sku = $data['Артикул'];
@@ -409,8 +404,8 @@ class Importer extends Component
         }
 
         if (!$hasDeleted) {
-            if (isset($data['Категория']) || !empty($data['Категория'])) {
-                $category_id = $this->getCategoryByPath($data['Категория']);
+            if (isset($data['категория']) || !empty($data['категория'])) {
+                $category_id = $this->getCategoryByPath($data['категория']);
             }
             // Process product type
             $config = Yii::$app->settings->get('csv');
@@ -424,17 +419,17 @@ class Importer extends Component
             } else {
                 $model->switch = 1;
             }
-            if (isset($data['Цена']) && !empty($data['Цена'])) {
-                $model->price = $data['Цена'];
+            if (isset($data['цена']) && !empty($data['цена'])) {
+                $model->price = $data['цена'];
             }
 
-            if (isset($data['Наименование']) && !empty($data['Наименование'])) {
-                $model->name = $data['Наименование'];
+            if (isset($data['наименование']) && !empty($data['наименование'])) {
+                $model->name = $data['наименование'];
             }
 
 
-            if (isset($data['Цена закупки']) && !empty($data['Цена закупки']))
-                $model->price_purchase = $data['Цена закупки'];
+            if (isset($data['цена закупки']) && !empty($data['цена закупки']))
+                $model->price_purchase = $data['цена закупки'];
 
             if (isset($data['unit']) && !empty($data['unit']) && array_search(trim($data['unit']), $model->getUnits())) {
                 $model->unit = array_search(trim($data['unit']), $model->getUnits());
@@ -444,36 +439,36 @@ class Importer extends Component
 
 
             // Manufacturer
-            if (isset($data['Бренд']) && !empty($data['Бренд']))
-                $model->manufacturer_id = $this->getManufacturerIdByName($data['Бренд']);
+            if (isset($data['бренд']) && !empty($data['бренд']))
+                $model->manufacturer_id = $this->getManufacturerIdByName($data['бренд']);
 
             // Supplier
-            if (isset($data['Поставщик']) && !empty($data['Поставщик']))
-                $model->supplier_id = $this->getSupplierIdByName($data['Поставщик']);
+            if (isset($data['поставщик']) && !empty($data['поставщик']))
+                $model->supplier_id = $this->getSupplierIdByName($data['поставщик']);
 
-            if (isset($data['Артикул']) && !empty($data['Артикул']))
-                $model->sku = $data['Артикул'];
+            if (isset($data['артикул']) && !empty($data['артикул']))
+                $model->sku = $data['артикул'];
 
-            if (isset($data['Описание']) && !empty($data['Описание']))
-                $model->full_description = $data['Описание'];
+            if (isset($data['описание']) && !empty($data['описание']))
+                $model->full_description = $data['описание'];
 
-            if (isset($data['Наличие']) && !empty($data['Наличие']))
-                $model->availability = (is_numeric($data['Наличие'])) ? $data['Наличие'] : 1;
+            if (isset($data['наличие']) && !empty($data['наличие']))
+                $model->availability = (is_numeric($data['наличие'])) ? $data['наличие'] : 1;
 
 
-            if (isset($data['Конфигурация']) && !empty($data['Конфигурация'])) {
+            if (isset($data['конфигурация']) && !empty($data['конфигурация'])) {
                 $model->use_configurations = 1;
             }
 
 
             // Currency
-            if (isset($data['Валюта']) && !empty($data['Валюта']))
-                $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
+            if (isset($data['валюта']) && !empty($data['валюта']))
+                $model->currency_id = $this->getCurrencyIdByName($data['валюта']);
 
-            if (isset($data['Скидка']) && !empty($data['Скидка'])) {
+            if (isset($data['скидка']) && !empty($data['скидка'])) {
                 // CMS::dump($data['Скидка']);
                 // die;
-                $model->discount = $data['Скидка'];
+                $model->discount = $data['скидка'];
             }
 
 
@@ -484,8 +479,8 @@ class Importer extends Component
 
                 $categories = [$category_id];
 
-                if (isset($data['Доп. Категории']) && !empty($data['Доп. Категории']))
-                    $categories = array_merge($categories, $this->getAdditionalCategories($data['Доп. Категории']));
+                if (isset($data['доп. категории']) && !empty($data['доп. категории']))
+                    $categories = array_merge($categories, $this->getAdditionalCategories($data['доп. категории']));
 
                 //if (!$newProduct) {
                 //foreach ($model->categorization as $c)
@@ -504,7 +499,7 @@ class Importer extends Component
                     //     die('err'.$this->line);
                     //  }
                     $db = $model::getDb()->createCommand();
-                    $configure_attribute_list = explode(';', $data['Конфигурация']);
+                    $configure_attribute_list = explode(';', $data['конфигурация']);
                     $configureIds = [];
                     $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
                     foreach ($configure_attribute_list as $configure_attribute) {
@@ -547,11 +542,11 @@ class Importer extends Component
                 // Update categories
                 $model->setCategories($categories, $category_id);
 
-                if (isset($data['Фото']) && !empty($data['Фото'])) {
+                if (isset($data['фото']) && !empty($data['фото'])) {
 
-                    if ($this->validateImage($data['Фото'])) {
+                    if ($this->validateImage($data['фото'])) {
                         /** @var ImageBehavior $model */
-                        $imagesArray = explode(';', $data['Фото']);
+                        $imagesArray = explode(';', $data['фото']);
 
                         //$limit = Yii::$app->params['plan'][Yii::$app->user->planId]['product_upload_files'];
                         //if ((count($imagesArray) > $limit) || $model->imagesCount > $limit) {
@@ -596,13 +591,15 @@ class Importer extends Component
                                     } else {
                                         $this->errors[] = [
                                             'line' => $this->line,
-                                            'error' => 'Ошибка изображения #0001'
+                                            'error' => 'Ошибка изображения #0001',
+                                            'type' => Yii::t('csv/default', 'LIST', $type)
                                         ];
                                     }
                                 } else {
                                     $this->warnings[] = [
                                         'line' => $this->line,
-                                        'error' => 'Ошибка изображения: Не найдено! ' . trim($im)
+                                        'error' => 'Ошибка изображения: Не найдено! ' . trim($im),
+                                        'type' => Yii::t('csv/default', 'LIST', $type)
                                     ];
                                 }
                             }
@@ -617,7 +614,8 @@ class Importer extends Component
                 $error = array_shift($errors);
                 $this->errors[] = [
                     'line' => $this->line,
-                    'error' => $error[0]
+                    'error' => $error[0],
+                    'type' => Yii::t('csv/default', 'LIST', $type)
                 ];
             }
         }
@@ -629,8 +627,7 @@ class Importer extends Component
      * @param $str
      * @return array
      */
-    public
-    function getAdditionalCategories($str)
+    public function getAdditionalCategories($str)
     {
         $result = [];
         $parts = explode(';', $str);
@@ -642,8 +639,7 @@ class Importer extends Component
         return $result;
     }
 
-    private
-    function validateImage($image)
+    private function validateImage($image)
     {
         $imagesList = explode(';', $image);
         foreach ($imagesList as $i => $im) {
@@ -661,7 +657,8 @@ class Importer extends Component
             if (empty($im)) {
                 $this->errors[] = [
                     'line' => $this->line,
-                    'error' => Yii::t('csv/default', 'ERROR_IMAGE')
+                    'error' => Yii::t('csv/default', 'ERROR_IMAGE'),
+                    'type' => Yii::t('csv/default', 'LIST', $this->type)
                 ];
                 return false;
             }
@@ -674,8 +671,7 @@ class Importer extends Component
      * @param $name
      * @return integer
      */
-    public
-    function getSupplierIdByName($name)
+    public function getSupplierIdByName($name)
     {
         if (isset($this->supplierCache[$name]))
             return $this->supplierCache[$name];
@@ -706,8 +702,7 @@ class Importer extends Component
      * @param $name
      * @return integer
      */
-    public
-    function getManufacturerIdByName($name)
+    public function getManufacturerIdByName($name)
     {
         if (isset($this->manufacturerCache[$name]))
             return $this->manufacturerCache[$name];
@@ -744,8 +739,7 @@ class Importer extends Component
      * @return integer
      * @throws Exception
      */
-    public
-    function getCurrencyIdByName($name)
+    public function getCurrencyIdByName($name)
     {
         if (isset($this->currencyCache[$name]))
             return $this->currencyCache[$name];
@@ -755,7 +749,11 @@ class Importer extends Component
         $model = $query->one();
 
         if (!$model) {
-            $this->warnings[] = ['line' => $this->line, 'error' => Yii::t('csv/default', 'NO_FIND_CURRENCY', $name)];
+            $this->warnings[] = [
+                'line' => $this->line,
+                'error' => Yii::t('csv/default', 'NO_FIND_CURRENCY', $name),
+                'type' => Yii::t('csv/default', 'LIST', $this->type)
+            ];
 
         }
         if ($model) {
@@ -858,8 +856,7 @@ class Importer extends Component
         return 1; // root category
     }
 
-    private
-    function test2($tree)
+    private function test2($tree)
     {
         $data = [];
         $test = '';
@@ -880,8 +877,7 @@ class Importer extends Component
      * @param $row array
      * @return array e.g array(key=>value)
      */
-    public
-    function prepareRow($row)
+    public function prepareRow($row)
     {
         $row = array_map('trim', $row);
         // $row = array_combine($this->csv_columns[1], $row);
@@ -895,8 +891,7 @@ class Importer extends Component
     /**
      * @return bool
      */
-    public
-    function hasErrors()
+    public function hasErrors()
     {
         return !empty($this->errors);
     }
@@ -905,8 +900,7 @@ class Importer extends Component
     /**
      * @return array
      */
-    public
-    function getErrors()
+    public function getErrors()
     {
         return $this->errors;
     }
@@ -915,8 +909,7 @@ class Importer extends Component
     /**
      * @return bool
      */
-    public
-    function hasWarnings()
+    public function hasWarnings()
     {
         return !empty($this->warnings);
     }
@@ -925,8 +918,7 @@ class Importer extends Component
     /**
      * @return array
      */
-    public
-    function getWarnings()
+    public function getWarnings()
     {
         return $this->warnings;
     }
@@ -934,8 +926,7 @@ class Importer extends Component
     /**
      * Close file handler
      */
-    public
-    function __destruct()
+    public function __destruct()
     {
         if ($this->fileHandler !== null)
             fclose($this->fileHandler);

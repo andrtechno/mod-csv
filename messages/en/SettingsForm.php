@@ -6,5 +6,7 @@ return [
     'IGNORE_COLUMNS' => 'Ignore columns',
     'GOOGLE_SHEET_ID' => 'Table ID',
     'GOOGLE_SHEET_LIST' => 'Table List',
-    'GOOGLE_SERVICE' => 'Google service'
+    'GOOGLE_SERVICE' => 'Google service',
+    'TAB_MAIN' => 'Main',
+    'TAB_QUEUE' => 'Queue',
 ];

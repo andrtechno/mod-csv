@@ -28,7 +28,7 @@ return [
     'ERROR_COLUMN_ATTRIBUTE' => 'Атрибут <strong>{attribute}</strong> используеться основым параметром товаров.',
     'ERROR_IMAGE' => 'Ошибка в изображениях.',
     'ERROR_IMAGE_EXTENSION' => 'Неверный формат файла, доступные форматы: <strong>{0}</strong>',
-    'REQUIRE_COLUMN' => 'Укажите обязательную колонку <strong>{column}</strong>',
+    'REQUIRE_COLUMN' => '{type} Укажите обязательную колонку <strong>{column}</strong>',
     'REQUIRE_COLUMN_EMPTY' => 'Не заполнена обязательная колонка <strong>{column}</strong>',
     'LINE' => 'Строка <strong>{0}</strong>:',
     'LIST' => 'Список <strong>{0}</strong>:',

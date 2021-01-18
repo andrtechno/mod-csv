@@ -36,12 +36,12 @@ $form = ActiveForm::begin([
         echo yii\bootstrap4\Tabs::widget([
             'items' => [
                 [
-                    'label' => 'Общие',
+                    'label' => $model::t('TAB_MAIN'),
                     'content' => $this->render('_main', ['form' => $form, 'model' => $model]),
                     'active' => true,
                 ],
                 [
-                    'label' => 'Очередь',
+                    'label' => $model::t('TAB_QUEUE'),
                     'content' => $this->render('_queue', ['form' => $form, 'model' => $model]),
                 ],
                 [

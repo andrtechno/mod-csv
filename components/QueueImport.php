@@ -33,16 +33,22 @@ class QueueImport extends BaseObject implements RetryableJobInterface
 
         }
 
-        if ($importer->getErrors() || $importer->getWarnings()) {
+        $config = Yii::$app->settings->get('csv');
+        $emails = explode(',', $config->send_email);
+
+        if (($importer->getErrors() || $importer->getWarnings()) && $emails) {
+
+
             $mailer = Yii::$app->mailer;
             $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl'], [
-                'errors' => $importer->getErrors(),
-                'warnings' => $importer->getWarnings()
+                'errors' => ($config->send_email_error) ? $importer->getErrors() : false,
+                'warnings' => ($config->send_email_warn) ? $importer->getWarnings() : false,
             ])
                 ->setFrom(['noreply@example.com' => 'robot'])
-                ->setTo([Yii::$app->settings->get('app', 'email') => Yii::$app->name])
+                ->setTo($emails)
                 ->setSubject(Yii::t('csv/default', 'QUEUE_SUBJECT'))
                 ->send();
+
         }
         echo Console::endProgress(false) . PHP_EOL;
         return true;

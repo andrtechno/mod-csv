@@ -42,6 +42,18 @@ $client = $model->getGoogleClient();
     ]);
     ?>
     <div class="card-body">
+
+        <?=
+        $form->field($model, 'send_email')
+            ->widget(\panix\ext\taginput\TagInput::class, ['placeholder' => 'E-mail'])
+            ->hint('Введите E-mail и нажмите Enter');
+        ?>
+
+        <?= $form->field($model, 'send_email_warn')->checkbox() ?>
+        <?= $form->field($model, 'send_email_error')->checkbox() ?>
+
+
+
         <?= $form->field($model, 'pagenum') ?>
         <?= $form->field($model, 'indent_row') ?>
         <?= $form->field($model, 'indent_column') ?>

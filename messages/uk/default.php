@@ -30,7 +30,8 @@ return [
     'ERROR_IMAGE_EXTENSION' => 'Неправильний формат файлу, доступні формати: <strong>{0}</strong>',
     'REQUIRE_COLUMN' => 'Вкажіть обов\'язкову колонку <strong>{column}</strong>',
     'REQUIRE_COLUMN_EMPTY' => 'Не заповнена обов\'язкова колонка <strong>{column}</strong>',
-    'LINE' => 'Рядок <strong> {0} </strong>:',
+    'LINE' => 'Рядок <strong>{0}</strong>:',
+    'LIST' => 'Список <strong>{0}</strong>:',
     'AND_MORE' => 'та ще ({0}).',
     'FILENAME' => 'Файл',
     'EXPORT_FORMAT' => 'Формат експорту',
@@ -41,5 +42,6 @@ return [
     'PAGE' => 'Кількість товарів у файлі',
     'QUEUE_SUBJECT' => 'Помилка фонового імпорту товарів',
     'UPLOAD' => 'Завантажити',
-    'IMAGE_FOR_UPLOAD' => 'Зображення для імпорту'
+    'IMAGE_FOR_UPLOAD' => 'Зображення для імпорту',
+    'QUEUE_ADD'=>'Список: <strong>{type}</strong>, додано в чергу: <strong>{count}</strong> товару'
 ];

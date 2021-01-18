@@ -31,6 +31,7 @@ return [
     'REQUIRE_COLUMN' => 'Укажите обязательную колонку <strong>{column}</strong>',
     'REQUIRE_COLUMN_EMPTY' => 'Не заполнена обязательная колонка <strong>{column}</strong>',
     'LINE' => 'Строка <strong>{0}</strong>:',
+    'LIST' => 'Список <strong>{0}</strong>:',
     'AND_MORE' => 'и еще ({0}).',
     'FILENAME' => 'Файл',
     'EXPORT_FORMAT' => 'Формат экспорта',
@@ -41,5 +42,6 @@ return [
     'PAGE' => 'Количество товаров в файле',
     'QUEUE_SUBJECT' => 'Ошибка фонового импорта товаров',
     'UPLOAD' => 'Загрузить',
-    'IMAGE_FOR_UPLOAD' => 'Изображения для импорта'
+    'IMAGE_FOR_UPLOAD' => 'Изображения для импорта',
+    'QUEUE_ADD'=>'Список: <strong>{type}</strong>, добавлено в очередь: <strong>{count}</strong> товара',
 ];

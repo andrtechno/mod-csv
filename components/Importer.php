@@ -340,7 +340,10 @@ class Importer extends Component
             }
 
             if ($queueList) {
-                Yii::$app->session->addFlash('success', 'В очередь добавлено: <strong>' . count($queueList) . '</strong> товара');
+                Yii::$app->session->addFlash('success', Yii::t('csv/default','QUEUE_ADD',[
+                    'type'=>$type,
+                    'count'=>count($queueList)
+                ]));
                 $list = array_chunk($queueList, self::QUEUE_ROW, true);
                 /** @var Queue $q */
                 $q = Yii::$app->queue;

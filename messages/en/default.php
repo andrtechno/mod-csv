@@ -31,6 +31,7 @@ return [
     'REQUIRE_COLUMN' => 'Please enter the required column <strong>{column}</strong>',
     'REQUIRE_COLUMN_EMPTY' => 'Required column <strong>{column}</strong> is missing',
     'LINE' => 'Line <strong>{0}</strong>:',
+    'LIST' => 'List <strong>{0}</strong>:',
     'AND_MORE' => 'and more ({0}).',
     'FILENAME' => 'File',
     'EXPORT_FORMAT' => 'Export format',
@@ -41,5 +42,6 @@ return [
     'PAGE' => 'Number of products in file',
     'QUEUE_SUBJECT' => 'Background import of goods failed',
     'UPLOAD' => 'Upload',
-    'IMAGE_FOR_UPLOAD' => 'Images to import'
+    'IMAGE_FOR_UPLOAD' => 'Images to import',
+    'QUEUE_ADD'=>'List: <strong>{type}</strong>, added to queue: <strong>{count}</strong> goods'
 ];

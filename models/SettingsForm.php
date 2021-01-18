@@ -23,6 +23,9 @@ class SettingsForm extends SettingsModel
     public $google_sheet_id;
     public $google_sheet_list;
     public $google_credentials;
+    public $send_email;
+    public $send_email_warn;
+    public $send_email_error;
 
     public function rules()
     {
@@ -33,6 +36,8 @@ class SettingsForm extends SettingsModel
             [['google_sheet_id', 'google_sheet_list'], 'trim'],
             [['google_credentials'], 'file', 'skipOnEmpty' => true, 'extensions' => ['json']],
             [['google_sheet_id'], 'connectValidation'],
+            [['send_email'], '\panix\engine\validators\EmailListValidator'],
+            [['send_email_warn', 'send_email_error'], 'boolean'],
         ];
     }
 
@@ -69,9 +74,11 @@ class SettingsForm extends SettingsModel
 
     }
 
-    public function getCredentialsPath(){
-        return Yii::$app->runtimePath . DIRECTORY_SEPARATOR . Yii::$app->settings->get('csv','google_credentials');
+    public function getCredentialsPath()
+    {
+        return Yii::$app->runtimePath . DIRECTORY_SEPARATOR . Yii::$app->settings->get('csv', 'google_credentials');
     }
+
     /**
      * @return \Google_Client|mixed
      */

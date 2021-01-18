@@ -12,6 +12,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
     public $rows;
     public $line;
     public $type;
+
     /**
      * @param \yii\queue\Queue $queue
      * @return bool
@@ -21,29 +22,36 @@ class QueueImport extends BaseObject implements RetryableJobInterface
         $importer = new Importer();
         $i = 0;
         $count = count($this->rows);
-       // echo count($this->rows);die;
+        // echo count($this->rows);die;
         $errors = [];
         echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
             $row = $importer->prepareRow($row);
-            $result = $importer->importRow($row,$this->type);
+            $result = $importer->importRow($row, $this->type);
             $i++;
             echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
 
         }
 
-        /*if ($importer->getErrors() || $importer->getWarnings()) {
+        $config = Yii::$app->settings->get('csv');
+
+
+        if ($importer->getErrors() || $importer->getWarnings()) {
+            $emails = explode(',', $config->send_email);
+
             $mailer = Yii::$app->mailer;
             $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl'], [
-                'errors' => $importer->getErrors(),
-                'warnings' => $importer->getWarnings()
+                'errors' => ($config->send_email_error) ? $importer->getErrors() : false,
+                'warnings' => ($config->send_email_warn) ? $importer->getWarnings() : false,
+                'type' => $this->type
             ])
                 ->setFrom(['noreply@example.com' => 'robot'])
-                ->setTo([Yii::$app->settings->get('app', 'email') => Yii::$app->name])
+                ->setTo($emails)
                 ->setSubject(Yii::t('csv/default', 'QUEUE_SUBJECT'))
                 ->send();
-        }*/
+
+        }
         echo Console::endProgress(false) . PHP_EOL;
         return true;
     }

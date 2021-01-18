@@ -296,6 +296,7 @@ class Importer extends Component
 
         //Remove empty rows
         foreach ($this->columns as $type => $cols) {
+
             $this->type = $type;
             unset($cols[1]);
             //   foreach ($cols as $col) {
@@ -343,7 +344,7 @@ class Importer extends Component
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
                 foreach ($list as $index => $items) {
-                    $q->priority($index)->push(new QueueImport(['rows' => $items, 'type' => $type]));
+                    $q->priority($index)->push(new QueueImport(['rows' => $items, 'type' => $this->type]));
                 }
             }
             //  }

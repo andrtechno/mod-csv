@@ -245,7 +245,7 @@ class AttributesProcessor extends Component
         $shop_config = Yii::$app->settings->get('shop');
 
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
-        $attributes['Тип'] = Yii::t('shop/Product', 'TYPE_ID');
+
         $attributes['Категория'] = Yii::t('csv/default', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['Доп. Категории'] = Yii::t('csv/default', 'Доп. категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['Бренд'] = Yii::t('csv/default', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');

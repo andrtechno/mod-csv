@@ -52,7 +52,7 @@ class Exporter
      * @param array $attributes
      * @param $query \panix\mod\shop\models\query\ProductQuery
      */
-    public function export(array $attributes, $query)
+    public function export(array $attributes, $query, $type)
     {
         $this->rows[0] = $attributes;
 
@@ -78,8 +78,6 @@ class Exporter
                     $value = ($img) ? $img->filePath : NULL;
                 } elseif ($attr === 'Доп. Категории') {
                     $value = $this->getAdditionalCategories($p);
-                } elseif ($attr === 'Тип') {
-                    $value = $p->type->name;
                 } elseif ($attr === 'Наименование') {
                     $value = $p->name;
                 } elseif ($attr === 'Цена') {
@@ -152,7 +150,7 @@ class Exporter
             array_push($this->rows, $row);
         }
 
-        $this->processOutput();
+        $this->processOutput($type);
     }
 
     /**
@@ -252,7 +250,7 @@ class Exporter
     /**
      * Create CSV file
      */
-    public function processOutput()
+    public function processOutput($type)
     {
 
         $get = Yii::$app->request->get('FilterForm');
@@ -307,7 +305,7 @@ class Exporter
         $spreadsheet->setProperties($props);
 
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('List');
+        $sheet->setTitle($type->name);
 
 
         $index = 1;

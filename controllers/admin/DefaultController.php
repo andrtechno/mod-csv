@@ -5,6 +5,7 @@ namespace panix\mod\csv\controllers\admin;
 use panix\engine\CMS;
 use panix\mod\csv\components\Helper;
 use panix\mod\csv\components\QueueExport;
+use panix\mod\shop\models\ProductType;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Yii;
@@ -256,7 +257,7 @@ class DefaultController extends AdminController
         $query = Product::find();
         $count = 0;
         $pages = false;
-
+        $type=false;
         if ($model->load(Yii::$app->request->get())) {
             if ($model->validate()) {
 
@@ -278,7 +279,7 @@ class DefaultController extends AdminController
 
 
 
-
+                $type= ProductType::findOne($model->type_id);
 
 
 
@@ -380,8 +381,11 @@ class DefaultController extends AdminController
         }
 
         if (Yii::$app->request->get('attributes')) {
+
+
+
             $exporter->export(
-                Yii::$app->request->get('attributes'), $query
+                Yii::$app->request->get('attributes'), $query, $type
             );
         }
 
@@ -416,8 +420,9 @@ class DefaultController extends AdminController
         $spreadsheet->setProperties($props);
 
 
+
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('List');
+        $sheet->setTitle('Тип товара');
         $sheet->setCellValue('A1', 'Наименование');
         $sheet->setCellValue('B1', 'Категория');
         $sheet->setCellValue('C1', 'Цена');

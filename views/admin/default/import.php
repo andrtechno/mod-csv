@@ -22,7 +22,7 @@ use panix\mod\csv\components\AttributesProcessor;
             </div>
             <div class="card-body">
 
-                <div class="alert alert-info"><?= Yii::t('csv/default', 'IMPORT_ALERT'); ?></div>
+                <div class="alert alert-info m-3"><?= Yii::t('csv/default', 'IMPORT_ALERT'); ?></div>
 
                 <?php if (Yii::$app->session->hasFlash('import-state')) { ?>
                     <div class="form-group">

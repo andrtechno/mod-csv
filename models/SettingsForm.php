@@ -33,9 +33,9 @@ class SettingsForm extends SettingsModel
             [['pagenum', 'indent_row', 'indent_column'], 'required'],
             [['indent_column', 'indent_row'], 'integer', 'min' => 1],
             [['ignore_columns', 'google_sheet_id', 'google_sheet_list'], 'string'],
-            [['google_sheet_id', 'google_sheet_list'], 'trim'],
-            [['google_credentials'], 'file', 'skipOnEmpty' => true, 'extensions' => ['json']],
-            [['google_sheet_id'], 'connectValidation'],
+            //[['google_sheet_id', 'google_sheet_list'], 'trim'],
+            //[['google_credentials'], 'file', 'skipOnEmpty' => true, 'extensions' => ['json']],
+            //[['google_sheet_id'], 'connectValidation'],
             [['send_email'], '\panix\engine\validators\EmailListValidator'],
             [['send_email_warn', 'send_email_error'], 'boolean'],
         ];

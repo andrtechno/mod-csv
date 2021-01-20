@@ -8,18 +8,9 @@ use yii\helpers\ArrayHelper;
 /**
  * @var $client \Google\Client
  */
-$client = $model->getGoogleClient();
+
 
 ?>
-<?php if (Yii::$app->session->hasFlash('success') && $flashed = Yii::$app->session->getFlash('success')) { ?>
-    <?php if (is_array($flashed)) { ?>
-        <?php foreach ($flashed as $flash) { ?>
-            <div class="alert alert-success"><?= $flash; ?></div>
-        <?php } ?>
-    <?php } else { ?>
-        <div class="alert alert-success"><?= $flashed; ?></div>
-    <?php } ?>
-<?php } ?>
 
 
 <?php if (Yii::$app->session->hasFlash('error') && $flashed = Yii::$app->session->getFlash('error')) { ?>
@@ -62,7 +53,10 @@ $client = $model->getGoogleClient();
             ->widget(\panix\ext\taginput\TagInput::class)
             ->hint('Введите буквы и нажмите Enter');
         ?>
-        <?php if (YII_DEBUG && false) { ?>
+        <?php if (YII_DEBUG && false) {
+
+            $client = $model->getGoogleClient();
+            ?>
             <div class="text-center mb-4">
                 <h4>Google sheets</h4>
             </div>

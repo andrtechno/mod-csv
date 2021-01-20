@@ -241,7 +241,7 @@ class DefaultController extends AdminController
      */
     public function actionExport()
     {
-        die('test');
+
         $this->pageName = Yii::t('csv/default', 'EXPORT_PRODUCTS');
         $exporter = new Exporter();
 
@@ -268,12 +268,12 @@ class DefaultController extends AdminController
                 }
 
                 $query->where(['type_id' => $model->type_id]);
-
+                $query->orderBy(['ordern' => SORT_DESC]);
                 $count = $query->count();
                 $pages = new Pagination([
                     'totalCount' => $count,
                     //'pageSize' => $get['FilterForm']['page'],
-                    'pageSize' => 50
+                    'pageSize' => Yii::$app->settings->get('csv','pagenum')
                 ]);
                 $query->offset($pages->offset);
                 $query->limit($pages->limit);

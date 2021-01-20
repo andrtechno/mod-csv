@@ -3,6 +3,7 @@
 namespace panix\mod\csv\components;
 
 use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\RelatedProduct;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use Yii;
 use panix\mod\shop\models\Product;
@@ -189,9 +190,13 @@ class Exporter
     }
     public function getRelatedProducts(Product $product)
     {
-        if (!empty($result)) {
-            return implode(';', $result);
-            //return $result[array_key_last($result)];
+        $relateds = RelatedProduct::find()->where(['product_id'=>$product->id])->all();
+        $list=[];
+        foreach ($relateds as $related) {
+            $list[]=$related->related_id;
+        }
+        if ($list) {
+            return implode(';', $list);
         }
 
         return '';

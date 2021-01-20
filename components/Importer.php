@@ -492,13 +492,18 @@ class Importer extends Component
 
                 $this->stats[(($model->isNewRecord) ? 'create' : 'update')]++;
 
+                // Update Related
+                if (isset($data['связи'])) {
+                    $relatedIds = explode(';',$data['связи']);
+                    $model->setRelatedProducts($relatedIds);
+                }
+
+
                 // Save product
                 $model->save();
-                //  var_dump($model->use_configurations);die;
+
                 if ($model->use_configurations) {
-                    // if(!isset($data['Конфигурация'])){
-                    //     die('err'.$this->line);
-                    //  }
+
                     $db = $model::getDb()->createCommand();
                     $configure_attribute_list = explode(';', $data['конфигурация']);
                     $configureIds = [];
@@ -542,6 +547,8 @@ class Importer extends Component
 
                 // Update categories
                 $model->setCategories($categories, $category_id);
+
+
 
                 if (isset($data['фото']) && !empty($data['фото'])) {
 

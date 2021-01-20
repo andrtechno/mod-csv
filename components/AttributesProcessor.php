@@ -38,6 +38,7 @@ class AttributesProcessor extends Component
         'категория',
        // 'Тип',
         'цена',
+        'лейблы',
         'цена закупки',
         'бренд',
         'валюта',
@@ -239,17 +240,23 @@ class AttributesProcessor extends Component
     {
         $attributes = [];
         $units = '';
-        foreach ((new Product)->getUnits() as $id => $unit) {
+        $product = new Product;
+        foreach ($product->getUnits() as $id => $unit) {
             $units .= '<code>' . $unit . '</code><br/>';
+        }
+
+        $listLabel='';
+        foreach ($product::getLabelList() as $label_key => $label){
+            $listLabel.="<code>{$label_key}</code> &mdash; {$label}<br/>";
         }
 
         $shop_config = Yii::$app->settings->get('shop');
 
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
-        $attributes['Связи'] = Yii::t('shop/Product', 'Связи');
-
+        $attributes['Связи'] = Yii::t('shop/Product', 'Связи').': Укажите список ID товаров для связи.<br/>Например: <code>12345;45678</code>';
+        $attributes['Лейблы'] = Yii::t('shop/Product', 'LABEL').'<br/>'.$listLabel.'<br/>Например: <code>top_sale;hit_sale</code>';
         $attributes['Категория'] = Yii::t('csv/default', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
-        $attributes['Доп. Категории'] = Yii::t('csv/default', 'Доп. категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
+        $attributes['Доп. Категории'] = Yii::t('csv/default', 'Доп. категории разделяются точкой с запятой <code>;</code>. Например <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['Бренд'] = Yii::t('csv/default', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
         $attributes['Артикул'] = Yii::t('shop/Product', 'SKU');
         $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID');

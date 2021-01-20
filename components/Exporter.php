@@ -91,6 +91,9 @@ class Exporter
                     $value = $this->getCurrency($p);
                 } elseif ($attr === 'Артикул') {
                     $value = $p->sku;
+                } elseif ($attr === 'Лейблы') {
+                    $listLabels = explode(',',$p->label);
+                    $value = implode(';',$listLabels);
                 } elseif ($attr === 'Наличие') {
                     $value = $p->availability;
                 } elseif ($attr === 'Количество') {

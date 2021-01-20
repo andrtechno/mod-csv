@@ -472,6 +472,12 @@ class Importer extends Component
                 $model->discount = NULL;
             }
 
+            if (isset($data['лейблы'])){
+                $model->label = (!empty($data['лейблы'])) ? str_replace(';',',',$data['лейблы']) : NULL;
+            }else{
+                $model->label = NULL;
+            }
+
 
             // Update product variables and eav attributes.
             $attributes = new AttributesProcessor($model, $data);
@@ -497,6 +503,8 @@ class Importer extends Component
                     $relatedIds = explode(';',$data['связи']);
                     $model->setRelatedProducts($relatedIds);
                 }
+
+
 
 
                 // Save product

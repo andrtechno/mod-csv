@@ -444,6 +444,12 @@ class Importer extends Component
             }
 
 
+            if (isset($data['Лейблы'])){
+                $model->label = (!empty($data['Лейблы'])) ? str_replace(';',',',$data['Лейблы']) : NULL;
+            }else{
+                $model->label = NULL;
+            }
+
 
             // Update product variables and eav attributes.
             $attributes = new AttributesProcessor($model, $data);

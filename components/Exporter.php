@@ -78,6 +78,8 @@ class Exporter
                     $value = ($img) ? $img->filePath : NULL;
                 } elseif ($attr === 'Доп. Категории') {
                     $value = $this->getAdditionalCategories($p);
+                } elseif ($attr === 'Связи') {
+                    $value = $this->getRelatedProducts($p);
                 } elseif ($attr === 'Наименование') {
                     $value = $p->name;
                 } elseif ($attr === 'Цена') {
@@ -184,6 +186,15 @@ class Exporter
         } else {
             return false;
         }
+    }
+    public function getRelatedProducts(Product $product)
+    {
+        if (!empty($result)) {
+            return implode(';', $result);
+            //return $result[array_key_last($result)];
+        }
+
+        return '';
     }
 
     /**

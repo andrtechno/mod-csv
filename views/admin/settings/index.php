@@ -62,7 +62,7 @@ $client = $model->getGoogleClient();
             ->widget(\panix\ext\taginput\TagInput::class)
             ->hint('Введите буквы и нажмите Enter');
         ?>
-        <?php if (YII_DEBUG) { ?>
+        <?php if (YII_DEBUG && false) { ?>
             <div class="text-center mb-4">
                 <h4>Google sheets</h4>
             </div>

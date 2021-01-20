@@ -271,7 +271,7 @@ class DefaultController extends AdminController
                 $pages = new Pagination([
                     'totalCount' => $count,
                     //'pageSize' => $get['FilterForm']['page'],
-                    'pageSize' => 50
+                    'pageSize' => Yii::$app->settings->get('csv','pagenum')
                 ]);
                 $query->offset($pages->offset);
                 $query->limit($pages->limit);

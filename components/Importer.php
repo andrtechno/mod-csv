@@ -260,7 +260,8 @@ class Importer extends Component
 
         return !$this->hasErrors();
     }
-public $skipRows = []; //@todo: need test
+
+    public $skipRows = []; //@todo: need test
 
     /**
      * Here we go
@@ -295,13 +296,13 @@ public $skipRows = []; //@todo: need test
                                 'line' => $this->line,
                                 'error' => Yii::t('csv/default', 'REQUIRE_COLUMN_EMPTY', ['column' => $key])
                             ];
-                            $this->skipRows[]=$this->line;
+                            $this->skipRows[] = $this->line;
                         }
                     }
                     return [$key => $value];
                 }, ARRAY_FILTER_USE_BOTH);
 
-                if (!in_array($columnIndex,$this->skipRows)) {//if (!$this->errors) {
+                if (!in_array($columnIndex, $this->skipRows)) {//if (!$this->errors) {
                     $row = $this->prepareRow($row);
                     if ($counter <= self::QUEUE_ROW) {
                         $this->importRow($row);
@@ -315,7 +316,7 @@ public $skipRows = []; //@todo: need test
             $counter++;
         }
         if ($queueList) {
-            Yii::$app->session->addFlash('success','В очередь добавлено: <strong>'.count($queueList).'</strong> товара');
+            Yii::$app->session->addFlash('success', 'В очередь добавлено: <strong>' . count($queueList) . '</strong> товара');
             $list = array_chunk($queueList, self::QUEUE_ROW, true);
             /** @var Queue $q */
             $q = Yii::$app->queue;
@@ -436,11 +437,12 @@ public $skipRows = []; //@todo: need test
             if (isset($data['Валюта']) && !empty($data['Валюта']))
                 $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
 
-            if (isset($data['Скидка']) && !empty($data['Скидка'])) {
-                // CMS::dump($data['Скидка']);
-                // die;
-                $model->discount = $data['Скидка'];
+            if (isset($data['Скидка'])){
+                $model->discount = (!empty($data['Скидка'])) ? $data['Скидка'] : NULL;
+            }else{
+                $model->discount = NULL;
             }
+
 
 
             // Update product variables and eav attributes.
@@ -548,7 +550,7 @@ public $skipRows = []; //@todo: need test
                                 $image = Image::create(trim($im));
                                 if ($image) {
 
-                                    $result = $model->attachImage($image,true);
+                                    $result = $model->attachImage($image, true);
 
                                     if ($this->deleteDownloadedImages) {
                                         $image->deleteTempFile();

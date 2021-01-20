@@ -466,10 +466,10 @@ class Importer extends Component
             if (isset($data['валюта']) && !empty($data['валюта']))
                 $model->currency_id = $this->getCurrencyIdByName($data['валюта']);
 
-            if (isset($data['скидка']) && !empty($data['скидка'])) {
-                // CMS::dump($data['cкидка']);
-                // die;
-                $model->discount = $data['скидка'];
+            if (isset($data['скидка'])){
+                $model->discount = (!empty($data['скидка'])) ? $data['скидка'] : NULL;
+            }else{
+                $model->discount = NULL;
             }
 
 

@@ -467,7 +467,7 @@ class Importer extends Component
                 $model->currency_id = $this->getCurrencyIdByName($data['валюта']);
 
             if (isset($data['скидка']) && !empty($data['скидка'])) {
-                // CMS::dump($data['Скидка']);
+                // CMS::dump($data['cкидка']);
                 // die;
                 $model->discount = $data['скидка'];
             }

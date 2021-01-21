@@ -18,7 +18,7 @@ class UploadForm extends Model
     const files_max_size = 1024 * 1024 * 50;
 
     protected $filesExt = ['zip'];
-    public static $extension = ['jpg', 'jpeg'];
+    public static $extension = ['jpg', 'jpeg', 'webp'];
     public $files;
     public static $maxFiles = 100;
 

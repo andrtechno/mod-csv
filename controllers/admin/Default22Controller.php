@@ -6,7 +6,6 @@ use panix\engine\CMS;
 use panix\mod\csv\components\Helper;
 use panix\mod\csv\components\QueueExport;
 use panix\mod\shop\models\ProductType;
-use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
@@ -29,7 +28,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 ignore_user_abort(1);
 set_time_limit(0);
 
-class DefaultController extends AdminController
+class Default22Controller extends AdminController
 {
 
     public function actions()
@@ -320,58 +319,88 @@ class DefaultController extends AdminController
             //$row1 = Helper::newSpreadsheet(Yii::getAlias('@runtime').'/test.xlsx')->getRows();
             $filePath = Yii::getAlias('@runtime') . '/test.xlsx';
             $types = ProductType::find()->all();
+foreach ($types as $k=>$type){
+    $spreadsheet = new Spreadsheet();
+    $props = new Properties();
+    $props->setCreator(Yii::$app->name);
+    $props->setLastModifiedBy(Yii::$app->name);
+    $props->setCompany(Yii::$app->name);
+    $props->setCategory('ExportProducts');
+    $spreadsheet->setProperties($props);
+    $sheet = $spreadsheet->getActiveSheet();
+   $sheet->setTitle(str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name));
+
+    //  echo str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name);
+    // CMS::dump(Worksheet::getInvalidCharacters());die;
+
+    if (file_exists($filePath)) {
+        /** @var Helper $data2 */
+        $data2 = Helper::newSpreadsheet($filePath);
+        //CMS::dump($data2->getSpreadsheet());die;
+        $rows = $data2->getRows();
+        unset($rows[0]);
 
 
-            if (file_exists($filePath)) {
-                /** @var Helper $data2 */
-                $data2 = Helper::newSpreadsheet($filePath);
-                //CMS::dump($data2->getSpreadsheet());die;
-                $rows = $data2->getRows();
-                unset($rows[0]);
-            } else {
+        /*  $spreadsheet = Helper::newSpreadsheet()
+              ->getSpreadsheet();
 
-                $data2 = Helper::newSpreadsheet();
+          $arrayData = [
+              [NULL, 2010, 2011, 2012],
+              ['Q1',   12,   15,   21],
+              ['Q2',   56,   73,   86],
+              ['Q3',   52,   61,   69],
+              ['Q4',   30,   32,    0],
+          ];
+          $spreadsheet->getActiveSheet()
+              ->fromArray($arrayData, NULL);
 
-                $data2->addRow(['Наименование', 'Цена']);
-
-            }
-
-
-            foreach ($types as $k => $type) {
-                /*$spreadsheet = new Spreadsheet();
-                $props = new Properties();
-                $props->setCreator(Yii::$app->name);
-                $props->setLastModifiedBy(Yii::$app->name);
-                $props->setCompany(Yii::$app->name);
-                $props->setCategory('ExportProducts');
-                $spreadsheet->setProperties($props);
-                $sheet = $spreadsheet->getActiveSheet();
-               $sheet->setTitle(str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name));*/
-
-                //  echo str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name);
-                // CMS::dump(Worksheet::getInvalidCharacters());die;
+          Helper::save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
+          die;*/
 
 
-                foreach ($type->products as $product) {
-                    /** @var $product Product */
-                    $rows[] = [
-                        $product->name,
-                        $product->price,
-                    ];
-                }
-
-                if (isset($rows))
-                    $data2->addRows($rows);
+    } else {
 
 
-                $data2->setAutoSize();
+        $data2 = Helper::newSpreadsheet($spreadsheet);
+        $data2->addRow(['Наименование', 'Цена']);
+        $data2->setWrapText()
+            ->setStyle([
+                'borders' => [
+                    'inside' => ['borderStyle' => 'hair'],
+                    'outline' => ['borderStyle' => 'thin'],
+                ],
+                'fill' => [
+                    'fillType' => 'solid',
+                    'startColor' => ['argb' => 'FFCCCCCC'],
+                ],
+            ]);
+    }
 
 
-            }
-            $data2->save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
+
+    foreach ($type->products as $product) {
+        /** @var $product Product */
+        $rows[] = [
+            $product->name,
+            $product->price,
+        ];
+    }
+
+    if (isset($rows))
+        $data2->addRows($rows);
+
+
+    $data2->setAutoSize();
+
+    $data2->save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
+
+}
+
 
 
             // print_r($row1);
+
+
 
 
             // ->output('My Excel');
@@ -419,61 +448,24 @@ class DefaultController extends AdminController
         $spreadsheet->setProperties($props);
 
 
-        $data = [
-            'test1' => [
-                'A2' => 'Product Name2',
-                'B2' => 'Category/Subcategory2',
-                'C2' => '5.00'
-            ],
-            'test2' => [
-                'A2' => 'Product Name',
-                'B2' => 'Category/Subcategory',
-                'C2' => '10.99'
-            ]
-        ];
-
-        $i = 0;
-        foreach ($data as $name => $items) {
-
-            if ($i) { //создаем лист
-                $spreadsheet->createSheet($i);
-                $spreadsheet->setActiveSheetIndex($i);
-            }
-            $sheet = $spreadsheet->getActiveSheet()->setTitle($name);
-            if ($sheet) {
-                $sheet->setCellValue('A1', 'Наименование');
-                $sheet->setCellValue('B1', 'Категория');
-                $sheet->setCellValue('C1', 'Цена');
-                $a = 1;
-                foreach ($items as $key => $value) {
-                    $sheet->setCellValue($key, $value)
-                        ->getColumnDimension(Helper::num2alpha($a))
-                        ->setAutoSize($value);
-                    $a++;
-                }
-            }
-            $i++;
-        }
-
-        /* $sheet = $spreadsheet->getActiveSheet()->setTitle('Second tab');
-         if ($sheet) {
-             $sheet->setCellValue('A1', 'Наименование');
-             $sheet->setCellValue('B1', 'Категория');
-             $sheet->setCellValue('C1', 'Цена');
-             //$sheet->setCellValue('D1', 'Тип');
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Тип товара');
+        $sheet->setCellValue('A1', 'Наименование');
+        $sheet->setCellValue('B1', 'Категория');
+        $sheet->setCellValue('C1', 'Цена');
+        $sheet->setCellValue('D1', 'Тип');
 
 
-             $sheet->setCellValue('A2', 'Product Name');
-             $sheet->setCellValue('B2', 'Category/Subcategory');
-             $sheet->setCellValue('C2', '10.99');
-             //$sheet->setCellValue('D2', 'Product Type');
+        $sheet->setCellValue('A2', 'Product Name');
+        $sheet->setCellValue('B2', 'Category/Subcategory');
+        $sheet->setCellValue('C2', '10.99');
+        $sheet->setCellValue('D2', 'Product Type');
 
 
-             $sheet->setCellValue('A3', 'Product Name 2');
-             $sheet->setCellValue('B3', 'Category/Subcategory');
-             $sheet->setCellValue('C3', '25.99');
-             //$sheet->setCellValue('D3', 'Product Type');
-         }*/
+        $sheet->setCellValue('A3', 'Product Name 2');
+        $sheet->setCellValue('B3', 'Category/Subcategory');
+        $sheet->setCellValue('C3', '25.99');
+        $sheet->setCellValue('D3', 'Product Type');
 
 
         if ($format == 'xls') {
@@ -482,12 +474,6 @@ class DefaultController extends AdminController
         } elseif ($format == 'xlsx') {
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
             $fileName = $fileName . '.xlsx';
-        } elseif ($format == 'html') {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Html($spreadsheet);
-            $fileName = $fileName . '.html';
-        } elseif ($format == 'pdf') {
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf($spreadsheet);
-            $fileName = $fileName . '.pdf';
         } else {
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
             $fileName = $fileName . '.csv';

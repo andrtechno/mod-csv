@@ -268,6 +268,8 @@ class Exporter
 
     /**
      * Create CSV file
+     * @param $type
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
     public function processOutput($type)
     {

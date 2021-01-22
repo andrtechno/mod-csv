@@ -9,8 +9,9 @@ use yii\helpers\Console;
 
 class QueueExport extends BaseObject implements RetryableJobInterface
 {
-    public $rows;
-    public $test;
+    public $file;
+    public $limit;
+    public $offset;
 
     public function execute($queue)
     {

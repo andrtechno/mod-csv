@@ -8,7 +8,6 @@ use panix\mod\csv\components\AttributesProcessor;
 
 /**
  * @var $pages \panix\engine\data\Pagination
- * @var $query \shopium\mod\shop\models\query\ProductQuery
  * @var $importer \panix\mod\csv\components\Importer
  */
 
@@ -92,7 +91,7 @@ $this->registerJs('
                         <th colspan="3" class="text-center"><?= $groupName; ?></th>
                     </tr>
                     <?php foreach ($group as $k => $v) {
-                        $dis = (in_array($k, (new \panix\mod\csv\components\Importer)->required)) ? true : false;
+                        $dis = (in_array($k, $importer->required)) ? true : false;
                         //,'readonly'=>$dis,'disabled'=>$dis
                         ?>
                         <tr>

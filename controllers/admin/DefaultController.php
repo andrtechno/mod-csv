@@ -3,6 +3,7 @@
 namespace panix\mod\csv\controllers\admin;
 
 use panix\engine\CMS;
+use panix\mod\csv\components\ArrayPager;
 use panix\mod\csv\components\Helper;
 use panix\mod\csv\components\QueueExport;
 use panix\mod\shop\models\ProductType;
@@ -269,7 +270,7 @@ class DefaultController extends AdminController
                     $query->applyManufacturers($manufacturers);
                 }
 
-                $query->where(['type_id' => $model->type_id]);
+                //$query->where(['type_id' => $model->type_id]);
                 $query->orderBy(['ordern' => SORT_DESC]);
                 $count = $query->count();
                 $pages = new Pagination([
@@ -299,85 +300,149 @@ class DefaultController extends AdminController
             }
         }
 
+        $query = Product::find();
+        $query->orderBy(['ordern' => SORT_DESC]);
+        $count = $query->count();
+        $pages = new Pagination([
+            'totalCount' => $count,
+            //'pageSize' => $get['FilterForm']['page'],
+            'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
+        ]);
+        $query->offset($pages->offset);
+        $query->limit($pages->limit);
+
+
+        // $exporter = new Exporter();
+        //$exporter->export(['Наименование','Цена'], $query,'');
+
+
+        $test = new ArrayPager($pages);
+        //$test->hideOnSinglePage = false;
+
+
+        CMS::dump($test->list());
+        /** @var Queue $q */
+        $q = Yii::$app->queueSheets; //
+        $q->channel = 'export';
+        foreach ($test->list() as $page){
+            $q->push(new QueueExport([
+                'offset' => $page['offset'],'test'=>'export'
+            ]));
+        }
+
+
+        $q->channel = 'import';
+        foreach ($test->list() as $page){
+            $q->push(new QueueExport([
+                'offset' => $page['offset'],'test'=>'import'
+            ]));
+        }
+        die;
+
+
         if (true) {
-            /*$spreadsheet = IOFactory::load(Yii::getAlias('@runtime').'/test.xlsx');
-            $worksheet = $spreadsheet->getActiveSheet();
 
 
-            $rows = [];
-            foreach ($worksheet->getRowIterator() AS $row) {
-                $cellIterator = $row->getCellIterator();
-                $cellIterator->setIterateOnlyExistingCells(false);
-                $cells = [];
-                foreach ($cellIterator as $cell) {
-                    if(!is_null($cell->getValue()))
-                        $cells[] = $cell->getValue();
-                }
-                $rows[] = $cells;
-            }*/
+            $fileName = 'test20';
 
+            $spreadsheet = new Spreadsheet();
 
-            //$row1 = Helper::newSpreadsheet(Yii::getAlias('@runtime').'/test.xlsx')->getRows();
-            $filePath = Yii::getAlias('@runtime') . '/test.xlsx';
+            $props = new Properties();
+            $props->setTitle('Sample file');
+            $props->setCreator(Yii::$app->name);
+            $props->setLastModifiedBy(Yii::$app->name);
+            $props->setCompany(Yii::$app->name);
+            $props->setDescription("This example file");
+            $props->setCategory('ImportProducts');
+            $spreadsheet->setProperties($props);
+
+            $listIndex = 0;
             $types = ProductType::find()->all();
-
-
-            if (file_exists($filePath)) {
-                /** @var Helper $data2 */
-                $data2 = Helper::newSpreadsheet($filePath);
-                //CMS::dump($data2->getSpreadsheet());die;
-                $rows = $data2->getRows();
-                unset($rows[0]);
-            } else {
-
-                $data2 = Helper::newSpreadsheet();
-
-                $data2->addRow(['Наименование', 'Цена']);
-
-            }
-
-
-            foreach ($types as $k => $type) {
-                /*$spreadsheet = new Spreadsheet();
-                $props = new Properties();
-                $props->setCreator(Yii::$app->name);
-                $props->setLastModifiedBy(Yii::$app->name);
-                $props->setCompany(Yii::$app->name);
-                $props->setCategory('ExportProducts');
-                $spreadsheet->setProperties($props);
-                $sheet = $spreadsheet->getActiveSheet();
-               $sheet->setTitle(str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name));*/
-
-                //  echo str_replace(Worksheet::getInvalidCharacters(),['-','-','-','-','-','-','-'],$type->name);
-                // CMS::dump(Worksheet::getInvalidCharacters());die;
-
-
-                foreach ($type->products as $product) {
-                    /** @var $product Product */
-                    $rows[] = [
-                        $product->name,
-                        $product->price,
-                    ];
+            foreach ($types as $type) {
+                /** @var ProductType $type */
+                if ($listIndex) { //создаем лист
+                    // $spreadsheet->createSheet($listIndex);
+                    // $spreadsheet->setActiveSheetIndex($listIndex);
+                } else {
+                    //$spreadsheet->getActiveSheet()->setTitle($type->name);
                 }
+                //$sheet = $spreadsheet->getActiveSheet()->setTitle($type->name);
+                $data2 = Helper::newSpreadsheet($spreadsheet);
+                $data2->getSheet($type->name, true);
+                //foreach ($type->attributeRelation as $k=>$attribute) {
+                //    $sheet->setCellValue(Helper::num2alpha(($k+1)).'1', $attribute->currentAttribute->title);
+                //}
 
-                if (isset($rows))
-                    $data2->addRows($rows);
 
+                foreach ($type->products as $product_index => $product) {
+                    /*$sheet->setCellValue(Helper::num2alpha(1).($product_index+2), $product->name)
+                        ->getColumnDimension(Helper::num2alpha(1))
+                        ->setAutoSize(true);
 
+                    $sheet->setCellValue(Helper::num2alpha(2).($product_index+2), $product->sku)
+                        ->getColumnDimension(Helper::num2alpha(1))
+                        ->setAutoSize(true);
+
+                    $sheet->setCellValue(Helper::num2alpha(3).($product_index+2), $product->price)
+                        ->getColumnDimension(Helper::num2alpha(1))
+                        ->setAutoSize(true);*/
+
+                    $data2->addRow([
+                        'Наименование' => $product->name,
+                        'Связи' => '',
+                        'Лейблы' => '',
+                        'Категория' => 'Уход для волос/Окрашивание для волос',
+                        'Доп. Категории' => 'Уход для волос;Уход для волос/Окрашивание для волос/безаммиачная краска',
+                        'Бренд' => 'CHI',
+                        'Артикул' => $product->sku,
+                        'Валюта' => 'UAH',
+                        'Цена' => $product->price,
+                        'Цена закупки' => '204.00',
+                        'Конфигурация' => '',
+                        'Скидка' => '',
+                        'unit' => 'шт.',
+                        'switch' => 1,
+                        'Фото' => 'WVfdez3l7W.jpg',
+                        'Описание' => 'Профессиональная стойкая керамика CHI44, не содержит аммиак.',
+                        'Количество' => 1,
+                        'Наличие' => 1,
+                        'deleted' => '',
+                        'Возраст' => '18+',
+                        'Назначение' => 'окрашивание, тонирование, мелирование, блеск',
+                        'Время применения' => '',
+                        'Пол' => 'женский',
+                        'Классификация' => '',
+                        'Тип волос' => '',
+                        'Страна ТМ' => '',
+                        'Сделано в' => '',
+                        'Объем' => '85 мл',
+                        'Количество в упаковке' => '',
+                        'Вес' => '',
+                        'Код товара' => '',
+                        'Состав' => '',
+                        'Страна Производителя' => '',
+                        'Фото товара' => '',
+                        'Критерии' => 'все типы',
+                        'Консистенция' => '',
+                        'Доп. Категория' => '',
+                        'Объем Мл.' => '',
+                    ]);
+
+                }
                 $data2->setAutoSize();
-
-
+                $listIndex++;
             }
-            $data2->save(Yii::getAlias('@runtime') . '/test', 'Xlsx');
 
+            //$data2->save(Yii::getAlias('@runtime') . '/'.$fileName, 'Xlsx');
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $fileName = $fileName . '.xlsx';
 
-            // print_r($row1);
+            $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
+            // $writer->save($tmpFilePath);
 
+            Helper::save($tmpFilePath, 'Xlsx');
+            die;
 
-            // ->output('My Excel');
-
-            //CMS::dump($rows);
-            //die;
         }
 
         if (Yii::$app->request->get('attributes')) {
@@ -432,6 +497,57 @@ class DefaultController extends AdminController
             ]
         ];
 
+
+        $styleHeader = [
+            'font' => [
+                'bold' => true,
+            ],
+            //'alignment' => [
+            //    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+            // ],
+            'borders' => [
+                'top' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => [
+                    'argb' => 'FF87b5fa',
+                ]
+                //'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_GRADIENT_LINEAR,
+                /*'rotation' => 90,
+                'startColor' => [
+                    'argb' => 'FFA0A0A0',
+                ],
+                'endColor' => [
+                    'argb' => 'FFFFFFFF',
+                ],*/
+            ],
+        ];
+
+
+        $styleArray2 = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'color' => [
+                    'argb' => 'FFa2fa87',
+                ]
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE,
+                ],
+            ],
+        ];
+
+        $main_rows = [
+            'Наименование',
+            'Категория',
+            'Цена',
+            'Скидка',
+            'Лейблы'
+        ];
         $i = 0;
         foreach ($data as $name => $items) {
 
@@ -441,10 +557,14 @@ class DefaultController extends AdminController
             }
             $sheet = $spreadsheet->getActiveSheet()->setTitle($name);
             if ($sheet) {
-                $sheet->setCellValue('A1', 'Наименование');
-                $sheet->setCellValue('B1', 'Категория');
-                $sheet->setCellValue('C1', 'Цена');
+                $sheet->getStyle('A1:' . Helper::num2alpha(count($main_rows)) . '1')->applyFromArray($styleHeader);
+                foreach ($main_rows as $index => $value) {
+                    $sheet->setCellValue(Helper::num2alpha($index + 1) . '1', $value);
+                }
+
+
                 $a = 1;
+                $sheet->getStyle('C2')->applyFromArray($styleArray2);
                 foreach ($items as $key => $value) {
                     $sheet->setCellValue($key, $value)
                         ->getColumnDimension(Helper::num2alpha($a))
@@ -454,27 +574,6 @@ class DefaultController extends AdminController
             }
             $i++;
         }
-
-        /* $sheet = $spreadsheet->getActiveSheet()->setTitle('Second tab');
-         if ($sheet) {
-             $sheet->setCellValue('A1', 'Наименование');
-             $sheet->setCellValue('B1', 'Категория');
-             $sheet->setCellValue('C1', 'Цена');
-             //$sheet->setCellValue('D1', 'Тип');
-
-
-             $sheet->setCellValue('A2', 'Product Name');
-             $sheet->setCellValue('B2', 'Category/Subcategory');
-             $sheet->setCellValue('C2', '10.99');
-             //$sheet->setCellValue('D2', 'Product Type');
-
-
-             $sheet->setCellValue('A3', 'Product Name 2');
-             $sheet->setCellValue('B3', 'Category/Subcategory');
-             $sheet->setCellValue('C3', '25.99');
-             //$sheet->setCellValue('D3', 'Product Type');
-         }*/
-
 
         if ($format == 'xls') {
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xls($spreadsheet);

@@ -31,6 +31,19 @@ class Module extends WebModule implements BootstrapInterface
             ],
         ]);
         $app->getUrlManager()->addRules($groupUrlRule->rules, false);
+        $app->setComponents([
+            'queueSheets' => [
+                'class' => 'yii\queue\db\Queue',
+                //'tableName' => '{{%queue}}',
+                'mutexTimeout' => 5,
+                'ttr' => 5 * 60, // Максимальное время выполнения задания
+                'attempts' => 3, // Максимальное кол-во попыток
+                'deleteReleased' => false,
+                'mutex' => \yii\mutex\MysqlMutex::class, // Мьютекс для синхронизации запросов
+                'as log' => \yii\queue\LogBehavior::class,
+                'commandClass' => \panix\mod\csv\components\queue\db\Command::class,
+            ],
+        ]);
         $this->uploadPath = '@uploads/csv_import_image';
     }
 

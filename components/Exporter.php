@@ -2,7 +2,9 @@
 
 namespace panix\mod\csv\components;
 
+use panix\engine\console\controllers\ConsoleController;
 use panix\mod\shop\models\Attribute;
+use panix\mod\shop\models\query\ProductQuery;
 use panix\mod\shop\models\RelatedProduct;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use Yii;
@@ -53,15 +55,9 @@ class Exporter
      * @param array $attributes
      * @param $query \panix\mod\shop\models\query\ProductQuery
      */
-    public function export(array $attributes, $query, $type)
+    public function export(array $attributes, ProductQuery $query, $type)
     {
         $this->rows[0] = $attributes;
-
-        /*foreach ($this->rows[0] as &$v) {
-            if (substr($v, 0, 4) === 'eav_')
-                $v = substr($v, 4);
-        }*/
-
 
         /** @var Product $p */
         foreach ($query->all() as $p) {
@@ -74,7 +70,7 @@ class Exporter
                     $value = $this->getManufacturer($p);
 
                 } elseif ($attr === 'Фото') {
-                    /** @var \panix\mod\images\behaviors\ImageBehavior $img */
+                    /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
                     $img = $p->getImage();
                     $value = ($img) ? $img->filePath : NULL;
                 } elseif ($attr === 'Доп. Категории') {
@@ -92,8 +88,8 @@ class Exporter
                 } elseif ($attr === 'Артикул') {
                     $value = $p->sku;
                 } elseif ($attr === 'Лейблы') {
-                    $listLabels = explode(',',$p->label);
-                    $value = implode(';',$listLabels);
+                    $listLabels = explode(',', $p->label);
+                    $value = implode(';', $listLabels);
                 } elseif ($attr === 'Наличие') {
                     $value = $p->availability;
                 } elseif ($attr === 'Количество') {
@@ -150,11 +146,12 @@ class Exporter
 
                 //  $row[$attr] = iconv('utf-8', 'cp1251', $value); //append iconv by panix
 
-                $row[$attr] = $value; //append iconv by panix
+                $row[$attr] = $value;
             }
 
             array_push($this->rows, $row);
         }
+
 
         $this->processOutput($type);
     }
@@ -191,12 +188,13 @@ class Exporter
             return false;
         }
     }
+
     public function getRelatedProducts(Product $product)
     {
-        $relateds = RelatedProduct::find()->where(['product_id'=>$product->id])->all();
-        $list=[];
+        $relateds = RelatedProduct::find()->where(['product_id' => $product->id])->all();
+        $list = [];
         foreach ($relateds as $related) {
-            $list[]=$related->related_id;
+            $list[] = $related->related_id;
         }
         if ($list) {
             return implode(';', $list);
@@ -289,7 +287,7 @@ class Exporter
             }
         }
 
-        if ($get['type_id']) {
+        if (isset($get['type_id'])) {
             $type = ProductType::findOne($get['type_id']);
             if ($type) {
                 $filename .= $type->name . '_';
@@ -351,20 +349,23 @@ class Exporter
             $writer = new Csv($spreadsheet);
         }
 
+        if (!(Yii::$app instanceof ConsoleController)) {
+            //header('Content-Type: application/vnd.ms-excel');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment;filename="' . $filename . '.' . $format . '"');
+            header('Cache-Control: max-age=0');
+            $writer->save('php://output');
+            /*return $response->sendContentAsFile($csvString, $filename . '.csv', [
+                'mimeType' => 'application/octet-stream',
+                 'inline'   => false
+            ]);*/
+        } else {
 
-        //header('Content-Type: application/vnd.ms-excel');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment;filename="' . $filename . '.' . $format . '"');
-        header('Cache-Control: max-age=0');
-        $writer->save('php://output');
+        }
 
 
         die;
 
-        /*return $response->sendContentAsFile($csvString, $filename . '.csv', [
-            'mimeType' => 'application/octet-stream',
-             'inline'   => false
-        ]);*/
 
     }
 

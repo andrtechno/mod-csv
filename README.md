@@ -31,6 +31,10 @@ to the require section of your `composer.json` file.
 
 #### Add to web config.
 ```
+'bootstrap' => [
+    ..
+    'queueSheets'
+],
 'modules' => [
     'csv' => ['class' => 'panix\mod\csv\Module'],
 ],

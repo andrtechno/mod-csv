@@ -13,10 +13,20 @@ class QueueExport extends BaseObject implements RetryableJobInterface
     public $limit;
     public $offset;
 
+    public $attributes;
+    public $query;
+    public $test;
+
     public function execute($queue)
     {
 
-//print_r($this->test);die;
+       // $exporter = new Exporter();
+       // $exporter->export($this->attributes, $this->query, $this->type);
+       // print_r($exporter->rows);die;
+        echo $this->test;
+       // foreach ($exporter->rows as $row){
+
+       // }
         return true;
     }
 

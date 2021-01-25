@@ -73,7 +73,8 @@ class ArrayPager
     {
         $pageCount = $this->pagination->getPageCount();
 
-        return range(0, count(array_chunk(range(0, $pageCount), $this->pagination->pageSize, false)));
+return range(0, $pageCount);
+      //  return range(0, count(array_chunk(range(0, $pageCount), $this->pagination->pageSize, false)));
     }
 
 

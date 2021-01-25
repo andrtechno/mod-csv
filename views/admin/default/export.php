@@ -24,6 +24,7 @@ $this->registerJs('
     });
 ');
 
+
 ?>
 
 <?php //echo Html::beginForm('', 'GET', ['id' => 'csv-form']) ?>
@@ -90,7 +91,9 @@ $this->registerJs('
                     <tr>
                         <th colspan="3" class="text-center"><?= $groupName; ?></th>
                     </tr>
-                    <?php foreach ($group as $k => $v) {
+                    <?php
+                    unset($group['delete']);
+                    foreach ($group as $k => $v) {
                         $dis = (in_array($k, $importer->required)) ? true : false;
                         //,'readonly'=>$dis,'disabled'=>$dis
                         ?>
@@ -112,6 +115,8 @@ $this->registerJs('
                 <div class="col-12">
                     <h4><?= Yii::t('csv/default', 'EXPORT_PRODUCTS'); ?></h4>
                     <?php
+
+
                     echo \panix\engine\widgets\LinkPager::widget([
                         'pagination' => $pages,
                         'prevPageLabel' => false,
@@ -131,6 +136,9 @@ $this->registerJs('
                 </div>
             </div>
         <?php } ?>
+        <?php
+        echo Html::a(Yii::t('csv/default', 'Экспортировать все товары'), ['export-queue'],['class'=>'btn btn-success']);
+        ?>
         <?php if (Yii::$app->request->get('type_id') && false) { ?>
             <div class="form-group text-center">
                 <?php

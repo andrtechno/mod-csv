@@ -54,7 +54,7 @@ class AttributesProcessor extends Component
         'скидка',
         'конфигурация',
         'связи',
-        'deleted'
+        'delete'
     ];
 
     /**
@@ -266,11 +266,11 @@ class AttributesProcessor extends Component
         $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('csv/default', 'Скрыть или показать. Принимает значение <code>1</code> &mdash; показать <code>0</code> - скрыть.');
-        $attributes['Фото'] = Yii::t('csv/default', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделяя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="alert alert-danger"><i class="icon-warning"></i> Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
+        $attributes['Фото'] = Yii::t('csv/default', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделяя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="alert alert-danger">Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
         $attributes['Описание'] = Yii::t('csv/default', 'Полное описание HTML');
         $attributes['Количество'] = Yii::t('csv/default', 'Количество на складе.<br/>По умолчанию <code>1</code>, от 0 до 99999');
         $attributes['Наличие'] = Yii::t('csv/default', 'Доступность.<br/><code>1</code> &mdash; есть в наличие <strong>(по умолчанию)</strong><br/><code>2</code> &mdash; под заказ<br/><code>3</code> &mdash; нет в наличие.');
-        $attributes['deleted'] = Yii::t('csv/default', 'Удаление товара.<br/><code>1</code> &mdash; удалить<br/><code>0</code> &mdash; не удалять');
+        $attributes['delete'] = Yii::t('csv/default', 'Удаление товара.<br/><code>1</code> &mdash; удалить<br/><code>0</code> &mdash; не удалять');
         //$attributes['created_at'] = Yii::t('app/default', 'Дата создания');
         // $attributes['updated_at'] = Yii::t('app/default', 'Дата обновления');
         /*foreach (Attribute::find()->asArray()->all() as $attr) {

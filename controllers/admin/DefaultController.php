@@ -11,10 +11,13 @@ use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
+use yii\helpers\Console;
 use yii\helpers\FileHelper;
+use yii\httpclient\Client;
 use yii\queue\Queue;
 use yii\web\UploadedFile;
 use panix\engine\Html;
@@ -240,6 +243,80 @@ class DefaultController extends AdminController
     }
 
     /**
+     * Export Queue products
+     */
+    public function actionExportQueue()
+    {
+        /** @var Queue $q */
+        $q = Yii::$app->queueSheets; //
+        $q->channel = 'export';
+        $fileName = 'all_products_' . date('Y-m-d H-i') . '.xlsx';
+
+
+        $types = ProductType::find()->all();
+        $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
+
+
+        $spreadsheet = new Spreadsheet();
+
+        $props = new Properties();
+        $props->setTitle('Sample file');
+        $props->setCreator(Yii::$app->user->email);
+        $props->setLastModifiedBy(Yii::$app->user->email);
+        $props->setCompany(Yii::$app->name);
+        $props->setDescription("Товары");
+        $props->setCategory('ExportProducts');
+        $props->setManager(Yii::$app->user->email);
+        $spreadsheet->setProperties($props);
+
+
+        $data = Helper::newSpreadsheet($spreadsheet);
+        // if (Yii::$app->request->get('attributes')) {
+        foreach ($types as $type) {
+            if ($type->productsCount) {
+                $query = Product::find()->where(['type_id' => $type->id])->limit(1);
+
+                $data->getSheet($type->name, true);
+
+                $exporter = new Exporter();
+                $exporter->query = $query;
+                $exporter->exportQueue(false);
+
+
+                $firstRow = [];
+                foreach ($type->shopAttributes as $k => $attribute) {
+                    $firstRow[] = $attribute->title;
+                }
+                //die;
+
+                $data->addRow(array_merge(array_keys($exporter->rows[0]),$firstRow));
+
+
+                $pages = new Pagination([
+                    'totalCount' => $type->productsCount,
+                    'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
+                ]);
+                $pager = new ArrayPager($pages);
+
+
+                foreach ($pager->list() as $page) {
+                    $q->push(new QueueExport([
+                        'offset' => $page['offset'],
+                        //'attributes' => Yii::$app->request->get('attributes'),
+                        'file' => $fileName,
+                        'type_id' => $type->id,
+                        'type_name' => $type->name,
+                        //'spreadsheet' => $data
+                    ]));
+                }
+            }
+        }
+        $data->save($tmpFilePath, 'Xlsx');
+        //  }
+
+    }
+
+    /**
      * Export products
      */
     public function actionExport()
@@ -262,7 +339,10 @@ class DefaultController extends AdminController
         $count = 0;
         $pages = false;
         $type = false;
+
         if ($model->load(Yii::$app->request->get())) {
+            CMS::dump(Yii::$app->request->get());
+            die;
             if ($model->validate()) {
 
                 if ($get['FilterForm']['manufacturer_id'] !== '') {
@@ -270,7 +350,7 @@ class DefaultController extends AdminController
                     $query->applyManufacturers($manufacturers);
                 }
 
-                //$query->where(['type_id' => $model->type_id]);
+                $query->where(['type_id' => $model->type_id]);
                 $query->orderBy(['ordern' => SORT_DESC]);
                 $count = $query->count();
                 $pages = new Pagination([
@@ -280,176 +360,19 @@ class DefaultController extends AdminController
                 ]);
                 $query->offset($pages->offset);
                 $query->limit($pages->limit);
-
-
                 $type = ProductType::findOne($model->type_id);
 
-
-                $list = array_chunk($query->indexBy('id')->all(), 100, true);
-                //CMS::dump($list);die;
-                // foreach ($list as $index => $items) {
-                /** @var Queue $q */
-                // print_r($items);
-                $q = Yii::$app->queue;
-                // $q->push(new QueueExport(['test' => $pages]));
-                // }
-
-
-                //CMS::dump($items);
-                //  die;
-            }
-        }
-
-        $query = Product::find();
-        $query->orderBy(['ordern' => SORT_DESC]);
-        $count = $query->count();
-        $pages = new Pagination([
-            'totalCount' => $count,
-            //'pageSize' => $get['FilterForm']['page'],
-            'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
-        ]);
-        $query->offset($pages->offset);
-        $query->limit($pages->limit);
-
-
-        // $exporter = new Exporter();
-        //$exporter->export(['Наименование','Цена'], $query,'');
-
-
-        $test = new ArrayPager($pages);
-        //$test->hideOnSinglePage = false;
-
-
-        CMS::dump($test->list());
-        /** @var Queue $q */
-        $q = Yii::$app->queueSheets; //
-        $q->channel = 'export';
-        foreach ($test->list() as $page){
-            $q->push(new QueueExport([
-                'offset' => $page['offset'],'test'=>'export'
-            ]));
-        }
-
-
-        $q->channel = 'import';
-        foreach ($test->list() as $page){
-            $q->push(new QueueExport([
-                'offset' => $page['offset'],'test'=>'import'
-            ]));
-        }
-        die;
-
-
-        if (true) {
-
-
-            $fileName = 'test20';
-
-            $spreadsheet = new Spreadsheet();
-
-            $props = new Properties();
-            $props->setTitle('Sample file');
-            $props->setCreator(Yii::$app->name);
-            $props->setLastModifiedBy(Yii::$app->name);
-            $props->setCompany(Yii::$app->name);
-            $props->setDescription("This example file");
-            $props->setCategory('ImportProducts');
-            $spreadsheet->setProperties($props);
-
-            $listIndex = 0;
-            $types = ProductType::find()->all();
-            foreach ($types as $type) {
-                /** @var ProductType $type */
-                if ($listIndex) { //создаем лист
-                    // $spreadsheet->createSheet($listIndex);
-                    // $spreadsheet->setActiveSheetIndex($listIndex);
-                } else {
-                    //$spreadsheet->getActiveSheet()->setTitle($type->name);
-                }
-                //$sheet = $spreadsheet->getActiveSheet()->setTitle($type->name);
-                $data2 = Helper::newSpreadsheet($spreadsheet);
-                $data2->getSheet($type->name, true);
-                //foreach ($type->attributeRelation as $k=>$attribute) {
-                //    $sheet->setCellValue(Helper::num2alpha(($k+1)).'1', $attribute->currentAttribute->title);
-                //}
-
-
-                foreach ($type->products as $product_index => $product) {
-                    /*$sheet->setCellValue(Helper::num2alpha(1).($product_index+2), $product->name)
-                        ->getColumnDimension(Helper::num2alpha(1))
-                        ->setAutoSize(true);
-
-                    $sheet->setCellValue(Helper::num2alpha(2).($product_index+2), $product->sku)
-                        ->getColumnDimension(Helper::num2alpha(1))
-                        ->setAutoSize(true);
-
-                    $sheet->setCellValue(Helper::num2alpha(3).($product_index+2), $product->price)
-                        ->getColumnDimension(Helper::num2alpha(1))
-                        ->setAutoSize(true);*/
-
-                    $data2->addRow([
-                        'Наименование' => $product->name,
-                        'Связи' => '',
-                        'Лейблы' => '',
-                        'Категория' => 'Уход для волос/Окрашивание для волос',
-                        'Доп. Категории' => 'Уход для волос;Уход для волос/Окрашивание для волос/безаммиачная краска',
-                        'Бренд' => 'CHI',
-                        'Артикул' => $product->sku,
-                        'Валюта' => 'UAH',
-                        'Цена' => $product->price,
-                        'Цена закупки' => '204.00',
-                        'Конфигурация' => '',
-                        'Скидка' => '',
-                        'unit' => 'шт.',
-                        'switch' => 1,
-                        'Фото' => 'WVfdez3l7W.jpg',
-                        'Описание' => 'Профессиональная стойкая керамика CHI44, не содержит аммиак.',
-                        'Количество' => 1,
-                        'Наличие' => 1,
-                        'deleted' => '',
-                        'Возраст' => '18+',
-                        'Назначение' => 'окрашивание, тонирование, мелирование, блеск',
-                        'Время применения' => '',
-                        'Пол' => 'женский',
-                        'Классификация' => '',
-                        'Тип волос' => '',
-                        'Страна ТМ' => '',
-                        'Сделано в' => '',
-                        'Объем' => '85 мл',
-                        'Количество в упаковке' => '',
-                        'Вес' => '',
-                        'Код товара' => '',
-                        'Состав' => '',
-                        'Страна Производителя' => '',
-                        'Фото товара' => '',
-                        'Критерии' => 'все типы',
-                        'Консистенция' => '',
-                        'Доп. Категория' => '',
-                        'Объем Мл.' => '',
-                    ]);
-
-                }
-                $data2->setAutoSize();
-                $listIndex++;
             }
 
-            //$data2->save(Yii::getAlias('@runtime') . '/'.$fileName, 'Xlsx');
-            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-            $fileName = $fileName . '.xlsx';
-
-            $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
-            // $writer->save($tmpFilePath);
-
-            Helper::save($tmpFilePath, 'Xlsx');
-            die;
 
         }
 
         if (Yii::$app->request->get('attributes')) {
-
-
+            $exporter->query = $query;
+            die;
             $exporter->export(
-                Yii::$app->request->get('attributes'), $query, $type
+                Yii::$app->request->get('attributes'),
+                $type
             );
         }
 

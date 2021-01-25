@@ -393,11 +393,11 @@ class Importer extends Component
             $newProduct = true;
             $model = new Product;
             $this->totalProductCount++;
-            if (isset($data['deleted']) && $data['deleted']) {
+            if (isset($data['delete']) && $data['delete']) {
                 $hasDeleted = true;
             }
         } else {
-            if (isset($data['deleted']) && $data['deleted']) {
+            if (isset($data['delete']) && $data['delete']) {
                 $this->stats['deleted']++;
                 $hasDeleted = true;
                 $model->delete();

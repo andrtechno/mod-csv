@@ -265,7 +265,7 @@ class DefaultController extends AdminController
                     $query->applyManufacturers($manufacturers);
                 }
 
-                $query->where(['type_id' => $model->type_id]);
+                $query->andWhere(['type_id' => $model->type_id]);
 
                 $count = $query->count();
                 $pages = new Pagination([

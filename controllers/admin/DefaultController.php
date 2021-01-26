@@ -271,11 +271,17 @@ class DefaultController extends AdminController
         $types = ProductType::find()->all();
         // $types = ProductType::find()->where(['id'=>9])->all();
 
-        /**
-         * @var Settings
-         */
-        $s = Yii::$app->settings;
-        $s->set('app', ['CSV_EXPORT_' . $fileName => Product::find()->count()]);
+
+        $queueDoneCount = (new \yii\db\Query())->select(['pushed_at', 'ttr', 'delay', 'priority', 'reserved_at', 'attempt', 'done_at', 'channel'])
+            ->from(Yii::$app->queue->tableName)
+            ->where(['not', ['done_at' => null]])->andWhere(['channel' => $q->channel])
+            ->createCommand()
+            ->query()
+            ->count();
+
+        Yii::$app->settings->set('app', ['QUEUE_CHANNEL_'.$q->channel => $queueDoneCount]);
+
+        Yii::$app->settings->set('app', ['CSV_EXPORT_' . $fileName => Product::find()->count()]);
         foreach ($types as $type) {
             if ($type->productsCount) {
                 $total_products += $type->productsCount;
@@ -318,21 +324,10 @@ class DefaultController extends AdminController
 
             }
         }
-        $d = Yii::$app->queue;
-
-                $d->priority(1)->push(new \panix\engine\queue\SendEmail([
-                    'templatePath' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl',
-                    'subject'=>'test',
-                    'layoutPath'=>'',
-                    'params'=>[
-                        'errors' => false,
-                        'warnings' => false,
-                        'type' => 'test'
-                    ]
-                ]));
-
 
         $data->save($tmpFilePath, 'Xlsx');
+        Yii::$app->session->setFlash('success', 'Результат экспорта будет отправлен на почту администратора asdasd@dsa.dsa ');
+        return $this->redirect(['export']);
         //  }
 
     }

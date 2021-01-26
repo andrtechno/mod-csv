@@ -85,7 +85,7 @@ class QueueExport extends BaseObject implements RetryableJobInterface
 
         if (!(int)Yii::$app->settings->get('app', $settings_key)) {
             $mailer = Yii::$app->mailer;
-            $message = $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl'], [
+            $message = $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-export.tpl'], [
                 'errors' => false,
                 'warnings' => false,
                 'type' => 'test'
@@ -99,6 +99,7 @@ class QueueExport extends BaseObject implements RetryableJobInterface
             if ($send) {
                 echo 'Send to email success!';
                 Yii::$app->settings->delete('app', $settings_key);
+                unlink($filePath);
             }
         }
 

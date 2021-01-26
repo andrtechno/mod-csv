@@ -20,11 +20,25 @@ $this->registerJs('
 
         delete fields["attributes[]"];
         
-        window.location = "/admin/csv/default/export?" + jQuery.param($.extend({}, fields));
+        window.location = common.url("/admin/csv/default/export?" + jQuery.param($.extend({}, fields)));
     });
 ');
+$s=0;
+$done= 100;
 
+$total2= 50;
+$diff = $done - $total2;
+$zzz= $total2 + $s;
+echo $zzz;
+echo '<br>';
+echo $diff;
+echo '<br>';
 
+$percent = ($done - $s) / (($done + $total2))  * 100;
+echo "{$percent}%\n";
+echo '<br>';
+$percent2 = ($total2+($diff))/$done * 100;
+echo "{$percent2}%\n";
 ?>
 
 <?php //echo Html::beginForm('', 'GET', ['id' => 'csv-form']) ?>

@@ -46,9 +46,9 @@ class ArrayPager
     public function list()
     {
         $pageCount = $this->pagination->getPageCount();
-        if ($pageCount < 2 && $this->hideOnSinglePage) {
-            return [];
-        }
+        //if ($pageCount < 2 && $this->hideOnSinglePage) {
+        //     return [];
+        // }
 
         $buttons = [];
         $currentPage = $this->pagination->getPage();
@@ -58,7 +58,7 @@ class ArrayPager
 
         foreach ($this->getPageRange() as $i => $page) {
             $buttons[] = [
-                'page' => $page + 1,
+                'page' => $page,
                 'offset' => $i * $pageSize,
             ];
         }
@@ -72,9 +72,8 @@ class ArrayPager
     protected function getPageRange()
     {
         $pageCount = $this->pagination->getPageCount();
-
-return range(0, $pageCount);
-      //  return range(0, count(array_chunk(range(0, $pageCount), $this->pagination->pageSize, false)));
+        return range(1, $pageCount);
+        //  return range(0, count(array_chunk(range(0, $pageCount), $this->pagination->pageSize, false)));
     }
 
 

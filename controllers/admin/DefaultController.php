@@ -3,21 +3,16 @@
 namespace panix\mod\csv\controllers\admin;
 
 use panix\engine\CMS;
+use panix\engine\components\Settings;
 use panix\mod\csv\components\ArrayPager;
 use panix\mod\csv\components\Helper;
 use panix\mod\csv\components\QueueExport;
 use panix\mod\shop\models\ProductType;
-use PhpOffice\PhpSpreadsheet\Chart\Chart;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
-use yii\helpers\Console;
 use yii\helpers\FileHelper;
-use yii\httpclient\Client;
 use yii\queue\Queue;
 use yii\web\UploadedFile;
 use panix\engine\Html;
@@ -248,12 +243,12 @@ class DefaultController extends AdminController
     public function actionExportQueue()
     {
         /** @var Queue $q */
+        /** @var Queue $d */
         $q = Yii::$app->queueSheets; //
         $q->channel = 'export';
         $fileName = 'all_products_' . date('Y-m-d H-i') . '.xlsx';
 
 
-        $types = ProductType::find()->all();
         $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
 
 
@@ -272,8 +267,18 @@ class DefaultController extends AdminController
 
         $data = Helper::newSpreadsheet($spreadsheet);
         // if (Yii::$app->request->get('attributes')) {
+        $total_products = 0;
+        $types = ProductType::find()->all();
+        // $types = ProductType::find()->where(['id'=>9])->all();
+
+        /**
+         * @var Settings
+         */
+        $s = Yii::$app->settings;
+        $s->set('app', ['CSV_EXPORT_' . $fileName => Product::find()->count()]);
         foreach ($types as $type) {
             if ($type->productsCount) {
+                $total_products += $type->productsCount;
                 $query = Product::find()->where(['type_id' => $type->id])->limit(1);
 
                 $data->getSheet($type->name, true);
@@ -287,9 +292,9 @@ class DefaultController extends AdminController
                 foreach ($type->shopAttributes as $k => $attribute) {
                     $firstRow[] = $attribute->title;
                 }
-                //die;
 
-                $data->addRow(array_merge(array_keys($exporter->rows[0]),$firstRow));
+
+                $data->addRow(array_merge(array_keys($exporter->rows[0]), $firstRow));
 
 
                 $pages = new Pagination([
@@ -306,11 +311,27 @@ class DefaultController extends AdminController
                         'file' => $fileName,
                         'type_id' => $type->id,
                         'type_name' => $type->name,
-                        //'spreadsheet' => $data
+                        'total_products' => $total_products
                     ]));
                 }
+
+
             }
         }
+        $d = Yii::$app->queue;
+
+                $d->priority(1)->push(new \panix\engine\queue\SendEmail([
+                    'templatePath' => Yii::$app->getModule('csv')->mailPath . '/queue-notify.tpl',
+                    'subject'=>'test',
+                    'layoutPath'=>'',
+                    'params'=>[
+                        'errors' => false,
+                        'warnings' => false,
+                        'type' => 'test'
+                    ]
+                ]));
+
+
         $data->save($tmpFilePath, 'Xlsx');
         //  }
 

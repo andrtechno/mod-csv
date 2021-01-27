@@ -261,7 +261,7 @@ class AttributesProcessor extends Component
         $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID');
         $attributes['Цена'] = Yii::t('shop/Product', 'PRICE');
         $attributes['Цена закупки'] = Yii::t('shop/Product', 'PRICE_PURCHASE');
-        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS');
+        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS').'';
         $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('csv/default', 'Скрыть или показать. Принимает значение <code>1</code> &mdash; показать <code>0</code> - скрыть.');

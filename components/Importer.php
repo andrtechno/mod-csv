@@ -437,16 +437,16 @@ class Importer extends Component
             if (isset($data['Валюта']) && !empty($data['Валюта']))
                 $model->currency_id = $this->getCurrencyIdByName($data['Валюта']);
 
-            if (isset($data['Скидка'])){
+            if (isset($data['Скидка'])) {
                 $model->discount = (!empty($data['Скидка'])) ? $data['Скидка'] : NULL;
-            }else{
+            } else {
                 $model->discount = NULL;
             }
 
 
-            if (isset($data['Лейблы'])){
-                $model->label = (!empty($data['Лейблы'])) ? str_replace(';',',',$data['Лейблы']) : NULL;
-            }else{
+            if (isset($data['Лейблы'])) {
+                $model->label = (!empty($data['Лейблы'])) ? str_replace(';', ',', $data['Лейблы']) : NULL;
+            } else {
                 $model->label = NULL;
             }
 
@@ -472,29 +472,30 @@ class Importer extends Component
 
                 // Save product
                 $model->save();
-                //  var_dump($model->use_configurations);die;
                 if ($model->use_configurations) {
-                    // if(!isset($data['Конфигурация'])){
-                    //     die('err'.$this->line);
-                    //  }
-                    $db = $model::getDb()->createCommand();
-                    $configure_attribute_list = explode(';', $data['Конфигурация']);
-                    $configureIds = [];
-                    $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
-                    foreach ($configure_attribute_list as $configure_attribute) {
+                    if (isset($data['Конфигурация'])) {
+                        $db = $model::getDb()->createCommand();
+                        if (!empty($data['Конфигурация']) && $data['Конфигурация'] != 'no') {
+                            $configure_attribute_list = explode(';', $data['Конфигурация']);
+                            $configureIds = [];
+                            $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
+                            foreach ($configure_attribute_list as $configure_attribute) {
+                                // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
+                                $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'), $configure_attribute);
 
-                        // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
-                        $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'), $configure_attribute);
-                        // if (!$configure) {
+                                $db->insert('{{%shop__product_configurable_attributes}}', [
+                                    'product_id' => $model->id,
+                                    'attribute_id' => $configure->id
+                                ])->execute();
+                            }
+                        } else {
+                            $db->update(Product::tableName(), [
+                                'use_configurations' => 0,
+                            ], ['id' => $model->id])->execute();
+                            $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
+                        }
 
-                        // }
-
-                        $db->insert('{{%shop__product_configurable_attributes}}', [
-                            'product_id' => $model->id,
-                            'attribute_id' => $configure->id
-                        ])->execute();
                     }
-
 
                 }
 

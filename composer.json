@@ -1,6 +1,6 @@
 {
   "name": "panix/mod-csv",
-  "description": "Module csv",
+  "description": "Module import/export files csv, xlsx, xls",
   "keywords": [
     "pixelion-cms",
     "module",
@@ -10,6 +10,10 @@
   "type": "yii2-extension",
   "license": "MIT",
   "minimum-stability": "dev",
+  "support": {
+    "email": "dev@pixelion.com.ua",
+    "issues": "https://github.com/andrtechno/mod-csv/issues"
+  },
   "authors": [
     {
       "name": "PIXELION CMS",

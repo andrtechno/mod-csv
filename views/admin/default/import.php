@@ -1,4 +1,5 @@
 <?php
+
 use panix\engine\Html;
 use panix\engine\bootstrap\ActiveForm;
 use panix\engine\CMS;
@@ -112,8 +113,8 @@ use panix\mod\csv\components\AttributesProcessor;
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownSampleFile">
                                     <?= Html::a('CSV файл', ['sample', 'format' => 'csv'], ['class' => 'dropdown-item']); ?>
-                                    <?= Html::a('XLS файл', ['sample', 'format' => 'xls'], ['class' => 'dropdown-item']); ?>
                                     <?= Html::a('XLSX файл', ['sample', 'format' => 'xlsx'], ['class' => 'dropdown-item']); ?>
+                                    <?= Html::a('XLS файл', ['sample', 'format' => 'xls'], ['class' => 'dropdown-item']); ?>
                                 </div>
                             </div>
                         </div>
@@ -143,7 +144,7 @@ use panix\mod\csv\components\AttributesProcessor;
                         ],
                     ]
                 ]);
-                echo $formUpload->field($uploadModel, 'files[]')->fileInput(['multiple' => true])->hint(Yii::t('csv/default', 'HINT_UPLOAD_FILE', ['size'=>CMS::fileSize(CMS::convertPHPSizeToBytes(ini_get('upload_max_filesize'))),'num'=>$uploadModel::$maxFiles]));
+                echo $formUpload->field($uploadModel, 'files[]')->fileInput(['multiple' => true])->hint(Yii::t('csv/default', 'HINT_UPLOAD_FILE', ['size' => CMS::fileSize(CMS::convertPHPSizeToBytes(ini_get('upload_max_filesize'))), 'num' => $uploadModel::$maxFiles]));
                 ?>
                 <div class="form-group text-center">
                     <?= Html::submitButton(Yii::t('csv/default', 'UPLOAD'), ['class' => 'btn btn-success']); ?>

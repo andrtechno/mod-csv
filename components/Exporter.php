@@ -66,84 +66,85 @@ class Exporter
     /**
      * @param bool $attributes
      */
-    public function exportQueue(bool $attributes=true)
+    public function exportQueue(bool $attributes = true)
     {
-       // $this->rows[0] = $attributes;
+        // $this->rows[0] = $attributes;
         $row = [];
         /** @var Product $p */
         foreach ($this->query->all() as $p) {
 
 
             //foreach ($attributes as $attr) {
-                $row['Наименование'] = $p->name;
-                $row['Категория'] = $this->getCategory($p);
-                $row['Цена'] = $p->price;
-                $row['Цена закупки'] = $p->price_purchase;
-                $row['Валюта'] = $this->getCurrency($p);
+            $row['ID'] = $p->id;
+            $row['Наименование'] = $p->name;
+            $row['Категория'] = $this->getCategory($p);
+            $row['Цена'] = $p->price;
+            $row['Цена закупки'] = $p->price_purchase;
+            $row['Валюта'] = $this->getCurrency($p);
 
-                $row['Бренд'] = $this->getManufacturer($p);
+            $row['Бренд'] = $this->getManufacturer($p);
 
-                /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
-                $img = $p->getImage();
-                $row['Фото'] = ($img) ? $img->filePath : NULL;
-                $row['Категория'] = $this->getCategory($p);
-                $row['Доп. Категории'] = $this->getAdditionalCategories($p);
-                $row['Связи'] = $this->getRelatedProducts($p);
+            /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
+            $img = $p->getImage();
+            $row['Фото'] = ($img) ? $img->filePath : NULL;
+            $row['Категория'] = $this->getCategory($p);
+            $row['Доп. Категории'] = $this->getAdditionalCategories($p);
+            $row['Связи'] = $this->getRelatedProducts($p);
 
 
-                $row['Артикул'] = $p->sku;
+            $row['Артикул'] = $p->sku;
 
-                $listLabels = explode(',', $p->label);
-                $row['Лейблы'] = implode(';', $listLabels);
-                $row['Наличие'] = $p->availability;
-                $row['Количество'] = $p->quantity;
-                $row['Описание'] = $p->full_description;
+            $listLabels = explode(',', $p->label);
+            $row['Лейблы'] = implode(';', $listLabels);
+            $row['Наличие'] = $p->availability;
+            $row['Количество'] = $p->quantity;
+            $row['Описание'] = $p->full_description;
 
-                $use_configurations = '';
-                if ($p->use_configurations) {
-                    $attribute_id = $p->configurable_attributes;
-                    $attributeModels = Attribute::find()->where(['id' => $attribute_id])->all();
-                    if ($attributeModels) {
-                        $list = [];
-                        foreach ($attributeModels as $configure) {
-                            $list[] = $configure->title_ru;
-                        }
-                        $use_configurations = implode(';', $list);
+            $use_configurations = '';
+            if ($p->use_configurations) {
+                $attribute_id = $p->configurable_attributes;
+                $attributeModels = Attribute::find()->where(['id' => $attribute_id])->all();
+                if ($attributeModels) {
+                    $list = [];
+                    foreach ($attributeModels as $configure) {
+                        $list[] = $configure->title_ru;
                     }
+                    $use_configurations = implode(';', $list);
                 }
-                $row['Конфигурация'] = $use_configurations;
+            }
+            $row['Конфигурация'] = $use_configurations;
 
-                $wholesale_prices = [];
-                $result = NULL;
-                if (isset($p->prices)) {
-                    foreach ($p->prices as $wp) {
-                        $price[] = $wp->value . '=' . $wp->from;
-                    }
-                    $result = implode(';', $wholesale_prices);
+            $wholesale_prices = [];
+            $result = NULL;
+            if (isset($p->prices)) {
+                foreach ($p->prices as $wp) {
+                    $price[] = $wp->value . '=' . $wp->from;
                 }
-                $row['wholesale_prices'] = $result;
+                $result = implode(';', $wholesale_prices);
+            }
+            $row['wholesale_prices'] = $result;
 
-                /*if (isset($p->units)) {
-                    $unit = (isset($p->units[$p->$attr])) ? $p->units[$p->$attr] : NULL;
-                } else {
-                    $unit = NULL;
-                }*/
-                $row['unit'] = $p->units[$p->unit];
-                $row['switch'] = $p->switch;
+            /*if (isset($p->units)) {
+                $unit = (isset($p->units[$p->$attr])) ? $p->units[$p->$attr] : NULL;
+            } else {
+                $unit = NULL;
+            }*/
+            $row['unit'] = $p->units[$p->unit];
+            $row['switch'] = $p->switch;
 
-if($attributes){
-                foreach ($p->getEavAttributes() as $k=>$attribute){
-                    $attr_name = 'eav_'.$k;
+            if ($attributes) {
+                foreach ($p->getEavAttributes() as $k => $attribute) {
+                    $attr_name = 'eav_' . $k;
                     if ($p->{$attr_name}) {
                         $row[$k] = $p->{$attr_name}->value;
                     } else {
                         $row[$k] = '';
                     }
                 }
-}
+            }
 
-               // $row[$attr] = $value;
-           // }
+            // $row[$attr] = $value;
+            // }
 
             array_push($this->rows, $row);
         }
@@ -165,11 +166,12 @@ if($attributes){
             $row = [];
 
             foreach ($attributes as $attr) {
-                if ($attr === 'Категория') {
+                if ($attr === 'ID') {
+                    $value = $p->id;
+                } elseif ($attr === 'Категория') {
                     $value = $this->getCategory($p);
                 } elseif ($attr === 'Бренд') {
                     $value = $this->getManufacturer($p);
-
                 } elseif ($attr === 'Фото') {
                     /** @var \panix\mod\images\behaviors\ImageBehavior|\panix\mod\images\models\Image $img */
                     $img = $p->getImage();
@@ -253,9 +255,9 @@ if($attributes){
             array_push($this->rows, $row);
         }
 
-        if (Yii::$app->id != 'console') {
-            // $this->processOutput($type);
-        }
+
+        $this->processOutput($type);
+
 
     }
 

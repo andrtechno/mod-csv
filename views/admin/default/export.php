@@ -23,41 +23,28 @@ $this->registerJs('
         window.location = common.url("/admin/csv/default/export?" + jQuery.param($.extend({}, fields)));
     });
 ');
-$s=0;
-$done= 100;
 
-$total2= 50;
-$diff = $done - $total2;
-$zzz= $total2 + $s;
-echo $zzz;
-echo '<br>';
-echo $diff;
-echo '<br>';
-
-$percent = ($done - $s) / (($done + $total2))  * 100;
-echo "{$percent}%\n";
-echo '<br>';
-$percent2 = ($total2+($diff))/$done * 100;
-echo "{$percent2}%\n";
 ?>
 
-<?php //echo Html::beginForm('', 'GET', ['id' => 'csv-form']) ?>
-
 <div class="card">
+    <div class="card-header">
+        <h5>Фильтр экспорта</h5>
+    </div>
     <div class="card-body">
         <?php
         $form = ActiveForm::begin(['id' => 'csv-form', 'method' => 'GET']);
         echo $form->field($model, 'manufacturer_id')->dropDownList(ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt' => '-']);
+        echo $form->field($model, 'supplier_id')->dropDownList(ArrayHelper::map(\panix\mod\shop\models\Supplier::find()->all(), 'id', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'type_id')->dropDownList(ArrayHelper::map(ProductType::find()->all(), 'id', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'format')->dropDownList(['csv'=>'csv','xls'=>'xls','xlsx'=>'xlsx']);
-        echo $form->field($model, 'page')->hiddenInput()->label(false);
+        //echo $form->field($model, 'page')->hiddenInput()->label(false);
 
         ?>
         <?php if ($count) { ?>
 
             <div class="form-group row">
                 <div class="col-12">
-                    <h4><?= Yii::t('csv/default', 'EXPORT_PRODUCTS'); ?></h4>
+                    <h4><?= Yii::t('csv/default', 'EXPORT_PRODUCTS'); ?> <small class="text-muted">(<?= $count; ?>)</small></h4>
                     <?php
                     echo \panix\engine\widgets\LinkPager::widget([
                         'pagination' => $pages,
@@ -113,7 +100,7 @@ echo "{$percent2}%\n";
                         ?>
                         <tr>
                             <td align="left" width="10px">
-                                <?= Html::checkbox('attributes[]', true, ['value' => $k]); ?>
+                                <?= Html::checkbox('attributes[]', true, ['value' => str_replace('eav_', '', $k)]); ?>
 
                             </td>
                             <td><code style="font-size: inherit"><?= Html::encode(str_replace('eav_', '', $k)); ?></code></td>

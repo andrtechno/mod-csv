@@ -43,5 +43,7 @@ return [
     'QUEUE_SUBJECT' => 'Ошибка фонового импорта товаров',
     'UPLOAD' => 'Загрузить',
     'IMAGE_FOR_UPLOAD' => 'Изображения для импорта',
-    'QUEUE_ADD'=>'Список: <strong>{type}</strong>, добавлено в очередь: <strong>{count}</strong> товара',
+    'QUEUE_ADD' => 'Список: <strong>{type}</strong>, добавлено в очередь: <strong>{count}</strong> товара',
+    'QUEUE_EXPORT_RESULT_NOTIFY' => 'Результат экспорта будет отправлен на Ваш Email <strong>{0}</strong>',
+    'QUEUE_EXPORT_SUBJECT'=>'Результат экспорта продукции {date}'
 ];

@@ -54,7 +54,8 @@ class AttributesProcessor extends Component
         'скидка',
         'конфигурация',
         'связи',
-        'delete'
+        'delete',
+        'ID'
     ];
 
     /**
@@ -251,7 +252,7 @@ class AttributesProcessor extends Component
         }
 
         $shop_config = Yii::$app->settings->get('shop');
-
+        $attributes['ID'] = Yii::t('shop/Product', 'ID');
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
         $attributes['Связи'] = Yii::t('shop/Product', 'Связи').': Укажите список ID товаров для связи.<br/>Например: <code>12345;45678</code>';
         $attributes['Лейблы'] = Yii::t('shop/Product', 'LABEL').'<br/>'.$listLabel.'<br/>Например: <code>top_sale;hit_sale</code>';
@@ -259,11 +260,11 @@ class AttributesProcessor extends Component
         $attributes['Доп. Категории'] = Yii::t('csv/default', 'Доп. категории разделяются точкой с запятой <code>;</code>. Например <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['Бренд'] = Yii::t('csv/default', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
         $attributes['Артикул'] = Yii::t('shop/Product', 'SKU');
-        $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID');
+        $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID').'<br/>Например: <code>USD</code>';
         $attributes['Цена'] = Yii::t('shop/Product', 'PRICE');
         $attributes['Цена закупки'] = Yii::t('shop/Product', 'PRICE_PURCHASE');
         $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS');
-        $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT');
+        $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT').'<br/>Чтобы указать скидку в процентах необходимо указать: <code>\'10%</code>';
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('csv/default', 'Скрыть или показать. Принимает значение <code>1</code> &mdash; показать <code>0</code> - скрыть.');
         $attributes['Фото'] = Yii::t('csv/default', 'Изображение (можно указать несколько изображений). Пример: <code>pic1.jpg;pic2.jpg</code> разделяя название изображений символом "<code>;</code>" (точка с запятой). Первое изображение <b>pic1.jpg</b> будет являться главным. <div class="alert alert-danger">Также стоит помнить что не один из остальных товаров не должен использовать эти изображения.</div>');
@@ -280,11 +281,11 @@ class AttributesProcessor extends Component
         if ($type_id) {
             $type = ProductType::findOne($type_id);
             foreach ($type->shopAttributes as $attr) {
-                $attributes[$attr->title_ru] = $attr->title_ru;
+                $attributes[$eav_prefix . $attr->title_ru] = $attr->title_ru;
             }
         } else {
             foreach (Attribute::find()->asArray()->all() as $attr) {
-                $attributes[$attr['title_ru']] = $attr['title_ru'];
+                $attributes[$eav_prefix . $attr['title_ru']] = $attr['title_ru'];
             }
         }
 

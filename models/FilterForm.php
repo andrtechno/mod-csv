@@ -18,15 +18,16 @@ class FilterForm extends Model
 
     public $type_id;
     public $manufacturer_id;
+    public $supplier_id;
     public $format;
     public $page = 250;
 
     public function rules()
     {
         return [
-            [['type_id', 'format', 'page'], 'required'],
-            [['manufacturer_id', 'page'], 'integer'],
-            ['page', 'integer', 'min' => 100, 'max' => 1000],
+            [['type_id', 'format'], 'required'],
+            [['manufacturer_id', 'supplier_id'], 'integer'],
+            //['page', 'integer', 'min' => 100, 'max' => 1000],
         ];
     }
 
@@ -37,6 +38,7 @@ class FilterForm extends Model
             'manufacturer_id' => Yii::t('shop/Product', 'MANUFACTURER_ID'),
             'format' => Yii::t('csv/default', 'EXPORT_FORMAT'),
             'page' => Yii::t('csv/default', 'PAGE'),
+            'supplier_id' => Yii::t('shop/Product', 'SUPPLIER_ID'),
         ];
     }
 }

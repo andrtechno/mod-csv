@@ -43,5 +43,7 @@ return [
     'QUEUE_SUBJECT' => 'Background import of goods failed',
     'UPLOAD' => 'Upload',
     'IMAGE_FOR_UPLOAD' => 'Images to import',
-    'QUEUE_ADD'=>'List: <strong>{type}</strong>, added to queue: <strong>{count}</strong> goods'
+    'QUEUE_ADD'=>'List: <strong>{type}</strong>, added to queue: <strong>{count}</strong> goods',
+    'QUEUE_EXPORT_RESULT_NOTIFY' => 'The export result will be sent to your <strong>{0}</strong>',
+    'QUEUE_EXPORT_SUBJECT'=>'Product export result {date}'
 ];

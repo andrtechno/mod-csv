@@ -21,7 +21,7 @@ class ImportForm extends Model
     /**
      * @var array
      */
-    public static $extension = ['csv', 'xlsx', 'xls'];
+    public static $extension = ['xlsx', 'xls'];
     public $filename;
     public $remove_images = true;
     public $db_backup;

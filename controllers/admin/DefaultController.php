@@ -9,6 +9,7 @@ use panix\mod\csv\components\Helper;
 use panix\mod\csv\components\QueueExport;
 use panix\mod\shop\models\ProductType;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yii;
 use yii\data\ArrayDataProvider;
 use yii\data\Pagination;
@@ -243,10 +244,11 @@ class DefaultController extends AdminController
     public function actionExportQueue()
     {
         /** @var Queue $q */
-        /** @var Queue $d */
+        $format = 'xlsx';
         $q = Yii::$app->queueSheets; //
         $q->channel = 'export';
-        $fileName = 'all_products_' . date('Y-m-d H-i') . '.xlsx';
+        $date = CMS::date(time());
+        $fileName = 'all_products_' . time() . '.' . $format;
 
 
         $tmpFilePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $fileName;
@@ -255,7 +257,7 @@ class DefaultController extends AdminController
         $spreadsheet = new Spreadsheet();
 
         $props = new Properties();
-        $props->setTitle('Sample file');
+        $props->setTitle('Export products');
         $props->setCreator(Yii::$app->user->email);
         $props->setLastModifiedBy(Yii::$app->user->email);
         $props->setCompany(Yii::$app->name);
@@ -279,7 +281,7 @@ class DefaultController extends AdminController
             ->query()
             ->count();
 
-        Yii::$app->settings->set('app', ['QUEUE_CHANNEL_'.$q->channel => $queueDoneCount]);
+        Yii::$app->settings->set('app', ['QUEUE_CHANNEL_' . $q->channel => $queueDoneCount]);
 
         Yii::$app->settings->set('app', ['CSV_EXPORT_' . $fileName => Product::find()->count()]);
         foreach ($types as $type) {
@@ -317,7 +319,10 @@ class DefaultController extends AdminController
                         'file' => $fileName,
                         'type_id' => $type->id,
                         'type_name' => $type->name,
-                        'total_products' => $total_products
+                        'total_products' => $total_products,
+                        'format' => ucfirst($format),
+                        'email_send' => Yii::$app->user->email,
+                        'date' => $date
                     ]));
                 }
 
@@ -325,10 +330,12 @@ class DefaultController extends AdminController
             }
         }
 
-        $data->save($tmpFilePath, 'Xlsx');
-        Yii::$app->session->setFlash('success', 'Результат экспорта будет отправлен на почту администратора asdasd@dsa.dsa ');
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tmpFilePath);
+        Yii::$app->session->setFlash('success', Yii::t('csv/default', 'QUEUE_EXPORT_RESULT_NOTIFY', Yii::$app->user->email));
         return $this->redirect(['export']);
-        //  }
+
 
     }
 
@@ -357,21 +364,23 @@ class DefaultController extends AdminController
         $type = false;
 
         if ($model->load(Yii::$app->request->get())) {
-            CMS::dump(Yii::$app->request->get());
-            die;
+
             if ($model->validate()) {
 
                 if ($get['FilterForm']['manufacturer_id'] !== '') {
                     $manufacturers = explode(',', $model->manufacturer_id);
                     $query->applyManufacturers($manufacturers);
                 }
+                if ($get['FilterForm']['supplier_id'] !== '') {
+                    $suppliers = explode(',', $model->supplier_id);
+                    $query->applySuppliers($suppliers);
+                }
 
-                $query->where(['type_id' => $model->type_id]);
+                $query->andWhere(['type_id' => $model->type_id]);
                 $query->orderBy(['ordern' => SORT_DESC]);
                 $count = $query->count();
                 $pages = new Pagination([
                     'totalCount' => $count,
-                    //'pageSize' => $get['FilterForm']['page'],
                     'pageSize' => Yii::$app->settings->get('csv', 'pagenum')
                 ]);
                 $query->offset($pages->offset);
@@ -385,7 +394,7 @@ class DefaultController extends AdminController
 
         if (Yii::$app->request->get('attributes')) {
             $exporter->query = $query;
-            die;
+            //die;
             $exporter->export(
                 Yii::$app->request->get('attributes'),
                 $type

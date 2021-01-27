@@ -15,8 +15,9 @@ class QueueExport extends BaseObject implements RetryableJobInterface
     public $type_id;
     public $type_name;
     public $offset;
-    //public $query;
-    //public $attributes;
+    public $email_send;
+    public $date;
+    public $format = 'Xlsx';
     public $total_products;
 
 
@@ -41,7 +42,7 @@ class QueueExport extends BaseObject implements RetryableJobInterface
         //$spreadsheet->getSheet($this->type_name);
 
 
-        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader("Xlsx");
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader($this->format);
 
         $spreadsheet = $reader->load($filePath);
         $sheet = $spreadsheet->getSheetByName($this->type_name);
@@ -73,6 +74,9 @@ class QueueExport extends BaseObject implements RetryableJobInterface
             echo Console::updateProgress($i, $count, $this->type_name . ' - ') . PHP_EOL;
         }
         echo ($totoc - $count) . PHP_EOL;
+
+        echo Console::ansiFormat(($totoc - $count),['color'=>Console::FG_BLUE]);
+
         Yii::$app->settings->set('app', [$settings_key => ($totoc - $count)]);
         foreach (range(1, $alpha) as $columnID) {
             $sheet->getColumnDimension(Helper::num2alpha($columnID))->setAutoSize(true);
@@ -86,25 +90,26 @@ class QueueExport extends BaseObject implements RetryableJobInterface
         if (!(int)Yii::$app->settings->get('app', $settings_key)) {
             $mailer = Yii::$app->mailer;
             $message = $mailer->compose(['html' => Yii::$app->getModule('csv')->mailPath . '/queue-export.tpl'], [
-                'errors' => false,
-                'warnings' => false,
                 'type' => 'test'
             ]);
             $message->attach($filePath);
             $message->setFrom(['noreply@example.com' => 'robot']);
-            $message->setTo(['andrew.panix@gmail.com']);
-            $message->setSubject(Yii::t('csv/default', 'Результат экспорта продукции'));
+            $message->setTo([$this->email_send]);
+            $message->setSubject(Yii::t('csv/default', 'QUEUE_EXPORT_SUBJECT', [
+                'date' => $this->date
+            ]));
             $send = $message->send();
 
             if ($send) {
-                echo 'Send to email success!';
+                echo "Send to {$this->email_send} success!";
+
                 Yii::$app->settings->delete('app', $settings_key);
                 unlink($filePath);
+
             }
         }
 
 //
-
 
 
         return true;

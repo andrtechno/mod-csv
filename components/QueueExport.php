@@ -51,7 +51,6 @@ class QueueExport extends BaseObject implements RetryableJobInterface
 
         $i = 0;
 
-        //print_r($exporter->rows);
         $indexRow = $highestRow + 1;
         $alpha = 1;
         $totoc = (int)Yii::$app->settings->get('app', $settings_key);

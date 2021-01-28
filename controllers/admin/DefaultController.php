@@ -282,7 +282,7 @@ class DefaultController extends AdminController
             ->count();
 
         Yii::$app->settings->set('app', ['QUEUE_CHANNEL_' . $q->channel => $queueDoneCount]);
-
+        Yii::$app->settings->set('app', ['QUEUE_date_'.$q->channel => time()]);
         Yii::$app->settings->set('app', ['CSV_EXPORT_' . $fileName => Product::find()->count()]);
         foreach ($types as $type) {
             if ($type->productsCount) {

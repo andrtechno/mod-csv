@@ -149,6 +149,7 @@ class Importer extends Component
 
 
         if ($spreadsheet->getSheetCount() > 1) {
+            die('many sheets');
             $worksheet = $spreadsheet->getAllSheets();
             foreach ($worksheet as $ss) {
                 CMS::dump($ss);

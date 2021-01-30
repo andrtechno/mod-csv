@@ -148,17 +148,17 @@ class Importer extends Component
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
 
 
-        if ($spreadsheet->getSheetCount() > 1) {
+        /*if ($spreadsheet->getSheetCount() > 1) {
             die('many sheets');
             $worksheet = $spreadsheet->getAllSheets();
             foreach ($worksheet as $ss) {
                 CMS::dump($ss);
                 echo '-----------';
             }
-            die;
-        } else {
+
+        } else {*/
             $worksheet = $spreadsheet->getActiveSheet();
-        }
+       // }
 
 
         //$props = $spreadsheet->getProperties();

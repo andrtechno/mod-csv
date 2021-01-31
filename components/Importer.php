@@ -30,28 +30,13 @@ use yii\web\UploadedFile;
 class Importer extends Component
 {
     public $skipRows = []; //@todo: need test
-    /**
-     * @var string column delimiter
-     */
-    public $delimiter = ",";
-
-    /**
-     * @var string
-     */
-    public $enclosure = '"';
 
     /**
      * @var UploadedFile path to file
      */
     public $file;
 
-
     public $newfile;
-
-    /**
-     * @var string encoding.
-     */
-    public $encoding;
 
     /**
      * @var string
@@ -343,6 +328,7 @@ class Importer extends Component
                 $list = array_chunk($queueList, self::QUEUE_ROW, true);
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
+                Yii::$app->settings->set('app',['queue_default'=>time()]);
                 foreach ($list as $index => $items) {
                     $q->priority($index)->push(new QueueImport(['rows' => $items, 'type' => $this->type]));
                 }

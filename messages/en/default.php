@@ -1,7 +1,7 @@
 <?php
 return [
-    'MODULE_NAME' => 'CSV, XLSX, XLS',
-    'MODULE_DESC' => 'Import products, categories, properties from CSV, XLS XLSX files.',
+    'MODULE_NAME' => 'XLSX, XLS',
+    'MODULE_DESC' => 'Import products, categories, properties from XLSX,XLS  files.',
     'ERROR_WRITE_BACKUP' => 'Error. The directory for backups is not writable. ',
     'IMPORT_PRODUCTS' => 'Importing Products',
     'EXPORT_PRODUCTS' => 'Export goods',
@@ -19,7 +19,6 @@ return [
     'WARNING_IMPORT' => 'Import warning',
     'IMPORT_INFO1' => 'The columns to import must be specified in the first line of the file.',
     'IMPORT_INFO2' => 'Columns <strong>{0}</strong> are required.',
-    'IMPORT_INFO3' => 'Field separator - (<code>{0}</code>)',
     'IMPORT_INFO4' => 'The file must be UTF-8 or CP1251 encoded.',
     'EXAMPLE_FILE' => 'Example file',
     'REMOVE_IMAGES' => 'Delete uploaded images',

@@ -1,7 +1,7 @@
 <?php
 return [
-    'MODULE_NAME' => 'CSV, XLSX, XLS',
-    'MODULE_DESC' => 'Імпорт товарів, категорій, властивостей з CSV, XLS XLSX файлів.',
+    'MODULE_NAME' => 'XLSX, XLS',
+    'MODULE_DESC' => 'Імпорт товарів, категорій, властивостей з XLSX,XLS  файлів.',
     'ERROR_WRITE_BACKUP' => 'Помилка. Директорія для бекапів недоступна для запису. ',
     'IMPORT_PRODUCTS' => 'Імпорт товарів',
     'EXPORT_PRODUCTS' => 'Експорт товарів',
@@ -19,7 +19,6 @@ return [
     'WARNING_IMPORT' => 'Попередження імпорту',
     'IMPORT_INFO1' => 'Першим рядком файлу повинні бути вказані колонки для імпорту.',
     'IMPORT_INFO2' => 'Колонки <strong>{0}</strong> - обов\'язкові.',
-    'IMPORT_INFO3' => 'Роздільник поля - (<code>{0}</code>)',
     'IMPORT_INFO4' => 'Файл повинен мати кодування UTF-8 або CP1251.',
     'EXAMPLE_FILE' => 'Приклад файлу',
     'REMOVE_IMAGES' => 'Видалити завантажені картинки',

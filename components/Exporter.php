@@ -26,16 +26,6 @@ class Exporter
     public $rows = [];
 
     /**
-     * @var string
-     */
-    public $delimiter = ",";
-
-    /**
-     * @var string
-     */
-    public $enclosure = '"';
-
-    /**
      * Cache category path
      * @var array
      */

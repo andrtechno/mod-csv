@@ -1,7 +1,7 @@
 <?php
 return [
-    'MODULE_NAME' => 'CSV,XLSX,XLS',
-    'MODULE_DESC' => 'Импорт товаров, категорий, свойств из CSV,XLS XLSX файлов.',
+    'MODULE_NAME' => 'XLSX,XLS',
+    'MODULE_DESC' => 'Импорт товаров, категорий, свойств из XLSX,XLS файлов.',
     'ERROR_WRITE_BACKUP' => 'Ошибка. Директория для бэкапов недоступна для записи.',
     'IMPORT_PRODUCTS' => 'Импорт товаров',
     'EXPORT_PRODUCTS' => 'Экспорт товаров',
@@ -19,7 +19,6 @@ return [
     'WARNING_IMPORT' => 'Предупреждение импорта',
     'IMPORT_INFO1' => 'Первой строкой файла должны быть указаны колонки для импорта.',
     'IMPORT_INFO2' => 'Колонки <strong>{0}</strong> - обязательны.',
-    'IMPORT_INFO3' => 'Разделитель поля - (<code>{0}</code>)',
     'IMPORT_INFO4' => 'Файл должен иметь кодировку UTF-8 или CP1251.',
     'EXAMPLE_FILE' => 'Пример файла',
     'REMOVE_IMAGES' => 'Удалить загруженные картинки',

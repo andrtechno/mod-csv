@@ -310,12 +310,18 @@ class Importer extends Component
                     } else {
                         $queueList[$this->line] = $row;
                     }
+                }else{
+                    echo $this->line;die;
                 }
 
+            }else{
+                echo $this->line;die;
             }
 
             $counter++;
         }
+      //  CMS::dump($queueList);
+       // echo count($queueList);die;
         if ($queueList) {
             Yii::$app->session->addFlash('success', 'В очередь добавлено: <strong>' . count($queueList) . '</strong> товара');
             $list = array_chunk($queueList, self::QUEUE_ROW, true);

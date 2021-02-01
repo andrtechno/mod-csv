@@ -7,7 +7,7 @@
     "csv"
   ],
   "homepage": "https://github.com/andrtechno/mod-csv",
-  "type": "yii2-extension",
+  "type": "pixelion-module",
   "license": "MIT",
   "minimum-stability": "dev",
   "support": {

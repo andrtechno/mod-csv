@@ -1,7 +1,5 @@
 <?php
 
-namespace panix\mod\csv\migrations;
-
 /**
  * Generation migrate by PIXELION CMS
  *

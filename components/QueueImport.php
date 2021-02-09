@@ -24,13 +24,13 @@ class QueueImport extends BaseObject implements RetryableJobInterface
         $count = count($this->rows);
         // echo count($this->rows);die;
         $errors = [];
-        echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
+        Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100);
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
             $row = $importer->prepareRow($row);
             $result = $importer->importRow($row, $this->type);
             $i++;
-            echo Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ') . PHP_EOL;
+            Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ');
 
         }
 
@@ -52,7 +52,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
                 ->send();
 
         }
-        echo Console::endProgress(false) . PHP_EOL;
+        Console::endProgress(false);
         return true;
     }
 

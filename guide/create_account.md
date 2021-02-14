@@ -10,3 +10,10 @@
 
 Разрешение доступов Табилце
 <YUAR_NAME>@<YUAR_NAME>.iam.gserviceaccount.com
+
+### Готово.
+
+
+
+Следующий Шаг №2  [(Разрешение доступов к Google таблице)](sheet_access.md)
+

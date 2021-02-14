@@ -1,5 +1,9 @@
-# CREDENTIALS
-https://console.developers.google.com/iam-admin/serviceaccounts
+# Создание сервисного аккаунта в Google
+
+Перейдите по ссылке [https://console.developers.google.com/iam-admin/serviceaccounts](https://console.developers.google.com/iam-admin/serviceaccounts)
+
+#### 1. zzzz
+![Step 1](images/step4.jpg)
 
 
 Загрузите файл

@@ -1,5 +1,4 @@
-# CREDENTIALS
-https://console.developers.google.com/iam-admin/serviceaccounts
+# Разрешение доступов google таблице
 
 #### 1. Откройте ваше google таблицу
 ![Step 1](images/sheet1.jpg)
@@ -13,8 +12,3 @@ https://console.developers.google.com/iam-admin/serviceaccounts
 #### 4. Готово!
 ![Step 4](images/sheet4.jpg)
 
-
-Загрузите файл
-
-Разрешение доступов Табилце
-<YUAR_NAME>@<YUAR_NAME>.iam.gserviceaccount.com

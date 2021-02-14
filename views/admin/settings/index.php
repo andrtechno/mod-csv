@@ -47,7 +47,7 @@ $form = ActiveForm::begin([
                 [
                     'label' => 'Google sheets',
                     'content' => $this->render('_google_sheets', ['form' => $form, 'model' => $model]),
-                    'visible' => YII_DEBUG,
+                    'visible' => true,
                 ],
             ],
         ]);

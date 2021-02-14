@@ -327,6 +327,47 @@ class BaseImporter extends Component
 
     }
 
+    public function validator()
+    {
+        $i = 1;
+        foreach (AttributesProcessor::getImportExportData('eav_') as $key => $value) {
+            if (mb_strpos($key, 'eav_') !== false) {
+                $attributeName = str_replace('eav_', '', $key);
+                if (in_array($attributeName, AttributesProcessor::skipNames)) {
+                    $this->errors[] = [
+                        'line' => 0,
+                        'message' => Yii::t('csv/default', 'ERROR_COLUMN_ATTRIBUTE', [
+                            'attribute' => $attributeName
+                        ]),
+                        'type' => Yii::t('csv/default', 'LIST', $this->type)
+                    ];
+                    return false;
+                }
+            }
+            $i++;
+        }
+
+        foreach ($this->required as $column) {
+
+            foreach ($this->columns as $listName => $col) {
+
+                if (!in_array($column, $col[1])) {
+
+
+                    $this->errors[] = [
+                        'line' => 0,
+                        'message' => Yii::t('csv/default', 'REQUIRE_COLUMN', [
+                            'column' => $column,
+                            'type' => Yii::t('csv/default', 'LIST', $listName)
+                        ])
+                    ];
+                }
+            }
+
+        }
+
+        return !$this->hasErrors();
+    }
 
     /**
      * @return bool validate file
@@ -375,6 +416,7 @@ class BaseImporter extends Component
         }
 
         foreach ($this->required as $column) {
+
             foreach ($this->columns as $listName => $col) {
 
                 if (!in_array($column, $col[1])) {
@@ -888,5 +930,10 @@ class BaseImporter extends Component
         } else {
             return true;
         }
+    }
+
+    public function setColumns($data)
+    {
+        $this->columns = $data;
     }
 }

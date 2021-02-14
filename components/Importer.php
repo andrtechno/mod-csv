@@ -151,6 +151,7 @@ class Importer extends BaseImporter implements IImporter
 
            // }
         }
+            return $this->model;
     }
 
 

@@ -31,6 +31,7 @@ return [
     'REQUIRE_COLUMN_EMPTY' => 'Required column <strong>{column}</strong> is missing',
     'LINE' => 'Line <strong>{0}</strong>:',
     'LIST' => 'List <strong>{0}</strong>:',
+    'FILTER_VALUE_NO_VALID'=>'Value {1} is not true for {0}',
     'AND_MORE' => 'and more ({0}).',
     'FILENAME' => 'File',
     'EXPORT_FORMAT' => 'Export format',

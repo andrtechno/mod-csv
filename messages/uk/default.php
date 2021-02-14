@@ -31,6 +31,7 @@ return [
     'REQUIRE_COLUMN_EMPTY' => 'Не заповнена обов\'язкова колонка <strong>{column}</strong>',
     'LINE' => 'Рядок <strong>{0}</strong>:',
     'LIST' => 'Список <strong>{0}</strong>:',
+    'FILTER_VALUE_NO_VALID'=>'Значення {1} не є вірним для {0}',
     'AND_MORE' => 'та ще ({0}).',
     'FILENAME' => 'Файл',
     'EXPORT_FORMAT' => 'Формат експорту',

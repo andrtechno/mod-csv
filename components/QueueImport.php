@@ -27,8 +27,8 @@ class QueueImport extends BaseObject implements RetryableJobInterface
         Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100);
         foreach ($this->rows as $line => $row) {
             $importer->line = $line;
-            $row = $importer->prepareRow($row);
-            $result = $importer->importRow($row, $this->type);
+            $row=$importer->prepareRow($row);
+            $importer->execute($row, $this->type);
             $i++;
             Console::updateProgress($i, $count, $queue->getWorkerPid() . ' - ');
 

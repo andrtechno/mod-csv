@@ -149,8 +149,8 @@ class DefaultController extends AdminController
                 return $this->redirect(['import']);
             }
         }
-
-        $importer = new Importer();
+        $importer = Yii::$app->getModule('csv')->getImporter();
+       // $importer = new Importer();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
@@ -168,12 +168,12 @@ class DefaultController extends AdminController
                     $importer->import();
 
                     foreach ($importer->getErrors() as $error) {
-
+                        //Yii::$app->session->addFlash('import-error', ['error1','error2']);
                         if ($errImport < 10) {
                             if ($error['line'] > 0)
-                                Yii::$app->session->addFlash('import-error', $error['type'] . ' ' . Yii::t('csv/default', 'LINE', $error['line']) . " " . $error['error']);
+                                Yii::$app->session->addFlash('import-error', $error['type'] . ' ' . Yii::t('csv/default', 'LINE', $error['line']) . " " . $error['message']);
                             else
-                                Yii::$app->session->addFlash('import-error', $error['type'] . ' ' . $error['error']);
+                                Yii::$app->session->addFlash('import-error', $error['type'] . ' ' . $error['message']);
                         } else {
                             $n = count($importer->getErrors()) - $errImport;
                             Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'AND_MORE', $n));
@@ -186,9 +186,9 @@ class DefaultController extends AdminController
                     foreach ($importer->getWarnings() as $warning) {
                         if ($wrnImport < 10) {
                             if ($warning['line'] > 0)
-                                Yii::$app->session->addFlash('import-warning', $warning['type'] . ' ' . Yii::t('csv/default', 'LINE', $warning['line']) . " " . $warning['error']);
+                                Yii::$app->session->addFlash('import-warning', $warning['type'] . ' ' . Yii::t('csv/default', 'LINE', $warning['line']) . " " . $warning['message']);
                             else
-                                Yii::$app->session->addFlash('import-warning', $warning['type'] . ' ' . $warning['error']);
+                                Yii::$app->session->addFlash('import-warning', $warning['type'] . ' ' . $warning['message']);
                         } else {
                             $n = count($importer->getWarnings()) - $wrnImport;
                             Yii::$app->session->addFlash('import-warning', Yii::t('csv/default', 'AND_MORE', $n));
@@ -214,9 +214,9 @@ class DefaultController extends AdminController
 
                         if ($errImport < 10) {
                             if ($error['line'] > 0)
-                                Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'LINE', $error['line']) . " " . $error['error']);
+                                Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'LINE', $error['line']) . " " . $error['message']);
                             else
-                                Yii::$app->session->addFlash('import-error', $error['error']);
+                                Yii::$app->session->addFlash('import-error', $error['message']);
                         } else {
                             $n = count($importer->getErrors()) - $errImport;
                             Yii::$app->session->addFlash('import-error', Yii::t('csv/default', 'AND_MORE', $n));

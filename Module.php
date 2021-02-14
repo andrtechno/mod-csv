@@ -14,6 +14,8 @@ class Module extends WebModule implements BootstrapInterface
     public $icon = 'file-csv';
     public $mailPath = '@csv/mail';
     public $uploadPath = '@uploads/csv_import_image';
+    public $import = ['class'=>'\panix\mod\csv\components\Importer'];
+    public $export = ['class'=>'\panix\mod\csv\components\Exporter'];
 
     /**
      * @inheritdoc
@@ -83,5 +85,15 @@ class Module extends WebModule implements BootstrapInterface
             'description' => Yii::t('csv/default', 'MODULE_DESC'),
             'url' => ['/admin/csv'],
         ];
+    }
+
+    public function getImporter()
+    {
+        return Yii::createObject($this->import);
+    }
+
+    public function getExporter()
+    {
+        return Yii::createObject($this->export);
     }
 }

@@ -250,7 +250,7 @@ class AttributesProcessor extends Component
         }
 
         $shop_config = Yii::$app->settings->get('shop');
-
+        $attributes['id'] = Yii::t('shop/Product', 'ID');
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
         $attributes['Тип'] = Yii::t('shop/Product', 'TYPE_ID');
         $attributes['Лейблы'] = Yii::t('shop/Product', 'LABEL').'<br/>'.$listLabel.'<br/>Например: <code>top_sale;hit_sale</code>';

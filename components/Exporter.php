@@ -71,7 +71,8 @@ class Exporter
                     $value = $this->getCategory($p);
                 } elseif ($attr === 'Бренд') {
                     $value = $this->getManufacturer($p);
-
+                } elseif ($attr === 'id') {
+                    $value = $p->id;
                 } elseif ($attr === 'Фото') {
                     /** @var \panix\mod\images\behaviors\ImageBehavior $img */
                     $img = $p->getImage();
@@ -91,8 +92,8 @@ class Exporter
                 } elseif ($attr === 'Артикул') {
                     $value = $p->sku;
                 } elseif ($attr === 'Лейблы') {
-                    $listLabels = explode(',',$p->label);
-                    $value = implode(';',$listLabels);
+                    $listLabels = explode(',', $p->label);
+                    $value = implode(';', $listLabels);
                 } elseif ($attr === 'Наличие') {
                     $value = $p->availability;
                 } elseif ($attr === 'Количество') {
@@ -201,17 +202,21 @@ class Exporter
         $categories = $product->categories;
 
         $result = [];
-        foreach ($categories as $category) {
-            if ($category->id !== $mainCategory->id) {
-                $path = [];
-                $ancestors = $category->ancestors()->excludeRoot()->all();
-                foreach ($ancestors as $c)
-                    $path[] = preg_replace('/\//', '\/', $c->name);
-                $path[] = preg_replace('/\//', '\/', $category->name);
-                $result[] = implode('/', $path);
+        if ($mainCategory) {
+            foreach ($categories as $category) {
+                if ($category->id !== $mainCategory->id) {
+                    $path = [];
+                    $ancestors = $category->ancestors()->excludeRoot()->all();
+                    foreach ($ancestors as $c)
+                        $path[] = preg_replace('/\//', '\/', $c->name);
+                    $path[] = preg_replace('/\//', '\/', $category->name);
+                    $result[] = implode('/', $path);
+                }
             }
+        } else {
+            //Yii::$app->session->addFlash('error', $product->id . ' error main category');
+            // CMS::dump($product);die;
         }
-
         if (!empty($result)) {
             return implode(';', $result);
             //return $result[array_key_last($result)];

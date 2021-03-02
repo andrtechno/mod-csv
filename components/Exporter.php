@@ -308,17 +308,18 @@ class Exporter
         $categories = $product->categories;
 
         $result = [];
-        foreach ($categories as $category) {
-            if ($category->id !== $mainCategory->id) {
-                $path = [];
-                $ancestors = $category->ancestors()->excludeRoot()->all();
-                foreach ($ancestors as $c)
-                    $path[] = preg_replace('/\//', '\/', $c->name);
-                $path[] = preg_replace('/\//', '\/', $category->name);
-                $result[] = implode('/', $path);
+        if ($mainCategory) {
+            foreach ($categories as $category) {
+                if ($category->id !== $mainCategory->id) {
+                    $path = [];
+                    $ancestors = $category->ancestors()->excludeRoot()->all();
+                    foreach ($ancestors as $c)
+                        $path[] = preg_replace('/\//', '\/', $c->name);
+                    $path[] = preg_replace('/\//', '\/', $category->name);
+                    $result[] = implode('/', $path);
+                }
             }
         }
-
         if (!empty($result)) {
             return implode(';', $result);
             //return $result[array_key_last($result)];

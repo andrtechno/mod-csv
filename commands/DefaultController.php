@@ -8,6 +8,8 @@ use panix\mod\csv\components\BaseImporter;
 use PhpOffice\PhpSpreadsheet\Document\Properties;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Yii;
+use yii\helpers\Console;
+use yii\httpclient\Client;
 
 
 //ignore_user_abort(1);
@@ -78,7 +80,29 @@ class DefaultController extends ConsoleController
         $writer->save($tmpFilePath);
     }
 
+    public function actionGooglesheetsReader2()
+    {
+        $url='https://docs.google.com/spreadsheets/d/1f296aTp1_I3s2y_5WbycmTEWbHAM8n-d4IDvygz8fgo/export?format=xlsx';
 
+
+       /* $fh = fopen(Yii::getAlias('@runtime').'/file.xlsx', 'w+');
+        $client = new Client([
+            'transport' => 'yii\httpclient\CurlTransport'
+        ]);
+        $response = $client->createRequest()
+            ->setMethod('GET')
+            ->setUrl($url)
+            ->setOutputFile($fh)
+            ->send();*/
+
+
+        $client = new \GuzzleHttp\Client();
+        $client->request('GET', $url, [
+            'verify' => false,
+            'sink' => Yii::getAlias('@runtime').'/file.xlsx'
+        ]);
+
+    }
     public function actionGooglesheetsReader()
     {
         $spreadsheetId = '1f296aTp1_I3s2y_5WbycmTEWbHAM8n-d4IDvygz8fgo';
@@ -116,53 +140,79 @@ class DefaultController extends ConsoleController
             // print_r($result);die;
             foreach ($rows as $row_index => $row) {
                 foreach ($firstRow as $key => $item) {
-                    $result[$sheet_name][$row_index + 1][mb_strtolower($item)] = (isset($row[$key])) ? $row[$key] : NULL;
+                   // print_r($row);die;
+
+
+
+                        $result[$sheet_name][$row_index + 1][mb_strtolower($item)] = (isset($row[$key])) ? $row[$key] : NULL;
+
+
+                    $result[$sheet_name][$row_index + 1]['__hash'] = $this->array_md5($result[$sheet_name][$row_index + 1]);
 
                 }
-                $result[$sheet_name][$row_index + 1]['__hash'] = $this->array_md5($result[$sheet_name][$row_index + 1]);
+
             }
 
         }
-//print_r($result);die;
+
         /** @var BaseImporter $importer */
         $importer = Yii::$app->getModule('csv')->getImporter();
         $importer->setColumns($result);
         $importer->validator();
-        $importer->import();
+        //$importer->import();
 
 
         foreach ($result as $type => $items) {
             $importer->line = 1;
+            $importer->type=$type;
             // print_r($items);die;
             unset($items[1]);
+            $i = 0;
+            $count = count($items);
+            Console::startProgress($i, $count, $type . ' - ', 100);
             foreach ($items as $row2) {
-    $qn=$row2['наименование'].$row2['бренд'];
+                $importer->line++;
+                $qn=$row2['наименование'].$row2['бренд'];
+
+
+
+
                 // print_r($row2);die;
-                $command = Yii::$app->db->createCommand('SELECT * FROM {{%google_sheets_reader}} WHERE hash=:hash AND unique_name=:qn')
+                $command = Yii::$app->db->createCommand('SELECT * FROM {{%google_sheets_reader}} WHERE hash=:hash AND unique_name=:qn AND sheet=:sheet')
                     ->bindParam(':hash', $row2['__hash'])
+                    ->bindParam(':sheet', $type)
                     ->bindParam(':qn', $qn);
 
                 $find = $command->queryOne();
                 if ($find) {
-                    $importer->skipRows[] = $importer->line;
+                    //$importer->skipRows[] = $importer->line;
+
                 } else {
-                    if (!$importer->hasErrors()) {
-                        $row2 = $importer->prepareRow($row2);
+
+
                         Yii::$app->db->createCommand()->insert('{{%google_sheets_reader}}', [
                             'hash' => $row2['__hash'],
                             'unique_name' => $qn,
+                            'sheet' => $type,
+                            'created_at' => time(),
+                            // 'line' => $importer->line,
                         ])->execute();
-                        unset($row2['__hash']);
+                    if (!$importer->hasErrors()) {
+                        $row2 = $importer->prepareRow($row2);
                         $importer->execute($row2, $type);
+
                     } else {
-                        print_r($importer->getErrors());
+                       // $errors[]=$importer->getErrors();
                     }
                 }
-                $importer->line++;
+                $i++;
+                Console::updateProgress($i, $count, $type . ' - ');
+
             }
+            Console::endProgress(false);
         }
-        print_r($importer->skipRows);
-        die;
+        print_r($importer->stats);
+        print_r($importer->getErrors());
 
     }
 

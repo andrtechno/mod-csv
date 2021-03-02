@@ -5,6 +5,7 @@ namespace panix\mod\csv\models;
 use panix\engine\CMS;
 use Yii;
 use panix\engine\SettingsModel;
+use yii\base\Exception;
 
 /**
  * Class SettingsForm
@@ -91,8 +92,8 @@ class SettingsForm extends SettingsModel
         if (file_exists($config['credentials'])) {
             try {
 
-                // $config['client_id']='113080523440486524239';
-                // $config['client_secret']='5e5d50e9a48361d54557f74a4949fd1b82d61d8e';
+                // $config['client_id']='102003670383502615058';
+                // $config['client_secret']='128189e5944ed0db0f32936bc4356e4d951a30a9';
                 $client = new \Google\Client($config);
 
                 $client->useApplicationDefaultCredentials();
@@ -101,11 +102,11 @@ class SettingsForm extends SettingsModel
 
 
                 if ($client->isAccessTokenExpired()) {
-                    $client->refreshTokenWithAssertion();
+                    $client->fetchAccessTokenWithAssertion();
                 }
 
                 return $client;
-            } catch (\Google_Service_Exception $e) {
+            } catch (Exception $e) {
                 $error = json_decode($e->getMessage());
                 // \panix\engine\CMS::dump($error->error->message);
                 return $error;

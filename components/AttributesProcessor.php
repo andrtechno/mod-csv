@@ -55,7 +55,8 @@ class AttributesProcessor extends Component
         'конфигурация',
         'связи',
         'delete',
-        'ID'
+        'ID',
+        '__hash'
     ];
 
     /**

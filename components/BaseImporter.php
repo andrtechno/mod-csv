@@ -209,10 +209,12 @@ class BaseImporter extends Component
             }
 
             if ($queueList) {
+                if(Yii::$app->id != 'console'){
                 Yii::$app->session->addFlash('success', Yii::t('csv/default', 'QUEUE_ADD', [
                     'type' => $this->type,
                     'count' => count($queueList)
                 ]));
+                }
                 $list = array_chunk($queueList, $this->job_rows, true);
                 /** @var Queue $q */
                 $q = Yii::$app->queue;

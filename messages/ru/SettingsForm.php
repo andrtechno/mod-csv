@@ -12,4 +12,5 @@ return [
     'SEND_EMAIL' => 'E-mail получателей отчета об импорте',
     'TAB_MAIN' => 'Основные',
     'TAB_QUEUE' => 'Очередь',
+    'GOOGLE_CREDENTIALS'=>'Файл google credentials'
 ];

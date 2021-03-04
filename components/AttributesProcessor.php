@@ -2,6 +2,7 @@
 
 namespace panix\mod\csv\components;
 
+use panix\mod\shop\components\EavBehavior;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
@@ -20,7 +21,7 @@ class AttributesProcessor extends Component
 {
 
     /**
-     * @var Product
+     * @var Product|EavBehavior
      */
     public $model;
 
@@ -86,20 +87,26 @@ class AttributesProcessor extends Component
     /**
      * Process each data row. First, try to assign value to products model,
      * if attributes does not exists - handle like eav attribute.
+     * @return bool
      */
     public function process()
     {
 
         foreach ($this->data as $key => $val) {
+
+            if (empty($val)) {
+                $key = CMS::slug($key, '_');
+                $this->model->deleteEavAttributes([$key], true);
+                return true;
+            }
+
             try {
                 if (!in_array($key, self::skipNames) && !empty($val)) {
                     $this->model->$key = $val;
-
                 }
-
             } catch (Exception $e) {
                 // Process eav
-                if (!in_array($key, self::skipNames) && !empty($val)) {
+                if (!in_array($key, self::skipNames)) {
 
                     //if (substr($key, 0, 4) === 'eav_')
                     //    $key = substr($key, 4);
@@ -107,16 +114,17 @@ class AttributesProcessor extends Component
                     $name = $key;
                     $key = CMS::slug($key, '_');
 
-
-                    $this->eav[$key] = $this->processEavData($name,$key, $val);
+                    if (!empty($val)) {
+                        $this->eav[$key] = $this->processEavData($name, $key, $val);
+                    }
                 }
             }
         }
-
     }
 
     /**
      * @param $attribute_name
+     * @param $attribute_key
      * @param $attribute_value
      * @return array
      */
@@ -124,7 +132,7 @@ class AttributesProcessor extends Component
     {
         $result = [];
 
-        $attribute = $this->getAttributeByName($attribute_key,$attribute_name);
+        $attribute = $this->getAttributeByName($attribute_key, $attribute_name);
 
         $multipleTypes = [Attribute::TYPE_CHECKBOX_LIST, Attribute::TYPE_DROPDOWN, Attribute::TYPE_SELECT_MANY, Attribute::TYPE_COLOR];
 
@@ -194,7 +202,7 @@ class AttributesProcessor extends Component
      * @param $name
      * @return Attribute
      */
-    public function getAttributeByName($key,$name)
+    public function getAttributeByName($key, $name)
     {
 
 
@@ -235,7 +243,7 @@ class AttributesProcessor extends Component
     }
 
 
-    public static function getImportExportData($eav_prefix = '', $type_id=null)
+    public static function getImportExportData($eav_prefix = '', $type_id = null)
     {
         $attributes = [];
         $units = '';
@@ -244,16 +252,16 @@ class AttributesProcessor extends Component
             $units .= '<code>' . $unit . '</code><br/>';
         }
 
-        $listLabel='';
-        foreach ($product::getLabelList() as $label_key => $label){
-            $listLabel.="<code>{$label_key}</code> &mdash; {$label}<br/>";
+        $listLabel = '';
+        foreach ($product::getLabelList() as $label_key => $label) {
+            $listLabel .= "<code>{$label_key}</code> &mdash; {$label}<br/>";
         }
 
         $shop_config = Yii::$app->settings->get('shop');
         $attributes['id'] = Yii::t('shop/Product', 'ID');
         $attributes['Наименование'] = Yii::t('shop/Product', 'NAME');
         $attributes['Тип'] = Yii::t('shop/Product', 'TYPE_ID');
-        $attributes['Лейблы'] = Yii::t('shop/Product', 'LABEL').'<br/>'.$listLabel.'<br/>Например: <code>top_sale;hit_sale</code>';
+        $attributes['Лейблы'] = Yii::t('shop/Product', 'LABEL') . '<br/>' . $listLabel . '<br/>Например: <code>top_sale;hit_sale</code>';
         $attributes['Категория'] = Yii::t('csv/default', 'Категория. Если указанной категории не будет в базе она добавится автоматически.');
         $attributes['Доп. Категории'] = Yii::t('csv/default', 'Доп. категории разделяются точкой с запятой <code>;</code>. На пример <code>MyCategory;MyCategory/MyCategorySub</code>.');
         $attributes['Бренд'] = Yii::t('csv/default', 'Производитель. Если указанного производителя не будет в базе он добавится автоматически.');
@@ -261,7 +269,7 @@ class AttributesProcessor extends Component
         $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID');
         $attributes['Цена'] = Yii::t('shop/Product', 'PRICE');
         $attributes['Цена закупки'] = Yii::t('shop/Product', 'PRICE_PURCHASE');
-        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS').' (В ячейке необходимо указать название конфигурации, например <code>Вес</code>). Для удаления конфигурации из товара в ячейке необходимо указать - <code>no</code>.';
+        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS') . ' (В ячейке необходимо указать название конфигурации, например <code>Вес</code>). Для удаления конфигурации из товара в ячейке необходимо указать - <code>no</code>.';
         $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('csv/default', 'Скрыть или показать. Принимает значение <code>1</code> &mdash; показать <code>0</code> - скрыть.');

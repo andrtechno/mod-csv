@@ -189,7 +189,7 @@ class Importer extends Component
                 if (isset($cellsHeaders[$column2])) {
                     if (!in_array(mb_strtolower($column2), $ignoreColumns)) {
                         if ($cell->getDataType() == 'f') {
-                            preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $cell->getValue(), $match);
+                            preg_match('/(IMAGE).*[\'"](https?:\/\/?.*)[\'"]/iu', $value, $match);
                             if (isset($match[1]) && isset($match[2])) {
                                 if (mb_strtolower($match[1]) == 'image') {
 
@@ -276,7 +276,7 @@ class Importer extends Component
         $queueList = [];
 
         //Remove empty rows
-        $columns = array_filter($this->columns[1], function ($value) {
+        $columns2 = array_filter($this->columns[1], function ($value) {
             foreach ($value as $row) {
                 if (!is_null($row) && !empty($row)) {
                     return $row;
@@ -284,7 +284,7 @@ class Importer extends Component
             }
             return [];
         });
-
+        $columns=$this->columns[1];
 
         foreach ($columns as $columnIndex => $row) {
             $this->line = $columnIndex;
@@ -306,6 +306,7 @@ class Importer extends Component
                 if (!in_array($columnIndex, $this->skipRows)) {//if (!$this->errors) {
                     $row = $this->prepareRow($row);
                     if ($counter <= self::QUEUE_ROW) {
+
                         $this->importRow($row);
                     } else {
                         $queueList[$this->line] = $row;
@@ -864,7 +865,8 @@ class Importer extends Component
         $row['created_at'] = time();
         $row['updated_at'] = time();//date('Y-m-d H:i:s');
 
-        return array_filter($row); // Remove empty keys and return result
+        //return array_filter($row); // Remove empty keys and return result
+        return $row; // Remove empty keys and return result
     }
 
     /**

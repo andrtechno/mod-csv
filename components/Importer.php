@@ -298,8 +298,7 @@ class Importer extends Component
             return [];
         });
         $columns = $this->columns[1];
-        CMS::dump($columns);
-        die;
+
         foreach ($columns as $columnIndex => $row) {
             $this->line = $columnIndex;
             if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {

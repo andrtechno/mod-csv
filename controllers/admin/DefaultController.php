@@ -137,7 +137,7 @@ class DefaultController extends AdminController
                         if($uploadFiles){
                             Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_UPLOAD_IMAGES'));
                         }else{
-                            die('eeeeeeeeeeeeee');
+                            die('11');
                         }
 
                     }

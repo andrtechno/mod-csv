@@ -138,12 +138,8 @@ class Exporter
 
 
                     if ($p->{'eav_' . $name}) {
-                        //CMS::dump($p->{'eav_' . $name});die;
-
                         $value = $p->{'eav_' . $name}->value;
                     } else {
-                        //CMS::dump($name);die;
-                        // CMS::dump($p->{'eav_' . $name});die;
                         $value = '';
                     }
                 }
@@ -215,7 +211,6 @@ class Exporter
             }
         } else {
             //Yii::$app->session->addFlash('error', $product->id . ' error main category');
-            // CMS::dump($product);die;
         }
         if (!empty($result)) {
             return implode(';', $result);

@@ -130,8 +130,6 @@ class QueueExport extends BaseObject implements RetryableJobInterface
         unset($exporter->rows[0]);
 
         $count = count($exporter->rows);
-        //print_r($exporter->rows);die;
-        //print_r($exporter);die;
 
         $this->spreadsheet = Helper::newSpreadsheet(Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $this->file);
         $this->spreadsheet->getSheet($this->type_name);

@@ -124,7 +124,7 @@ class Importer extends Component
         'deleted' => 0
     ];
     public static $extension = ['jpg', 'jpeg'];
-    public $required = ['Наименование', 'Категория', 'Цена', 'Тип','Бренд','Артикул'];
+    public $required = ['Наименование', 'Категория', 'Цена', 'Тип', 'Бренд', 'Артикул'];
 
     public $totalProductCount = 0;
 
@@ -145,20 +145,25 @@ class Importer extends Component
         $indentRow = (isset($config->indent_row)) ? $config->indent_row : 1;
         $indentColumn = (isset($config->indent_column)) ? $config->indent_column : 1;
         $ignoreColumns = (isset($config->ignore_columns)) ? explode(',', $config->ignore_columns) : [];
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
+        //  $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($this->newfile);
 
 
-        /*if ($spreadsheet->getSheetCount() > 1) {
-            die('many sheets');
-            $worksheet = $spreadsheet->getAllSheets();
-            foreach ($worksheet as $ss) {
-                CMS::dump($ss);
-                echo '-----------';
-            }
+        if ($this->file->extension == 'xlsx') {
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        } elseif ($this->file->extension == 'xls') {
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xls();
+        } elseif ($this->file->extension == 'csv') {
+            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
+        } else {
+            die('FATAL ERROR: xlsx, xls');
+        }
 
-        } else {*/
-            $worksheet = $spreadsheet->getActiveSheet();
-       // }
+        $reader->setReadDataOnly(true);
+        $reader->setReadEmptyCells(false);
+        $spreadsheet = $reader->load($this->newfile);
+
+
+        $worksheet = $spreadsheet->getActiveSheet();
 
 
         //$props = $spreadsheet->getProperties();
@@ -183,6 +188,7 @@ class Importer extends Component
 
             $cellIterator = $row->getCellIterator(Helper::num2alpha($indentColumn));
             $cellIterator->setIterateOnlyExistingCells(false); // This loops through all cells,
+
             $cells = [];
             foreach ($cellIterator as $column2 => $cell) {
                 $value = trim($cell->getValue());
@@ -202,8 +208,15 @@ class Importer extends Component
                     }
                 }
             }
-
-            $rows[$k2] = $cells;
+            //remove empty rows
+            $empty = 0;
+            foreach ($cells as $c) {
+                if (empty($c))
+                    $empty++;
+            }
+            if ($empty != count($cells)) {
+                $rows[$k2] = $cells;
+            }
         }
 
         return [$cellsHeaders, $rows];
@@ -284,8 +297,9 @@ class Importer extends Component
             }
             return [];
         });
-        $columns=$this->columns[1];
-
+        $columns = $this->columns[1];
+        CMS::dump($columns);
+        die;
         foreach ($columns as $columnIndex => $row) {
             $this->line = $columnIndex;
             if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
@@ -311,18 +325,22 @@ class Importer extends Component
                     } else {
                         $queueList[$this->line] = $row;
                     }
-                }else{
-                    echo $this->line;die;
+                } else {
+                    // echo 'error:1-';
+                    echo $this->line;
+                    die;
                 }
 
-            }else{
-                echo $this->line;die;
+            } else {
+                // echo 'error:2-';
+                echo $this->line;
+                die;
             }
 
             $counter++;
         }
-      //  CMS::dump($queueList);
-       // echo count($queueList);die;
+        //  CMS::dump($queueList);
+        // echo count($queueList);die;
         if ($queueList) {
             Yii::$app->session->addFlash('success', 'В очередь добавлено: <strong>' . count($queueList) . '</strong> товара');
             $list = array_chunk($queueList, self::QUEUE_ROW, true);

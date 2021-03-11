@@ -2,7 +2,7 @@
 
 namespace panix\mod\csv;
 
-use panix\mod\admin\widgets\sidebar\BackendNav;
+use app\web\themes\dashboard\sidebar\BackendNav;
 use Yii;
 use panix\engine\WebModule;
 use yii\base\BootstrapInterface;

@@ -1,4 +1,5 @@
 <?php
+
 use panix\engine\Html;
 use panix\mod\shop\models\Manufacturer;
 use panix\mod\shop\models\ProductType;
@@ -35,7 +36,7 @@ $this->registerJs('
         $form = ActiveForm::begin(['id' => 'csv-form', 'method' => 'GET']);
         echo $form->field($model, 'manufacturer_id')->dropDownList(ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'type_id')->dropDownList(ArrayHelper::map(ProductType::find()->all(), 'id', 'name'), ['prompt' => '-']);
-        echo $form->field($model, 'format')->dropDownList(['csv'=>'csv','xls'=>'xls','xlsx'=>'xlsx']);
+        echo $form->field($model, 'format')->dropDownList(['csv' => 'csv', 'xls' => 'xls', 'xlsx' => 'xlsx']);
         echo $form->field($model, 'page')->hiddenInput()->label(false);
 
         ?>
@@ -67,9 +68,9 @@ $this->registerJs('
         <?php
         $groups = [];
 
-        $type_id = (isset(Yii::$app->request->get('FilterForm')['type_id'])) ? Yii::$app->request->get('FilterForm')['type_id']:null;
+        $type_id = (isset(Yii::$app->request->get('FilterForm')['type_id'])) ? Yii::$app->request->get('FilterForm')['type_id'] : null;
         foreach (AttributesProcessor::getImportExportData('eav_', $type_id) as $k => $v) {
-        //foreach ($importer->getExportAttributes('eav_', Yii::$app->request->get('type_id')) as $k => $v) {
+            //foreach ($importer->getExportAttributes('eav_', Yii::$app->request->get('type_id')) as $k => $v) {
             if (strpos($k, 'eav_') === false) {
                 $groups['Основные'][$k] = $v;
             } else {
@@ -78,11 +79,27 @@ $this->registerJs('
         }
         ?>
 
-        <?php if ($count) { ?>
-            <table class="table table-striped table-bordered">
+        <?php if ($count) {
+
+            $this->registerJs("
+$(document).on('click','.select-on-check-all',function(e) {
+    var checked=this.checked;
+    $('.export-table input[type=\"checkbox\"]:enabled').each(function() {
+        this.checked=checked;
+        if (checked == this.checked) {
+            $(this).closest('table tbody tr').removeClass('active');
+
+        }
+	    if (this.checked) {
+            $(this).closest('table tbody tr').addClass('active');
+        }
+    });
+});", \yii\web\View::POS_END); ?>
+
+            <table class="table table-striped table-bordered export-table">
                 <thead>
                 <tr>
-                    <th></th>
+                    <th><?= Html::checkbox('selection_all', true, ['class' => 'select-on-check-all', 'value' => 1]); ?></th>
                     <th><?= Yii::t('app/default', 'NAME') ?></th>
                     <th><?= Yii::t('app/default', 'DESCRIPTION') ?></th>
                 </tr>
@@ -100,7 +117,9 @@ $this->registerJs('
                                 <?= Html::checkbox('attributes[]', true, ['value' => $k]); ?>
 
                             </td>
-                            <td><code style="font-size: inherit"><?= Html::encode(str_replace('eav_', '', $k)); ?></code></td>
+                            <td>
+                                <code style="font-size: inherit"><?= Html::encode(str_replace('eav_', '', $k)); ?></code>
+                            </td>
                             <td><?= $v; ?></td>
                         </tr>
                     <?php } ?>

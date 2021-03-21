@@ -79,11 +79,45 @@ $this->registerJs('
         }
         ?>
 
-        <?php if ($count) { ?>
-            <table class="table table-striped table-bordered">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <?php if ($count) {
+            $this->registerJs("
+$(document).on('click','.select-on-check-all',function(e) {
+    var checked=this.checked;
+    $('.export-table input[type=\"checkbox\"]:enabled').each(function() {
+        this.checked=checked;
+        if (checked == this.checked) {
+            $(this).closest('table tbody tr').removeClass('active');
+
+        }
+	    if (this.checked) {
+            $(this).closest('table tbody tr').addClass('active');
+        }
+    });
+});", \yii\web\View::POS_END);
+
+            ?>
+            <table class="table table-striped table-bordered export-table">
                 <thead>
                 <tr>
-                    <th></th>
+                    <th><?= Html::checkbox('selection_all', true, ['class' => 'select-on-check-all', 'value' => 1]); ?></th>
                     <th><?= Yii::t('app/default', 'NAME') ?></th>
                     <th><?= Yii::t('app/default', 'DESCRIPTION') ?></th>
                 </tr>

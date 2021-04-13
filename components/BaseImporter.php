@@ -209,18 +209,22 @@ class BaseImporter extends Component
             }
 
             if ($queueList) {
-                if(Yii::$app->id != 'console'){
-                Yii::$app->session->addFlash('success', Yii::t('csv/default', 'QUEUE_ADD', [
-                    'type' => $this->type,
-                    'count' => count($queueList)
-                ]));
+                if (Yii::$app->id != 'console') {
+                    Yii::$app->session->addFlash('success', Yii::t('csv/default', 'QUEUE_ADD', [
+                        'type' => $this->type,
+                        'count' => count($queueList)
+                    ]));
                 }
                 $list = array_chunk($queueList, $this->job_rows, true);
                 /** @var Queue $q */
                 $q = Yii::$app->queue;
                 Yii::$app->settings->set('app', ['queue_default' => time()]);
                 foreach ($list as $index => $items) {
-                    $q->priority($index)->push(new QueueImport(['rows' => $items, 'type' => $this->type]));
+                    $q->priority($index)->push(new QueueImport([
+                        'rows' => $items,
+                        'type' => $this->type,
+                        'remove_images' => $this->deleteDownloadedImages
+                    ]));
                 }
             }
             //  }
@@ -547,7 +551,7 @@ class BaseImporter extends Component
             $row['created_at'] = time();
             $row['updated_at'] = time();
             $this->currentRow = $row;
-           // return array_filter($row); // Remove empty keys and return result
+            // return array_filter($row); // Remove empty keys and return result
             return $row; // Remove empty keys and return result
 
         } else {

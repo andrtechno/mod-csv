@@ -346,7 +346,10 @@ class Importer extends Component
             /** @var Queue $q */
             $q = Yii::$app->queue;
             foreach ($list as $index => $items) {
-                $q->priority($index)->push(new QueueImport(['rows' => $items]));
+                $q->priority($index)->push(new QueueImport([
+                    'rows' => $items,
+                    'remove_images' => $this->deleteDownloadedImages
+                ]));
             }
         }
     }
@@ -401,6 +404,7 @@ class Importer extends Component
         }
 
         if (!$hasDeleted) {
+
             if (isset($data['Категория']) || !empty($data['Категория'])) {
                 $category_id = $this->getCategoryByPath($data['Категория']);
             }
@@ -563,7 +567,6 @@ class Importer extends Component
                         foreach ($imagesArray as $n => $im) {
                             $imageName = $model->id . '_' . basename($im);
                             $externalFinderImage = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName);
-
                             if (!$externalFinderImage) {
                                 $images = $model->getImages();
                                 if ($images) {
@@ -580,6 +583,7 @@ class Importer extends Component
                                     }
                                 }
                                 $image = Image::create(trim($im));
+
                                 if ($image) {
 
                                     $result = $model->attachImage($image, true);

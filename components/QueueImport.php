@@ -7,10 +7,18 @@ use yii\queue\RetryableJobInterface;
 use yii\base\BaseObject;
 use yii\helpers\Console;
 
+/**
+ * Class QueueImport
+ * @property array $rows
+ * @property integer $line
+ * @property boolean $remove_images
+ * @package panix\mod\csv\components
+ */
 class QueueImport extends BaseObject implements RetryableJobInterface
 {
     public $rows;
     public $line;
+    public $remove_images;
 
     /**
      * @param \yii\queue\Queue $queue
@@ -19,9 +27,10 @@ class QueueImport extends BaseObject implements RetryableJobInterface
     public function execute($queue)
     {
         $importer = new Importer();
+        $importer->deleteDownloadedImages = $this->remove_images;
         $i = 0;
         $count = count($this->rows);
-       // echo count($this->rows);die;
+        // echo count($this->rows);die;
         $errors = [];
         echo Console::startProgress($i, $count, $queue->getWorkerPid() . ' - ', 100) . PHP_EOL;
         foreach ($this->rows as $line => $row) {

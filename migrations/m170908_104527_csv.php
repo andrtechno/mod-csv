@@ -9,7 +9,7 @@
  * Class m170908_104527_csv
  */
 
-use yii\db\Migration;
+use panix\engine\db\Migration;
 
 class m170908_104527_csv extends Migration
 {
@@ -17,12 +17,18 @@ class m170908_104527_csv extends Migration
 
     public function up()
     {
-        $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci ENGINE=InnoDB';
+        $tableOptions = null;
+        if ($this->db->driverName === 'mysql') {
+            $tableOptions = 'CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci ENGINE=InnoDB';
+        } else if ($this->db->driverName === 'pgsql') {
+            $this->execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+        }
+
         $this->createTable('{{%csv}}', [
-            'id' => $this->primaryKey()->unsigned(),
+            'id' => ($this->db->driverName === 'pgsql') ? "uuid DEFAULT uuid_generate_v4()" : $this->primaryKey()->unsigned(),
             'object_id' => $this->integer()->unsigned()->null(),
             'object_type' => $this->tinyInteger()->null(),
-            'external_id' => $this->integer()->unsigned()->null(),
+            'external_id' => ($this->db->driverName === 'mysql') ? $this->integer()->unsigned()->null() : $this->bigInteger()->unsigned()->null(),
             'external_data' => $this->string(255)->null(),
         ], $tableOptions);
 

@@ -23,7 +23,7 @@ php composer require --prefer-dist panix/mod-csv "*"
 or add
 
 ```
-"panix/mod-csv": "*"
+"panix/mod-csv": "^0"
 ```
 
 to the require section of your `composer.json` file.

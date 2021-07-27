@@ -53,6 +53,7 @@ class AttributesProcessor extends Component
         'Поставщик',
         'Наличие',
         'Скидка',
+        'Связи',
         'Конфигурация',
         'deleted'
     ];
@@ -269,7 +270,8 @@ class AttributesProcessor extends Component
         $attributes['Валюта'] = Yii::t('shop/Product', 'CURRENCY_ID');
         $attributes['Цена'] = Yii::t('shop/Product', 'PRICE');
         $attributes['Цена закупки'] = Yii::t('shop/Product', 'PRICE_PURCHASE');
-        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS') . ' (В ячейке необходимо указать название конфигурации, например <code>Вес</code>). Для удаления конфигурации из товара в ячейке необходимо указать - <code>no</code>.';
+        $attributes['Связи'] = 'Связи<br/>происходят по атрибутам товаров например: <code>AA123;AB124;AC125</code>';
+        $attributes['Конфигурация'] = Yii::t('shop/Product', 'USE_CONFIGURATIONS') . '<br/> (В ячейке необходимо указать название атрибута и артикулы товаров, например <code>Вес=AA123,AB123</code>).<br/> Для удаления конфигурации из товара в ячейке необходимо указать - <code>no</code>.<br/>ВАЖНО товары указанные должно быть одного производителя';
         $attributes['Скидка'] = Yii::t('shop/Product', 'DISCOUNT');
         $attributes['unit'] = Yii::t('shop/Product', 'UNIT') . '<br/>' . $units;
         $attributes['switch'] = Yii::t('csv/default', 'Скрыть или показать. Принимает значение <code>1</code> &mdash; показать <code>0</code> - скрыть.');

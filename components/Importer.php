@@ -19,6 +19,7 @@ use panix\mod\shop\models\Product;
 use panix\mod\images\behaviors\ImageBehavior;
 use panix\mod\shop\models\Currency;
 use yii\base\Exception;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yii\queue\Queue;
 use yii\web\UploadedFile;
@@ -420,6 +421,20 @@ class Importer extends Component
             } else {
                 $model->switch = 1;
             }
+
+
+            //Если товар используеться в чейто конфигурации то скрываем
+            if (!$model->isNewRecord) {
+                $query = new Query();
+                $query->select('*')->from('{{%shop__product_configurations}}')
+                    ->where(['configurable_id' => $model->id]);
+                $configurable = $query->one();
+                if ($configurable) {
+                    //  CMS::dump($configurable);die;
+                    $model->switch = 0;
+                }
+            }
+
             if (isset($data['Цена']) && !empty($data['Цена'])) {
                 $model->price = $data['Цена'];
             }
@@ -499,29 +514,64 @@ class Importer extends Component
 
                 $this->stats[(($model->isNewRecord) ? 'create' : 'update')]++;
 
+                if (isset($data['Связи']) && !empty($data['Связи'])) {
+                    $this->processRelation($model, $data['Связи']);
+                }
+
                 // Save product
                 $model->save();
                 if ($model->use_configurations) {
                     if (isset($data['Конфигурация'])) {
+
                         $db = $model::getDb()->createCommand();
                         if (!empty($data['Конфигурация']) && $data['Конфигурация'] != 'no') {
                             $configure_attribute_list = explode(';', $data['Конфигурация']);
-                            $configureIds = [];
                             $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
-                            foreach ($configure_attribute_list as $configure_attribute) {
+                            $db->delete('{{%shop__product_configurations}}', ['product_id' => $model->id])->execute();
+
+                            foreach ($configure_attribute_list as $configure_attribute_item) {
+                                list($config_attribute, $cofigure_items) = explode('=', $configure_attribute_item);
+                                $items = explode(',', $cofigure_items);
+
+
+                                // foreach ($configure_attribute_list as $configure_attribute) {
                                 // $configure = Attribute::findOne(['name' => CMS::slug($configure_attribute, '_')]);
-                                $configure = $attributes->getAttributeByName(CMS::slug($configure_attribute, '_'), $configure_attribute);
+                                $configure = $attributes->getAttributeByName(CMS::slug($config_attribute, '_'), $config_attribute);
 
                                 $db->insert('{{%shop__product_configurable_attributes}}', [
                                     'product_id' => $model->id,
                                     'attribute_id' => $configure->id
                                 ])->execute();
+                                // }
+
+                                foreach ($items as $item) {
+                                    $query = new Query();
+                                    $query->select('id,manufacturer_id')
+                                        ->from('{{%shop__product}}')
+                                        ->where(['sku' => trim($item), 'manufacturer_id' => $model->manufacturer_id]);
+                                    $product = $query->one(); //items for else many duplicate sku
+                                    if ($product) {
+                                        $db->insert('{{%shop__product_configurations}}', [
+                                            'product_id' => $model->id,
+                                            'configurable_id' => $product['id']
+                                        ])->execute();
+
+                                        $db->update(Product::tableName(), ['switch' => 0], ['id' => $product['id']])->execute();
+                                    }
+                                }
                             }
+
                         } else {
                             $db->update(Product::tableName(), [
                                 'use_configurations' => 0,
                             ], ['id' => $model->id])->execute();
                             $db->delete('{{%shop__product_configurable_attributes}}', ['product_id' => $model->id])->execute();
+
+
+                            $db->delete('{{%shop__product_configurations}}', [
+                                'product_id' => $model->id,
+                            ])->execute();
+
                         }
 
                     }
@@ -625,6 +675,31 @@ class Importer extends Component
                 ];
             }
         }
+    }
+
+    public function processRelation($model, $data)
+    {
+        $ids = [];
+        if ($data != 'no') {
+            $relatedIds = explode(';', $data);
+
+
+            foreach ($relatedIds as $item) {
+                $query = new Query();
+                $query->select('id')
+                    ->from('{{%shop__product}}')
+                    ->where(['sku' => trim($item)]);
+                $products = $query->all(); //items for else many duplicate sku
+
+                foreach ($products as $product) {
+                    $ids[] = $product['id'];
+                }
+
+            }
+
+        }
+        $model->setRelatedProducts($ids);
+
     }
 
     /**

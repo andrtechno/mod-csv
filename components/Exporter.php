@@ -13,6 +13,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use yii\db\Query;
 
 class Exporter
 {
@@ -108,10 +109,43 @@ class Exporter
                         if ($attributeModels) {
                             $list = [];
                             foreach ($attributeModels as $configure) {
-                                $list[] = $configure->title_ru;
+
+
+                                $query = new Query();
+                                $query->select('configurable_id')
+                                    ->from('{{%shop__product_configurations}}')
+                                    ->where(['product_id' => $p->id]);
+                                $configurables = $query->all();
+
+                                $configurableIds = [];
+                                foreach ($configurables as $configurable) {
+                                    $configurableIds[] = $configurable['configurable_id'];
+                                }
+
+
+                                $query = new Query();
+                                $query->select('sku')
+                                    ->from('{{%shop__product}}')
+                                    ->where(['id' => $configurableIds]);
+                                $products = $query->all();
+                                $ids = [];
+                                foreach ($products as $item) {
+                                    $ids[] = $item['sku'];
+                                }
+                                $list[] = $configure->title_ru . '=' . implode(',', $ids);
                             }
                             $value = implode(';', $list);
+
                         }
+                    }
+                } elseif ($attr === 'Связи') {
+                    $value = '';
+                    if ($p->relatedProducts) {
+                        $ids = [];
+                        foreach ($p->relatedProducts as $relatedProduct) {
+                            $ids[] = $relatedProduct->sku;
+                        }
+                        $value = implode(';', $ids);
                     }
 
                 } elseif ($attr === 'wholesale_prices') {

@@ -86,7 +86,9 @@ use panix\mod\csv\components\AttributesProcessor;
                 echo $form->field($model, 'filename')
                     ->fileInput(['multiple' => false])
                     ->hint(Yii::t('csv/default', 'FILE_INPUT_HINT', [CMS::fileSize($model::file_csv_max_size), implode(', ', $model::$extension)]));
+                echo $form->field($model, 'language')->dropdownList(\yii\helpers\ArrayHelper::map(\panix\mod\admin\models\Languages::find()->published()->all(), 'code', 'name'),['prompt'=>'---']);
                 echo $form->field($model, 'remove_images')->checkbox([]);
+
                 //echo $form->field($model, 'db_backup')->checkbox([]);
                 ?>
                 <div class="form-group text-center">

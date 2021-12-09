@@ -77,8 +77,10 @@ class AttributesProcessor extends Component
      * @param Product $product
      * @param array $data
      */
-    public function __construct(Product $product, array $data)
+    public function __construct($product, array $data)
     {
+		
+
         $this->model = $product;
         $this->data = $data;
         $this->process();
@@ -107,6 +109,7 @@ class AttributesProcessor extends Component
                 }
             } catch (Exception $e) {
                 // Process eav
+
                 if (!in_array($key, self::skipNames)) {
 
                     //if (substr($key, 0, 4) === 'eav_')
@@ -117,10 +120,12 @@ class AttributesProcessor extends Component
 
                     if (!empty($val)) {
                         $this->eav[$key] = $this->processEavData($name, $key, $val);
+
                     }
                 }
             }
         }
+
     }
 
     /**
@@ -248,7 +253,7 @@ class AttributesProcessor extends Component
     {
         $attributes = [];
         $units = '';
-        $product = new Product;
+        $product = Yii::$app->getModule('shop')->model('Product');
         foreach ($product->getUnits() as $id => $unit) {
             $units .= '<code>' . $unit . '</code><br/>';
         }
@@ -287,12 +292,12 @@ class AttributesProcessor extends Component
         }*/
 
         if ($type_id) {
-            $type = ProductType::findOne($type_id);
+            $type = Yii::$app->getModule('shop')->model('ProductType')::findOne($type_id);
             foreach ($type->shopAttributes as $attr) {
                 $attributes[$attr->title_ru] = $attr->title_ru;
             }
         } else {
-            foreach (Attribute::find()->asArray()->all() as $attr) {
+            foreach (Yii::$app->getModule('shop')->model('Attribute')::find()->asArray()->all() as $attr) {
                 $attributes[$attr['title_ru']] = $attr['title_ru'];
             }
         }

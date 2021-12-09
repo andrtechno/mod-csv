@@ -1,6 +1,7 @@
 <?php
 return [
     'MODULE_NAME' => 'CSV,XLSX,XLS',
+    'LANGUAGE' => 'Язык',
     'MODULE_DESC' => 'Импорт товаров, категорий, свойств из CSV,XLS XLSX файлов.',
     'ERROR_WRITE_BACKUP' => 'Ошибка. Директория для бэкапов недоступна для записи.',
     'IMPORT_PRODUCTS' => 'Импорт товаров',

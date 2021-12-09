@@ -24,6 +24,7 @@ class ImportForm extends Model
     public static $extension = ['csv', 'xlsx', 'xls'];
     public $filename;
     public $remove_images = true;
+    public $language;
     public $db_backup;
 
     public function rules()
@@ -31,6 +32,7 @@ class ImportForm extends Model
         return [
             [['filename'], 'file', 'extensions' => self::$extension, 'maxSize' => self::file_csv_max_size],
             [['remove_images', 'db_backup'], 'boolean'],
+            [['language'], 'required'],
         ];
     }
 
@@ -38,6 +40,7 @@ class ImportForm extends Model
     {
         return [
             'filename' => Yii::t('csv/default', 'FILENAME'),
+            'language' => Yii::t('csv/default', 'LANGUAGE'),
             'remove_images' => Yii::t('csv/default', 'REMOVE_IMAGES'),
             'db_backup' => Yii::t('csv/default', 'DB_BACKUP'),
         ];

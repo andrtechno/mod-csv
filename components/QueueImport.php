@@ -19,6 +19,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
     public $rows;
     public $line;
     public $remove_images;
+    public $language = 'ru';
 
     /**
      * @param \yii\queue\Queue $queue
@@ -27,6 +28,7 @@ class QueueImport extends BaseObject implements RetryableJobInterface
     public function execute($queue)
     {
         $importer = new Importer();
+        $importer->language = $this->language;
         $importer->deleteDownloadedImages = $this->remove_images;
         $i = 0;
         $count = count($this->rows);

@@ -2,7 +2,7 @@
 
 namespace panix\mod\csv\components;
 
-use panix\mod\shop\models\Product;
+
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yii;
 use yii\queue\RetryableJobInterface;
@@ -18,13 +18,14 @@ class QueueExport extends BaseObject implements RetryableJobInterface
     public $email_send;
     public $date;
     public $format = 'Xlsx';
+    public $language = 'ru';
     public $total_products;
 
 
     public function execute($queue)
     {
         $settings_key = 'CSV_EXPORT_' . $this->file;
-        $query = Product::find()->where(['type_id' => $this->type_id]);
+        $query = Yii::$app->getModule('shop')->model('Product')::find()->where(['type_id' => $this->type_id]);
         $query->offset($this->offset);
         $query->limit(Yii::$app->settings->get('csv', 'pagenum'));
         $filePath = Yii::getAlias('@runtime') . DIRECTORY_SEPARATOR . $this->file;
@@ -119,7 +120,7 @@ class QueueExport extends BaseObject implements RetryableJobInterface
     public function execute2($queue)
     {
 
-        $query = Product::find()->where(['type_id' => $this->type_id]);
+        $query = Yii::$app->getModule('shop')->model('Product')::find()->where(['type_id' => $this->type_id]);
         $query->offset($this->offset);
         $query->limit(Yii::$app->settings->get('csv', 'pagenum'));
 

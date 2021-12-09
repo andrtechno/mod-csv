@@ -162,6 +162,7 @@ class DefaultController extends AdminController
                 $wrnImport = 0;
                 if ($importer->validate() && !$importer->hasErrors()) {
                     Yii::$app->session->setFlash('success', Yii::t('csv/default', 'SUCCESS_IMPORT'));
+                    $importer->language=$model->language;
                     $importer->import();
 
                     foreach ($importer->getErrors() as $error) {
@@ -253,7 +254,7 @@ class DefaultController extends AdminController
 
         $get = Yii::$app->request->get();
         $model = new FilterForm();
-        $query = Product::find();
+        $query = Yii::$app->getModule('shop')->model('Product')::find();
         $count = 0;
         $pages = false;
 
@@ -264,7 +265,11 @@ class DefaultController extends AdminController
                     $manufacturers = explode(',', $model->manufacturer_id);
                     $query->applyManufacturers($manufacturers);
                 }
-
+                if ($get['FilterForm']['language'] !== '') {
+                    //$manufacturers = explode(',', $model->manufacturer_id);
+                   // $query->translation(2);
+                }
+              //  echo $query->createCommand()->rawsql;die;
                 $query->andWhere(['type_id' => $model->type_id]);
 
                 $count = $query->count();
@@ -361,7 +366,7 @@ class DefaultController extends AdminController
                     ]);
             }
 
-            $products = Product::find()->all();
+            $products = Yii::$app->getModule('shop')->model('Product')::find()->all();
             foreach ($products as $product) {
                 $rows[] = [$product->id, $product->name, $product->price];
             }
@@ -381,7 +386,7 @@ class DefaultController extends AdminController
 
         if (Yii::$app->request->get('attributes')) {
             $exporter->export(
-                Yii::$app->request->get('attributes'), $query
+                Yii::$app->request->get('attributes'), $query, Yii::$app->request->get('FilterForm')['language']
             );
         }
 

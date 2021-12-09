@@ -14,7 +14,7 @@ use panix\mod\csv\components\AttributesProcessor;
  */
 
 $this->registerJs('
-    $(document).on("change","#manufacturer_id, #type_id, #filterform-manufacturer_id, #filterform-type_id, #filterform-format", function(){
+    $(document).on("change","#manufacturer_id, #type_id, #filterform-manufacturer_id, #filterform-language, #filterform-type_id, #filterform-format", function(){
         var fields = [];
         $.each($("#csv-form").serializeArray(), function(i, field){
             fields[field.name]=field.value;
@@ -34,9 +34,10 @@ $this->registerJs('
     <div class="card-body">
         <?php
         $form = ActiveForm::begin(['id' => 'csv-form', 'method' => 'GET']);
-        echo $form->field($model, 'manufacturer_id')->dropDownList(ArrayHelper::map(Manufacturer::find()->all(), 'id', 'name'), ['prompt' => '-']);
-        echo $form->field($model, 'type_id')->dropDownList(ArrayHelper::map(ProductType::find()->all(), 'id', 'name'), ['prompt' => '-']);
+        echo $form->field($model, 'manufacturer_id')->dropDownList(ArrayHelper::map(Yii::$app->getModule('shop')->model('Manufacturer')::find()->all(), 'id', 'name'), ['prompt' => '-']);
+        echo $form->field($model, 'type_id')->dropDownList(ArrayHelper::map(Yii::$app->getModule('shop')->model('ProductType')::find()->all(), 'id', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'format')->dropDownList(['csv' => 'csv', 'xls' => 'xls', 'xlsx' => 'xlsx']);
+        echo $form->field($model, 'language')->dropDownList(\yii\helpers\ArrayHelper::map(\panix\mod\admin\models\Languages::find()->published()->all(), 'code', 'name'), ['prompt' => '-']);
         echo $form->field($model, 'page')->hiddenInput()->label(false);
 
         ?>

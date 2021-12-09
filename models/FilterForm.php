@@ -19,12 +19,13 @@ class FilterForm extends Model
     public $type_id;
     public $manufacturer_id;
     public $format;
+    public $language;
     public $page = 250;
 
     public function rules()
     {
         return [
-            [['type_id', 'format', 'page'], 'required'],
+            [['type_id', 'format', 'page','language'], 'required'],
             [['manufacturer_id', 'page'], 'integer'],
             ['page', 'integer', 'min' => 100, 'max' => 1000],
         ];
@@ -34,6 +35,7 @@ class FilterForm extends Model
     {
         return [
             'type_id' => Yii::t('shop/Product', 'TYPE_ID'),
+            'language' => Yii::t('csv/default', 'LANGUAGE'),
             'manufacturer_id' => Yii::t('shop/Product', 'MANUFACTURER_ID'),
             'format' => Yii::t('csv/default', 'EXPORT_FORMAT'),
             'page' => Yii::t('csv/default', 'PAGE'),

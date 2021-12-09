@@ -14,6 +14,7 @@ class Module extends WebModule implements BootstrapInterface
     public $icon = 'file-csv';
     public $mailPath = '@csv/mail';
     public $uploadPath = '@uploads/csv_import_image';
+    public $externalClass;
     /**
      * @inheritdoc
      */

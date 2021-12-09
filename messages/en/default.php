@@ -1,6 +1,7 @@
 <?php
 return [
     'MODULE_NAME' => 'CSV, XLSX, XLS',
+    'LANGUAGE'=>'Language',
     'MODULE_DESC' => 'Import products, categories, properties from CSV, XLS XLSX files.',
     'ERROR_WRITE_BACKUP' => 'Error. The directory for backups is not writable. ',
     'IMPORT_PRODUCTS' => 'Importing Products',

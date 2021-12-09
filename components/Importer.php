@@ -136,7 +136,10 @@ class Importer extends Component
 
     public function __construct(array $config = [])
     {
-        $this->external = new ExternalFinder('{{%csv}}');
+       // $this->external = new ExternalFinder('{{%csv}}');
+        $class = Yii::$app->getModule('csv')->externalClass;
+        $this->external = new $class('{{%csv}}');
+        //externalClass
         parent::__construct($config);
     }
 
@@ -277,7 +280,7 @@ class Importer extends Component
     }
 
     public $skipRows = []; //@todo: need test
-
+    public $language = 'ru';
     /**
      * Here we go
      */
@@ -299,7 +302,7 @@ class Importer extends Component
             return [];
         });
         $columns = $this->columns[1];
-
+//CMS::dump($columns);die;
         foreach ($columns as $columnIndex => $row) {
             $this->line = $columnIndex;
             if (isset($row['Наименование'], $row['Цена'], $row['Категория'], $row['Тип'])) {
@@ -349,6 +352,7 @@ class Importer extends Component
             foreach ($list as $index => $items) {
                 $q->priority($index)->push(new QueueImport([
                     'rows' => $items,
+                    'language' => $this->language,
                     'remove_images' => $this->deleteDownloadedImages
                 ]));
             }
@@ -385,7 +389,7 @@ class Importer extends Component
         // }
 
         //$model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $data['Наименование']);
-        $model = $this->external->getObject(ExternalFinder::OBJECT_PRODUCT, $full_name);
+        $model = $this->external->getObject(Yii::$app->getModule('csv')->externalClass::OBJECT_PRODUCT, $full_name);
         // $model = $query->one();
         $hasDeleted = false;
 
@@ -395,13 +399,21 @@ class Importer extends Component
             $this->totalProductCount++;
             if (isset($data['deleted']) && $data['deleted']) {
                 $hasDeleted = true;
+				//echo $full_name;
+				//echo \panix\engine\CMS::hash($full_name, true);
+				//echo '22';
+				//die;
             }
+			
         } else {
             if (isset($data['deleted']) && $data['deleted']) {
                 $this->stats['deleted']++;
                 $hasDeleted = true;
                 $model->delete();
+			  // echo '11';
+			  // die;
             }
+			
         }
 
         if (!$hasDeleted) {
@@ -440,7 +452,7 @@ class Importer extends Component
             }
 
             if (isset($data['Наименование']) && !empty($data['Наименование'])) {
-                $model->name = $data['Наименование'];
+                $model->{"name_".$this->language} = $data['Наименование'];
             }
 
 
@@ -466,7 +478,7 @@ class Importer extends Component
                 $model->sku = $data['Артикул'];
 
             if (isset($data['Описание']) && !empty($data['Описание']))
-                $model->full_description = $data['Описание'];
+                $model->{"full_description_".$this->language} = $data['Описание'];
 
             if (isset($data['Наличие']) && !empty($data['Наличие']))
                 $model->availability = (is_numeric($data['Наличие'])) ? $data['Наличие'] : 1;
@@ -580,7 +592,7 @@ class Importer extends Component
 
                 // Create product external id
                 if ($newProduct === true) {
-                    $this->external->createExternalId(ExternalFinder::OBJECT_PRODUCT, $model->id, $full_name);
+                    $this->external->createExternalId(Yii::$app->getModule('csv')->externalClass::OBJECT_PRODUCT, $model->id, $full_name);
                 }
 
 
@@ -616,18 +628,18 @@ class Importer extends Component
                         // } else {
                         foreach ($imagesArray as $n => $im) {
                             $imageName = $model->id . '_' . basename($im);
-                            $externalFinderImage = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName);
+                            $externalFinderImage = $this->external->getObject(Yii::$app->getModule('csv')->externalClass::OBJECT_IMAGE, $imageName);
                             if (!$externalFinderImage) {
                                 $images = $model->getImages();
                                 if ($images) {
                                     foreach ($images as $image) {
                                         //$mi = $model->removeImage($image);
                                         // if ($mi) {
-                                        $externalFinderImage2 = $this->external->getObject(ExternalFinder::OBJECT_IMAGE, $imageName, true, false, true);
+                                        $externalFinderImage2 = $this->external->getObject(Yii::$app->getModule('csv')->externalClass::OBJECT_IMAGE, $imageName, true, false, true);
                                         if ($externalFinderImage2) {
                                             $mi = $model->removeImage($image);
                                             $externalFinderImage2->delete();
-                                            $this->external->removeByPk(ExternalFinder::OBJECT_IMAGE, $image->id);
+                                            $this->external->removeByPk(Yii::$app->getModule('csv')->externalClass::OBJECT_IMAGE, $image->id);
                                         }
                                         // }
                                     }
@@ -646,7 +658,7 @@ class Importer extends Component
                                             'line' => $this->line,
                                             'error' => $imageName . ' ' . $result->id
                                         ];*/
-                                        $this->external->createExternalId(ExternalFinder::OBJECT_IMAGE, $result->id, $imageName);
+                                        $this->external->createExternalId(Yii::$app->getModule('csv')->externalClass::OBJECT_IMAGE, $result->id, $imageName);
                                     } else {
                                         $this->errors[] = [
                                             'line' => $this->line,
@@ -757,7 +769,7 @@ class Importer extends Component
             return $this->supplierCache[$name];
 
 
-        $model = $this->external->getObject(ExternalFinder::OBJECT_SUPPLIER, trim($name), true);
+        $model = $this->external->getObject(Yii::$app->getModule('csv')->externalClass::OBJECT_SUPPLIER, trim($name), true);
 
         if (!$model) {
             $exist = Supplier::findOne(['name' => trim($name)]);
@@ -769,7 +781,7 @@ class Importer extends Component
             }
 
             if ($model->save()) {
-                $this->external->createExternalId(ExternalFinder::OBJECT_SUPPLIER, $model->id, $model->name);
+                $this->external->createExternalId(Yii::$app->getModule('csv')->externalClass::OBJECT_SUPPLIER, $model->id, $model->name);
             }
         }
 
@@ -788,7 +800,7 @@ class Importer extends Component
             return $this->manufacturerCache[$name];
 
 
-        $model = $this->external->getObject(ExternalFinder::OBJECT_MANUFACTURER, trim($name), true);
+        $model = $this->external->getObject(Yii::$app->getModule('csv')->externalClass::OBJECT_MANUFACTURER, trim($name), true);
 
         // $query = Manufacturer::find()
         //    ->where(['name' => trim($name)]);
@@ -804,7 +816,7 @@ class Importer extends Component
                 $model->slug = CMS::slug($model->name_ru);
             }
             if ($model->save()) {
-                $this->external->createExternalId(ExternalFinder::OBJECT_MANUFACTURER, $model->id, $model->name_ru);
+                $this->external->createExternalId(Yii::$app->getModule('csv')->externalClass::OBJECT_MANUFACTURER, $model->id, $model->name_ru);
             }
 
         }

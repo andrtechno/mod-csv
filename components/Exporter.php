@@ -53,7 +53,7 @@ class Exporter
      * @param array $attributes
      * @param $query \panix\mod\shop\models\query\ProductQuery
      */
-    public function export(array $attributes, $query)
+    public function export(array $attributes, $query, $language='ru')
     {
         $this->rows[0] = $attributes;
 
@@ -62,7 +62,7 @@ class Exporter
                 $v = substr($v, 4);
         }*/
 
-
+//Yii::$app->language=$language; //global change language
         /** @var Product $p */
         foreach ($query->all() as $p) {
             $row = [];
@@ -83,7 +83,8 @@ class Exporter
                 } elseif ($attr === 'Тип') {
                     $value = $p->type->name;
                 } elseif ($attr === 'Наименование') {
-                    $value = $p->name;
+
+                    $value = $p->{"name_".$language};
                 } elseif ($attr === 'Цена') {
                     $value = $p->price;
                 } elseif ($attr === 'Цена закупки') {
@@ -100,7 +101,7 @@ class Exporter
                 } elseif ($attr === 'Количество') {
                     $value = $p->quantity;
                 } elseif ($attr === 'Описание') {
-                    $value = $p->full_description;
+                    $value = $p->{"full_description_".$language};
                 } elseif ($attr === 'Конфигурация') {
                     $value = '';
                     if ($p->use_configurations) {
@@ -194,7 +195,7 @@ class Exporter
      * @param Product $product
      * @return string
      */
-    public function getCategory(Product $product)
+    public function getCategory($product)
     {
 
         $category = $product->mainCategory;
@@ -226,7 +227,7 @@ class Exporter
      * @param Product $product
      * @return string
      */
-    public function getAdditionalCategories(Product $product)
+    public function getAdditionalCategories($product)
     {
         $mainCategory = $product->mainCategory;
         $categories = $product->categories;
@@ -260,7 +261,7 @@ class Exporter
      * @param Product $product
      * @return mixed|string
      */
-    public function getManufacturer(Product $product)
+    public function getManufacturer($product)
     {
         if (isset($this->manufacturerCache[$product->manufacturer_id]))
             return $this->manufacturerCache[$product->manufacturer_id];
@@ -276,7 +277,7 @@ class Exporter
      * @param Product $product
      * @return mixed|string
      */
-    public function getCurrency(Product $product)
+    public function getCurrency($product)
     {
         if (isset($this->currencyCache[$product->currency_id]))
             return $this->currencyCache[$product->currency_id];
@@ -300,7 +301,7 @@ class Exporter
             if ($get['manufacturer_id'] == 'all') {
                 $filename .= 'all_';
             } else {
-                $manufacturer = Manufacturer::findOne($get['manufacturer_id']);
+                $manufacturer = Yii::$app->getModule('shop')->model('Manufacturer')::findOne($get['manufacturer_id']);
                 if ($manufacturer) {
                     $filename .= $manufacturer->name . '_';
                 }
@@ -308,7 +309,7 @@ class Exporter
         }
 
         if ($get['type_id']) {
-            $type = ProductType::findOne($get['type_id']);
+            $type = Yii::$app->getModule('shop')->model('ProductType')::findOne($get['type_id']);
             if ($type) {
                 $filename .= $type->name . '_';
             }
